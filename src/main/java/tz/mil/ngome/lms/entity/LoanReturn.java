@@ -1,6 +1,7 @@
 package tz.mil.ngome.lms.entity;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,6 +12,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
 public class LoanReturn extends BaseEntity {
 	
 	@Column(nullable = false, length = 16)
