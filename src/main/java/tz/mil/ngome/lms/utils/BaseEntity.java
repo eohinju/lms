@@ -1,4 +1,5 @@
-package tz.mil.ngome.lms.entity;
+package tz.mil.ngome.lms.utils;
+
 
 import java.time.LocalDateTime;
 
@@ -58,4 +59,6 @@ public class BaseEntity {
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
 	
+
+
 }
