@@ -18,6 +18,7 @@ public class MemberServiceImplementation implements MemberService {
 	public Member registerMember(MemberDto memberDto) {
 		Member member = new Member();
 		BeanUtils.copyProperties(memberDto, member, "id");
+		member.setCreatedBy("System");
 		Member savedMember = memberRepo.save(member);
 		return savedMember;
 	}
