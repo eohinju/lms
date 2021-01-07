@@ -1,5 +1,18 @@
 package tz.mil.ngome.lms.utils;
 
-public class Response {
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Response<T> {
+
+	private int code;
+	private String message = "No message available";
+	private T data;
+	
 }

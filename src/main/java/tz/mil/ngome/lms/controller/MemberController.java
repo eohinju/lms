@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import tz.mil.ngome.lms.dto.MemberDto;
 import tz.mil.ngome.lms.entity.Member;
 import tz.mil.ngome.lms.service.MemberService;
+import tz.mil.ngome.lms.utils.Response;
 
 @CrossOrigin( origins = "*", allowedHeaders = "*")
 @RestController
@@ -21,7 +22,7 @@ public class MemberController {
 	MemberService memberService;
 
 	@PostMapping(value = "register-member", consumes = MediaType.APPLICATION_JSON_VALUE)
-	private Member registerMember(@RequestBody MemberDto memberDto) {
+	private Response<Member> registerMember(@RequestBody MemberDto memberDto) {
 		return this.memberService.registerMember(memberDto);
 	}
 	
