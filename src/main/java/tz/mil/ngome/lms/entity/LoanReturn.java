@@ -2,6 +2,8 @@ package tz.mil.ngome.lms.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,13 +18,14 @@ import tz.mil.ngome.lms.utils.BaseEntity;
 @Entity
 public class LoanReturn extends BaseEntity {
 	
-	@Column(nullable = false, length = 16)
-	private String loan;
+	@ManyToOne
+	@JoinColumn(nullable = false,referencedColumnName = "id")
+	private Loan loan;
 	
-	@Column(nullable = false, length = 20)
+	@Column(nullable = false)
 	private int amount;
 	
-	@Column(nullable = false, length = 16)
+	@Column(nullable = false, length = 7)
 	private String month;
 
 }

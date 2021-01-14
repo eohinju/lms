@@ -25,7 +25,7 @@ public class Contribution extends BaseEntity {
 	@Column(nullable = false)
 	private int amount;
 	
-	@Column(nullable = false, length = 16)
+	@Column(nullable = false, length = 7)
 	private String month;
 
 }

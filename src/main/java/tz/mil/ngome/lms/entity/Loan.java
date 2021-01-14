@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import tz.mil.ngome.lms.entity.LoanType.Period;
 import tz.mil.ngome.lms.utils.BaseEntity;
 
 @Getter
@@ -26,10 +27,22 @@ public class Loan extends BaseEntity {
 	@JoinColumn(nullable = false,referencedColumnName = "id")
 	private LoanType loanType;
 	
-	@Column(nullable = false, length = 16)
+	@Column(nullable = false)
 	private int amount;
 	
-	@Column(nullable = false, length = 16)
+	@Column(nullable = false)
 	private int returns;
+	
+	private String unit;
+	
+	private String subUnit;
+	
+	private String loanName;
+	
+	private int interest;
+	
+	private int periods;
+	
+	private Period period;
 
 }

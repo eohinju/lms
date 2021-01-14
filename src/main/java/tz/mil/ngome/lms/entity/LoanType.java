@@ -19,16 +19,22 @@ public class LoanType extends BaseEntity {
 	@Column(nullable = false, length = 16)
 	private String nameOfLoan;
 	
-	@Column(nullable = false, length = 5)
+	@Column(nullable = false)
+	private double interest;
+	
+	@Column(nullable = false)
 	private int min;
 	
-	@Column(nullable = false, length = 5)
+	@Column(nullable = false)
 	private int max;
 	
-	@Column(nullable = false, length = 5)
+	@Column(nullable = false)
 	private int convertionPeriods;
 	
-	@Column(nullable = false, length = 5)
-	private int periodSize;
+	@Column(nullable = false)
+	private Period period;
 
+	public enum Period{
+		DAY, WEEK, MONTH, YEAR
+	}
 }

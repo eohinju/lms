@@ -23,9 +23,16 @@ public class User extends BaseEntity {
 	@Column(nullable = false, unique = true, length = 32)
 	private String username;
 	
+	@Column(length = 32)
+	private String email;
+	
 	@JsonIgnore
 	private String password;
 	
+	@Column
+	private String name;
+	
+	@Column
 	private Role role;
 	
 	public enum Role{
