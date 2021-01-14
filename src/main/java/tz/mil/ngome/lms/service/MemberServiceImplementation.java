@@ -1,6 +1,5 @@
 package tz.mil.ngome.lms.service;
 
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,9 +21,9 @@ public class MemberServiceImplementation implements MemberService {
 	public Response<Member> registerMember(MemberDto memberDto) {
 		Response<Member> response = new Response<Member>();
 		Member member = new Member();
-		if(memberDto.getFirstName()==null || memberDto.getFirstName().isBlank() 
-				|| memberDto.getMiddleName()==null || memberDto.getMiddleName().isBlank() 
-				|| memberDto.getLastName()==null || memberDto.getLastName().isBlank()) {
+		if(memberDto.getFirstName()==null || memberDto.getFirstName().isEmpty() 
+				|| memberDto.getMiddleName()==null || memberDto.getMiddleName().isEmpty() 
+				|| memberDto.getLastName()==null || memberDto.getLastName().isEmpty()) {
 			response.setCode(ResponseCode.INCOMPLETE_DATA);
 			response.setMessage("Provide all three names");
 			return response;
