@@ -10,6 +10,7 @@ public class UserDto {
 	private String id;
 	private String username;
 	private String password;
+	private MemberDto member;
 	private Role role;
 
 }

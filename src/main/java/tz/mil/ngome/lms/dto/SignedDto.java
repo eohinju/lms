@@ -9,15 +9,12 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class MemberDto {
+public class SignedDto {
 
-	private String id;
-	private String serviceNumber;
-	private String firstName;
-	private String middleName;
-	private String lastName;
+	private String username;
+	private String name;
 	private String phone;
-	private String unit;
-	private String subUnit;
-
+	private String role;
+	private String token;
+	
 }

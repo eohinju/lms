@@ -8,5 +8,8 @@ public class ResponseCode {
 	public static final int DUPLICATE_DATA 	= 5003;
 	public static final int INCOMPLETE_DATA = 5004;
 	public static final int NOT_AUTHORIZED	= 5005;
+	public static final int INVALID_METHOD	= 5006;
+	public static final int INVALID_MEDIA	= 5007;
+	public static final int NOT_FOUND		= 5008;
 	
 }

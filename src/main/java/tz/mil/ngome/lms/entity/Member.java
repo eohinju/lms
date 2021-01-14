@@ -36,5 +36,9 @@ public class Member extends BaseEntity {
 	
 	@Column(nullable = false, length = 16)
 	private String subUnit;
+	
+	public String getName() {
+		return this.firstName+" "+this.middleName+" "+this.lastName;
+	}
 
 }

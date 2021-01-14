@@ -20,22 +20,16 @@ public class UserPrinciple implements UserDetails {
 	 
 	  	private String id;
 	 
-	    private String name;
-	 
 	    private String username;
-	 
-	    private String email;
 	    
 	    @JsonIgnore
 	    private String password;
 	    
 	    private Collection<? extends GrantedAuthority> authorities;
 
-	    public UserPrinciple(String id, String name, String username, String email, String password, List<GrantedAuthority> authorities) {
+	    public UserPrinciple(String id, String username, String password, List<GrantedAuthority> authorities) {
 	    	this.id = id;
-	    	this.setName(name);
 	    	this.username = username;
-	    	this.setEmail(email);
 	    	this.password = password;
 	    	this.authorities = authorities;
 	    }
@@ -50,9 +44,7 @@ public class UserPrinciple implements UserDetails {
 	 
 	        return new UserPrinciple(
 	                user.getId(),
-	                user.getName(),
 	                user.getUsername(),
-	                user.getEmail(),
 	                user.getPassword(),
 	                authorities
 	        );
@@ -105,21 +97,5 @@ public class UserPrinciple implements UserDetails {
 	    public String getId() {
 	    	return this.id;
 	    }
-
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		public String getEmail() {
-			return email;
-		}
-
-		public void setEmail(String email) {
-			this.email = email;
-		}
 	    
 	}

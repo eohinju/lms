@@ -1,24 +1,132 @@
 package tz.mil.ngome.lms.service;
-import org.springframework.beans.BeanUtils;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import tz.mil.ngome.lms.dto.SignDto;
+import tz.mil.ngome.lms.dto.SignedDto;
 import tz.mil.ngome.lms.dto.UserDto;
 import tz.mil.ngome.lms.entity.User;
+import tz.mil.ngome.lms.entity.User.Role;
+import tz.mil.ngome.lms.exception.DuplicateDataException;
+import tz.mil.ngome.lms.exception.InvalidDataException;
+import tz.mil.ngome.lms.repository.MemberRepository;
 import tz.mil.ngome.lms.repository.UserRepository;
+import tz.mil.ngome.lms.security.JwtProvider;
+import tz.mil.ngome.lms.utils.Response;
+import tz.mil.ngome.lms.utils.ResponseCode;
 
 @Service
 public class UserServiceImplementation implements UserService {
 
 	@Autowired
+    AuthenticationManager authenticationManager;
+	
+	@Autowired
+    JwtProvider jwtProvider;
+	
+	@Autowired
 	UserRepository userRepo;
 	
+	@Autowired
+	MemberRepository memberRepo;
+	
+	@Autowired
+    PasswordEncoder encoder;
+	
 	@Override
-	public User registerUser(UserDto userDto) {
+	public Response<String> signUp(UserDto userDto) {
+		Response<String> response = new Response<String>();
+		
+		if(userDto.getUsername()==null || userDto.getUsername().isEmpty())
+			throw new InvalidDataException("Username is required");
+			
+		if(userRepo.findByUsername(userDto.getUsername()).isPresent())
+			throw new DuplicateDataException("Username is already used");
+		
+		if(userDto.getMember()==null ||  userDto.getMember().getId()==null || !memberRepo.findById(userDto.getMember().getId()).isPresent())
+			throw new InvalidDataException("Member is required");
+		
+		if(userRepo.findByMemberId(userDto.getMember().getId()).isPresent())
+			throw new DuplicateDataException("Member already has an account");
+		
 		User user = new User();
-		BeanUtils.copyProperties(userDto, user, "id");
-		user.setCreatedBy("System");
+		user.setUsername(userDto.getUsername());
+		user.setPassword(encoder.encode(userDto.getPassword()==null?"":userDto.getPassword()));
+		user.setRole(Role.ROLE_MEMBER);
+		user.setCreatedBy("UserService");
 		User savedUser = userRepo.save(user);
-		return savedUser;
+		if(savedUser!=null) {
+			response.setCode(ResponseCode.SUCCESS);
+			response.setData("Signed up successfully");
+		}else {
+			response.setCode(ResponseCode.FAILURE);
+			response.setData("Sorry, could not sign up. Please start again");
+		}
+		return response;
+	}
+
+	@Override
+	public Response<SignedDto> signIn(SignDto signDto) {
+		Response<SignedDto> response = new Response<SignedDto>();
+		
+		if(signDto.getUsername()==null || signDto.getUsername().isEmpty())
+			throw new InvalidDataException("Username is required");
+		
+		Authentication authentication = authenticationManager.authenticate(
+        		new UsernamePasswordAuthenticationToken(
+        				signDto.getUsername(),
+        				signDto.getPassword()
+        		)
+			);        
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		String jwt = jwtProvider.generateJwtToken(authentication);
+		
+		Optional<User> oUser = userRepo.findByUsername(authentication.getName());
+		if(oUser.isPresent()) {
+			User user = oUser.get();
+			SignedDto signed = new SignedDto();
+			if(user.getMember()!=null) {
+				signed.setPhone(user.getMember().getPhone());
+				signed.setName(user.getMember().getName());
+			}else {
+				
+			}
+			signed.setRole(user.getRole().name());
+			signed.setUsername(user.getUsername());
+			signed.setToken(jwt);
+			
+			response.setCode(ResponseCode.SUCCESS);
+			response.setData(signed);
+		}else {
+			response.setCode(ResponseCode.FAILURE);
+			response.setMessage("Not authorized");
+		}
+		return response;
+	}
+
+	@Override
+	public User me() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if(authentication==null)
+			return null;
+		Optional<User> oUser = userRepo.findByUsername(authentication.getName());
+		if(oUser.isPresent())
+			return oUser.get();
+		return null;
+	}
+
+	@Override
+	public String lang() {
+		// TODO Auto-generated method stub
+		return "sw";
 	}
 
 }
