@@ -23,7 +23,7 @@ public class ExceptionsController {
 	public ResponseEntity<Response<String>> unsupportedMedia(HttpMediaTypeNotSupportedException ex){
 		Response<String> response = new Response<String>();
 		response.setCode(ResponseCode.INVALID_MEDIA);
-		response.setData("Invalid media");
+		response.setMessage("Invalid media");
 		return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
 	}
 	
@@ -31,7 +31,7 @@ public class ExceptionsController {
 	public ResponseEntity<Response<String>> unsupportedMethod(HttpRequestMethodNotSupportedException ex){
 		Response<String> response = new Response<String>();
 		response.setCode(ResponseCode.INVALID_METHOD);
-		response.setData("Invalid method");
+		response.setMessage("Invalid method");
 		return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
 	}
 	

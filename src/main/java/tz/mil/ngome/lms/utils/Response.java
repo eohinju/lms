@@ -12,7 +12,7 @@ import lombok.Setter;
 public class Response<T> {
 
 	private int code;
-	private String message = "No message available";
+	private String message = "Success";
 	private T data;
 	
 }

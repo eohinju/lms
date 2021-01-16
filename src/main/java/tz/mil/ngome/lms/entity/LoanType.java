@@ -17,7 +17,7 @@ import tz.mil.ngome.lms.utils.BaseEntity;
 public class LoanType extends BaseEntity {
 	
 	@Column(nullable = false, length = 16)
-	private String nameOfLoan;
+	private String name;
 	
 	@Column(nullable = false)
 	private double interest;
@@ -29,7 +29,7 @@ public class LoanType extends BaseEntity {
 	private int max;
 	
 	@Column(nullable = false)
-	private int convertionPeriods;
+	private int periods;
 	
 	@Column(nullable = false)
 	private Period period;
