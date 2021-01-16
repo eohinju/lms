@@ -1,5 +1,7 @@
 package tz.mil.ngome.lms.service;
 
+import java.util.List;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,22 +43,27 @@ public class LoanTypeServiceImplemention implements LoanTypeService {
 			throw new InvalidDataException("Period is required");
 		
 		LoanType loanType = new LoanType();
-		String[] ignore = {"id","period"};
+		String[] ignore = {"id"};
 		BeanUtils.copyProperties(loanTypeDto, loanType,ignore);
-		switch(loanTypeDto.getPeriod()) {
-			case "DAY":	loanType.setPeriod(Period.DAY); break;
-			case "WEEK": loanType.setPeriod(Period.WEEK); break;
-			case "MONTH": loanType.setPeriod(Period.MONTH); break;
-			case "YEAR": loanType.setPeriod(Period.YEAR);break;
-			default: throw new InvalidDataException("Invalid period");
-						
-		}
+//		switch(loanTypeDto.getPeriod()) {
+//			case 1:	loanType.setPeriod(Period.DAY); break;
+//			case 2: loanType.setPeriod(Period.WEEK); break;
+//			case 3: loanType.setPeriod(Period.MONTH); break;
+//			case 4: loanType.setPeriod(Period.YEAR);break;
+//			default: throw new InvalidDataException("Invalid period");
+//						
+//		}
 		loanType.setCreatedBy(userService.me().getId());
 		LoanType savedLoadType = loanTypeRepo.save(loanType);
 		BeanUtils.copyProperties(savedLoadType, loanTypeDto);
 		response.setCode(ResponseCode.SUCCESS);
 		response.setData(loanTypeDto);
 		return response;
+	}
+
+	@Override
+	public Response<List<LoanTypeDto>> getLoanTypes() {
+		return new Response<List<LoanTypeDto>> (ResponseCode.SUCCESS,"Success",loanTypeRepo.getLoanTypes());
 	}
 
 }

@@ -69,7 +69,7 @@ public class MemberServiceImplementation implements MemberService {
 
 	@Override
 	public Response<List<MemberDto>> getMembers() {
-		return new Response<List<MemberDto>> (ResponseCode.SUCCESS,"",memberRepo.getMembers());
+		return new Response<List<MemberDto>> (ResponseCode.SUCCESS,"Success",memberRepo.getMembers());
 	}
 
 }
