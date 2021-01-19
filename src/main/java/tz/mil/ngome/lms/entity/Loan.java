@@ -39,10 +39,16 @@ public class Loan extends BaseEntity {
 	
 	private String loanName;
 	
-	private int interest;
+	private double interest;
 	
 	private int periods;
 	
 	private Period period;
+	
+	private LoanStatus status = LoanStatus.REQUESTED;
+	
+	public enum LoanStatus{
+		REQUESTED, APPROVED, AUTHORIZED, PAID
+	}
 
 }

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import tz.mil.ngome.lms.dto.LoanTypeDto;
 import tz.mil.ngome.lms.entity.LoanType;
-import tz.mil.ngome.lms.entity.LoanType.Period;
 import tz.mil.ngome.lms.exception.InvalidDataException;
 import tz.mil.ngome.lms.repository.LoanTypeRepository;
 import tz.mil.ngome.lms.utils.Response;
