@@ -1,6 +1,7 @@
 package tz.mil.ngome.lms.service;
 import java.util.Optional;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -50,14 +51,18 @@ public class UserServiceImplementation implements UserService {
 		if(userRepo.findByUsername(userDto.getUsername()).isPresent())
 			throw new DuplicateDataException("Username is already used");
 		
-		if(userDto.getMember()==null ||  userDto.getMember().getId()==null || !memberRepo.findById(userDto.getMember().getId()).isPresent())
+		if(userDto.getMember()==null)
 			throw new InvalidDataException("Member is required");
+		
+		if(userDto.getMember().getId()==null || !memberRepo.findById(userDto.getMember().getId()).isPresent())
+			throw new InvalidDataException("Invalid member provided");
 		
 		if(userRepo.findByMemberId(userDto.getMember().getId()).isPresent())
 			throw new DuplicateDataException("Member already has an account");
 		
 		User user = new User();
-		user.setUsername(userDto.getUsername());
+		BeanUtils.copyProperties(userDto, user, "id");
+		user.setMember(memberRepo.findById(userDto.getMember().getId()).get());
 		user.setPassword(encoder.encode(userDto.getPassword()==null?"":userDto.getPassword()));
 		user.setRole(Role.ROLE_MEMBER);
 		user.setCreatedBy("UserService");
