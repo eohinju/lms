@@ -155,6 +155,26 @@ public class LoanServiceImplementation implements LoanService {
 		}else
 			throw new InvalidDataException("Invalid Loan");
 	}
+
+	@Override
+	public Response<LoanDto> disburseLoan(LoanDto loanDto) {
+		Response<LoanDto> response = new Response<LoanDto>();
+		if(loanDto.getId()==null || loanDto.getId().isEmpty())
+			throw new InvalidDataException("Invalid Loan");
+		Optional<Loan> oLoan = loanRepo.findById(loanDto.getId());
+		if(oLoan.isPresent()) {
+			Loan loan = oLoan.get();
+			if(loan.getStatus()!=LoanStatus.AUTHORIZED)
+				throw new UnauthorizedException("Loan can not be authorized");
+			loan.setStatus(LoanStatus.PAID);
+			Loan savedLoan = loanRepo.save(loan);
+			BeanUtils.copyProperties(savedLoan, loanDto);
+			response.setCode(ResponseCode.SUCCESS);
+			response.setData(loanDto);
+			return response;
+		}else
+			throw new InvalidDataException("Invalid Loan");
+	}	
 	
 	@Override
 	public Response<List<LoanDto>> getLoans() {
@@ -185,13 +205,5 @@ public class LoanServiceImplementation implements LoanService {
 	public Response<List<LoanDto>> getIncompleteDisbursedLoans() {
 		return new Response<List<LoanDto>>(ResponseCode.SUCCESS,"Success",loanRepo.getLoansByStatus(LoanStatus.PAID));
 	}
-
-	
-
-	@Override
-	public Response<LoanDto> disburseLoan(LoanDto loanDto) {
-		// TODO Auto-generated method stub
-		return null;
-	}	
 
 }
