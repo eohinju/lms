@@ -19,7 +19,7 @@ import tz.mil.ngome.lms.utils.BaseEntity;
 public class LoanReturn extends BaseEntity {
 	
 	@ManyToOne
-	@JoinColumn(nullable = false,referencedColumnName = "id")
+	@JoinColumn(name = "loan",nullable = false,referencedColumnName = "id")
 	private Loan loan;
 	
 	@Column(nullable = false)

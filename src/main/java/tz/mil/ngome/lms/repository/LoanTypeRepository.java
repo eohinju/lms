@@ -16,4 +16,10 @@ public interface LoanTypeRepository  extends JpaRepository<LoanType, String> {
 			+ "FROM LoanType AS loanType WHERE loanType.deleted=false")
 	List<LoanTypeDto> getLoanTypes();
 
+	@Query("SELECT new tz.mil.ngome.lms.dto.LoanTypeDto("
+			+ "loanType.id,loanType.name,loanType.interest,loanType.min,loanType.max,"
+			+ "loanType.periods,loanType.period)"
+			+ "FROM LoanType AS loanType WHERE loanType.id=:loanTypeId")
+	LoanTypeDto findLoanTypeById(String loanTypeId);
+
 }
