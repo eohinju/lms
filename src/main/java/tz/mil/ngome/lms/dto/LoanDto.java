@@ -1,5 +1,7 @@
 package tz.mil.ngome.lms.dto;
 
+import java.time.LocalDate;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
@@ -28,6 +30,7 @@ public class LoanDto {
 	private MemberDto member;
 	private LoanTypeDto loanType;
 	private int amount;
+	private LocalDate effectDate;
 	private int returns;
 	private String unit;
 	private String subUnit;
@@ -37,7 +40,7 @@ public class LoanDto {
 	private Period period;
 	private LoanStatus status;
 	
-	public LoanDto(String id, String memberId, String loanTypeId, int amount, 
+	public LoanDto(String id, String memberId, String loanTypeId, int amount, LocalDate effectDate,
 			int returns, String unit, String subUnit, String loanName, 
 			double interest, int periods, Period period, LoanStatus status) {
 		this.id = id;

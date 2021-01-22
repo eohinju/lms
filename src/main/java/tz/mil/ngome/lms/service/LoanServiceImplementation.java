@@ -1,5 +1,10 @@
 package tz.mil.ngome.lms.service;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -7,6 +12,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import au.com.bytecode.opencsv.CSVReader;
+import tz.mil.ngome.lms.dto.CollectReturnsDto;
 import tz.mil.ngome.lms.dto.LoanDto;
 import tz.mil.ngome.lms.entity.Loan;
 import tz.mil.ngome.lms.entity.Loan.LoanStatus;
@@ -61,7 +68,7 @@ public class LoanServiceImplementation implements LoanService {
 		loan.setInterest(type.getInterest());
 		loan.setPeriod(type.getPeriod());
 		loan.setPeriods(type.getPeriods());
-		loan.setReturns((int)Math.ceil((loan.getAmount()*(1+loan.getInterest()))/loan.getPeriods()));
+		loan.setReturns((int)Math.floor((loan.getAmount()*(1+loan.getInterest()/100))/loan.getPeriods()));
 		loan.setStatus(LoanStatus.REQUESTED);
 		loan.setCreatedBy(me.getId());
 		Loan savedLoan = loanRepo.save(loan);
@@ -106,7 +113,7 @@ public class LoanServiceImplementation implements LoanService {
 		loan.setInterest(type.getInterest());
 		loan.setPeriod(type.getPeriod());
 		loan.setPeriods(type.getPeriods());
-		loan.setReturns((int)Math.ceil((loan.getAmount()*(1+loan.getInterest()))/loan.getPeriods()));
+		loan.setReturns((int)Math.floor((loan.getAmount()*(1+loan.getInterest()/100))/loan.getPeriods()));
 		loan.setStatus(LoanStatus.REQUESTED);
 		loan.setCreatedBy(userService.me().getId());
 		Loan savedLoan = loanRepo.save(loan);
@@ -204,6 +211,41 @@ public class LoanServiceImplementation implements LoanService {
 	@Override
 	public Response<List<LoanDto>> getIncompleteDisbursedLoans() {
 		return new Response<List<LoanDto>>(ResponseCode.SUCCESS,"Success",loanRepo.getLoansByStatus(LoanStatus.PAID));
+	}
+
+	@Override
+	public Response<List<LoanDto>> collectLoansReturns(CollectReturnsDto returnDto) {
+		Response<List<LoanDto>> response = new Response<List<LoanDto>>();
+		
+		if(returnDto.getFile().isEmpty())
+			throw new InvalidDataException("File is required");
+		
+		if(returnDto.getDate()==null)
+			throw new InvalidDataException("Date is required");
+		InputStream inputStream = null;
+		try {
+			inputStream = returnDto.getFile().getInputStream();
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new InvalidDataException("File could not be read");
+		}
+		
+		List<String[]> objectList = new ArrayList<>();
+        try (Reader reader = new InputStreamReader(inputStream)) {
+            try (CSVReader csvReader = new CSVReader(reader)) {
+                objectList = csvReader.readAll();
+                for (String[] strings : objectList) {
+                    if (!strings[0].equals("Not set")) {
+                    	
+                    }
+                }
+            }catch(Exception e) {
+            	
+            }
+        }catch(IOException e) {
+        	
+        }
+		return response;
 	}
 
 }

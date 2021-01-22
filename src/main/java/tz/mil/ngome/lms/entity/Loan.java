@@ -1,5 +1,7 @@
 package tz.mil.ngome.lms.entity;
 
+import java.time.LocalDate;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -29,6 +31,9 @@ public class Loan extends BaseEntity {
 	
 	@Column(nullable = false)
 	private int amount;
+	
+	@Column(nullable = true)
+	private LocalDate effectDate;
 	
 	@Column(nullable = false)
 	private int returns;
