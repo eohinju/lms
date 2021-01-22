@@ -48,7 +48,7 @@ public class Loan extends BaseEntity {
 	private LoanStatus status = LoanStatus.REQUESTED;
 	
 	public enum LoanStatus{
-		REQUESTED, APPROVED, AUTHORIZED, PAID
+		REQUESTED, APPROVED, AUTHORIZED, PAID, RETURNING, COMPLETED
 	}
 
 }

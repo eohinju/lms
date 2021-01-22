@@ -34,7 +34,12 @@ public class MemberController {
 	
 	@GetMapping(value = "get-sub-units")
 	private Response<List<String>> getSubUnits() {
-		return new Response<List<String>>(ResponseCode.SUCCESS,"",this.conf.getSubUnits());
+		return new Response<List<String>>(ResponseCode.SUCCESS,"Success",this.conf.getSubUnits());
+	}
+	
+	@GetMapping(value = "get-ranks")
+	private Response<List<String>> getRanks() {
+		return new Response<List<String>>(ResponseCode.SUCCESS,"Success",this.conf.getRanks());
 	}
 	
 	@GetMapping(value = "get-members")

@@ -12,7 +12,9 @@ import lombok.Setter;
 public class MemberDto {
 
 	private String id;
+	private int compNumber;
 	private String serviceNumber;
+	private String rank;
 	private String firstName;
 	private String middleName;
 	private String lastName;

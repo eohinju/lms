@@ -14,15 +14,17 @@ public interface MemberRepository extends JpaRepository<Member, String> {
 	Optional<Member> findByServiceNumber(String serviceNumber);
 
 	@Query("SELECT new tz.mil.ngome.lms.dto.MemberDto("
-			+ "_member.id,_member.serviceNumber,_member.firstName,_member.middleName,_member.lastName,"
+			+ "_member.id,_member.compNumber,_member.serviceNumber,_member.rank,_member.firstName,_member.middleName,_member.lastName,"
 			+ "_member.phone,_member.unit,_member.subUnit)"
 			+ "FROM Member AS _member WHERE _member.deleted=false")
 	List<MemberDto> getMembers();
 
 	@Query("SELECT new tz.mil.ngome.lms.dto.MemberDto("
-			+ "_member.id,_member.serviceNumber,_member.firstName,_member.middleName,_member.lastName,"
+			+ "_member.id,_member.compNumber,_member.serviceNumber,_member.rank,_member.firstName,_member.middleName,_member.lastName,"
 			+ "_member.phone,_member.unit,_member.subUnit)"
 			+ "FROM Member AS _member WHERE _member.id=:memberId")
 	MemberDto findMemberById(String memberId);
+
+	Optional<Member> findByCompNumber(int compNumber);
 
 }

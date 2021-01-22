@@ -16,8 +16,14 @@ import tz.mil.ngome.lms.utils.BaseEntity;
 @Entity
 public class Member extends BaseEntity {
 	
+	@Column(unique = true, nullable = false)
+	private int compNumber;
+	
 	@Column(unique = true, nullable = false, length = 16)
 	private String serviceNumber;
+	
+	@Column(nullable = false)
+	private String rank;
 	
 	@Column(nullable = false, length = 16)
 	private String firstName;
