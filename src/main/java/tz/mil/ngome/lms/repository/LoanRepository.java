@@ -45,5 +45,12 @@ public interface LoanRepository  extends JpaRepository<Loan, String> {
 			+ "loan.periods, loan.period, loan.status)"
 			+ "FROM Loan AS loan WHERE loan.id=:id order by loan.createdAt desc")
 	LoanDto findLoanById(String id);
+
+	@Query("SELECT new tz.mil.ngome.lms.dto.LoanDto("
+			+ "loan.id, loan.member.id, loan.loanType.id, loan.amount, loan.effectDate,"
+			+ "loan.returns, loan.unit, loan.subUnit, loan.loanName, loan.interest,"
+			+ "loan.periods, loan.period, loan.status)"
+			+ "FROM Loan AS loan WHERE loan.member.id=:id and loan.status=:status order by loan.createdAt desc")
+	List<LoanDto> findLoansByMemberAndStatus(String id, LoanStatus status);
 	
 }

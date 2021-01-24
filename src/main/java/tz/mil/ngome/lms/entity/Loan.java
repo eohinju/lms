@@ -38,6 +38,8 @@ public class Loan extends BaseEntity {
 	@Column(nullable = false)
 	private int returns;
 	
+	private int balance = 0;
+	
 	private String unit;
 	
 	private String subUnit;

@@ -6,12 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import tz.mil.ngome.lms.dto.CollectReturnsDto;
 import tz.mil.ngome.lms.dto.LoanDto;
 import tz.mil.ngome.lms.exception.InvalidDataException;
 import tz.mil.ngome.lms.service.LoanService;
@@ -75,6 +77,11 @@ public class LoanController {
 	@PostMapping(value = "disburse-loan", consumes = MediaType.APPLICATION_JSON_VALUE)
 	private Response<LoanDto> disburseLoan(@RequestBody LoanDto loanDto) {
 		return this.loanService.disburseLoan(loanDto);
+	}
+	
+	@PostMapping(value = "collect-returns")
+	private Response<List<LoanDto>> createMedia(@ModelAttribute CollectReturnsDto collectReturnsDto) {
+		return this.loanService.collectLoansReturns(collectReturnsDto);
 	}
 	
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +18,7 @@ import tz.mil.ngome.lms.dto.CollectReturnsDto;
 import tz.mil.ngome.lms.dto.LoanDto;
 import tz.mil.ngome.lms.entity.Loan;
 import tz.mil.ngome.lms.entity.Loan.LoanStatus;
+import tz.mil.ngome.lms.entity.LoanReturn;
 import tz.mil.ngome.lms.entity.LoanType;
 import tz.mil.ngome.lms.entity.Member;
 import tz.mil.ngome.lms.exception.InvalidDataException;
@@ -24,6 +26,7 @@ import tz.mil.ngome.lms.exception.UnauthorizedException;
 import tz.mil.ngome.lms.repository.LoanRepository;
 import tz.mil.ngome.lms.repository.LoanTypeRepository;
 import tz.mil.ngome.lms.repository.MemberRepository;
+import tz.mil.ngome.lms.repository.loanReturnRepository;
 import tz.mil.ngome.lms.utils.Response;
 import tz.mil.ngome.lms.utils.ResponseCode;
 
@@ -35,6 +38,9 @@ public class LoanServiceImplementation implements LoanService {
 	
 	@Autowired
 	LoanRepository loanRepo;
+	
+	@Autowired
+	loanReturnRepository loanReturnRepo;
 	
 	@Autowired
 	MemberRepository memberRepo;
@@ -68,7 +74,8 @@ public class LoanServiceImplementation implements LoanService {
 		loan.setInterest(type.getInterest());
 		loan.setPeriod(type.getPeriod());
 		loan.setPeriods(type.getPeriods());
-		loan.setReturns((int)Math.floor((loan.getAmount()*(1+loan.getInterest()/100))/loan.getPeriods()));
+		loan.setBalance((int)Math.floor(loan.getAmount()*(1+loan.getInterest()/100)));
+		loan.setReturns((int)Math.ceil(loan.getBalance()/loan.getPeriods()));
 		loan.setStatus(LoanStatus.REQUESTED);
 		loan.setCreatedBy(me.getId());
 		Loan savedLoan = loanRepo.save(loan);
@@ -113,7 +120,8 @@ public class LoanServiceImplementation implements LoanService {
 		loan.setInterest(type.getInterest());
 		loan.setPeriod(type.getPeriod());
 		loan.setPeriods(type.getPeriods());
-		loan.setReturns((int)Math.floor((loan.getAmount()*(1+loan.getInterest()/100))/loan.getPeriods()));
+		loan.setBalance((int)Math.floor(loan.getAmount()*(1+loan.getInterest()/100)));
+		loan.setReturns((int)Math.ceil(loan.getBalance()/loan.getPeriods()));
 		loan.setStatus(LoanStatus.REQUESTED);
 		loan.setCreatedBy(userService.me().getId());
 		Loan savedLoan = loanRepo.save(loan);
@@ -217,7 +225,7 @@ public class LoanServiceImplementation implements LoanService {
 	public Response<List<LoanDto>> collectLoansReturns(CollectReturnsDto returnDto) {
 		Response<List<LoanDto>> response = new Response<List<LoanDto>>();
 		
-		if(returnDto.getFile().isEmpty())
+		if(returnDto.getFile()==null || returnDto.getFile().isEmpty())
 			throw new InvalidDataException("File is required");
 		
 		if(returnDto.getDate()==null)
@@ -236,6 +244,35 @@ public class LoanServiceImplementation implements LoanService {
                 objectList = csvReader.readAll();
                 for (String[] strings : objectList) {
                     if (!strings[0].equals("Not set")) {
+                    	if(!strings[0].toLowerCase().contains("employee")) {
+                    		int cn = Integer.parseInt(strings[0]);
+                    		Optional<Member> oMember = memberRepo.findByCompNumber(cn);
+                    		if(oMember.isPresent()) {
+                    			boolean found = false;
+                    			Member member = oMember.get();
+                    			LocalDate effectDate = LocalDate.parse(strings[3]);
+                    			int returns = Integer.parseInt(strings[4]);
+                    			int balance = strings[5].contains("-")?0:Integer.parseInt(strings[5]);
+                    			int loanAmount = strings[6].contains("-")?0:Integer.parseInt(strings[6]);
+                    			List<LoanDto> loans = loanRepo.findLoansByMemberAndStatus(member.getId(),LoanStatus.RETURNING);
+                    			for(LoanDto loan : loans) {
+                    				if(loan.getBalance()==balance+returns) {
+                    					LoanReturn loanReturn = new LoanReturn();
+                    					loanReturn.setAmount(returns);
+                    					loanReturn.setLoan(loanRepo.findById(loan.getId()).get());
+                    					loanReturn.setMonth(month(returnDto.getDate()));
+                    					loanReturn.setCreatedBy(userService.me().getId());
+                    					loanReturnRepo.save(loanReturn);
+                    					Loan _loan = loanRepo.findById(loan.getId()).get();
+                    					_loan.setBalance(loan.getBalance()-returns);
+                    					loanRepo.save(_loan);
+                    					found = true;
+                    				}
+                    			}
+                    			if(!found)
+                    				throw new InvalidDataException(member.getFirstName()+" "+member.getMiddleName()+" "+member.getLastName()+" hana mkopo wenye makato ya "+returns);
+                    		}
+                    	}
                     	
                     }
                 }
@@ -246,6 +283,12 @@ public class LoanServiceImplementation implements LoanService {
         	
         }
 		return response;
+	}
+	
+	private String month(LocalDate date) {
+		int y = date.getYear();
+		int m = date.getMonthValue();
+		return m<10?y+"-0"+m:y+"-"+m;
 	}
 
 }

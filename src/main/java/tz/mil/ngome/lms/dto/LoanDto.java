@@ -32,6 +32,7 @@ public class LoanDto {
 	private int amount;
 	private LocalDate effectDate;
 	private int returns;
+	private int balance = 0;
 	private String unit;
 	private String subUnit;
 	private String loanName;
