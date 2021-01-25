@@ -30,7 +30,7 @@ import tz.mil.ngome.lms.exception.UnauthorizedException;
 import tz.mil.ngome.lms.repository.LoanRepository;
 import tz.mil.ngome.lms.repository.LoanTypeRepository;
 import tz.mil.ngome.lms.repository.MemberRepository;
-import tz.mil.ngome.lms.repository.loanReturnRepository;
+import tz.mil.ngome.lms.repository.LoanReturnRepository;
 import tz.mil.ngome.lms.utils.Response;
 import tz.mil.ngome.lms.utils.ResponseCode;
 
@@ -46,7 +46,7 @@ public class LoanServiceImplementation implements LoanService {
 	LoanRepository loanRepo;
 	
 	@Autowired
-	loanReturnRepository loanReturnRepo;
+	LoanReturnRepository loanReturnRepo;
 	
 	@Autowired
 	MemberRepository memberRepo;

@@ -1,6 +1,7 @@
 package tz.mil.ngome.lms.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -8,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import tz.mil.ngome.lms.repository.LoanReturnRepository;
 import tz.mil.ngome.lms.repository.LoanTypeRepository;
 import tz.mil.ngome.lms.repository.MemberRepository;
 import tz.mil.ngome.lms.utils.SpringContext;
@@ -26,6 +28,9 @@ public class LoanDto {
 	@JsonIgnore
 	private MemberRepository memberRepo = SpringContext.getBean(MemberRepository.class);
 	
+	@JsonIgnore
+	private LoanReturnRepository loanReturnRepo = SpringContext.getBean(LoanReturnRepository.class);
+	
 	private String id;
 	private MemberDto member;
 	private LoanTypeDto loanType;
@@ -40,6 +45,8 @@ public class LoanDto {
 	private int periods;
 	private Period period;
 	private LoanStatus status;
+	private List<LoanReturnsDto> repayments;
+	
 	
 	public LoanDto(String id, String memberId, String loanTypeId, int amount, LocalDate effectDate,
 			int returns, String unit, String subUnit, String loanName, 
@@ -56,5 +63,6 @@ public class LoanDto {
 		this.status = status;
 		this.member = memberRepo.findMemberById(memberId);
 		this.loanType = loanTypeRepo.findLoanTypeById(loanTypeId);
+		this.repayments = loanReturnRepo.findReturnsByLoan(id);
 	}
 }
