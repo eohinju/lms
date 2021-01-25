@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,8 @@ import tz.mil.ngome.lms.utils.ResponseCode;
 @Service
 public class LoanServiceImplementation implements LoanService {
 
+	private static final Logger logger = LoggerFactory.getLogger(LoanService.class);
+	
 	@Autowired
 	LoanTypeRepository loanTypeRepo;
 	
@@ -260,7 +264,7 @@ public class LoanServiceImplementation implements LoanService {
                     					LoanReturn loanReturn = new LoanReturn();
                     					loanReturn.setAmount(returns);
                     					loanReturn.setLoan(loanRepo.findById(loan.getId()).get());
-                    					loanReturn.setMonth(month(returnDto.getDate()));
+                    					loanReturn.setMonth(month(LocalDate.parse(returnDto.getDate())));
                     					loanReturn.setCreatedBy(userService.me().getId());
                     					loanReturnRepo.save(loanReturn);
                     					Loan _loan = loanRepo.findById(loan.getId()).get();
@@ -271,16 +275,18 @@ public class LoanServiceImplementation implements LoanService {
                     			}
                     			if(!found)
                     				throw new InvalidDataException(member.getFirstName()+" "+member.getMiddleName()+" "+member.getLastName()+" hana mkopo wenye makato ya "+returns);
-                    		}
+                    		}else
+                    			logger.info("Member not found with comp # "+strings[0]);
                     	}
                     	
-                    }
+                    }else
+                    	throw new InvalidDataException("No data found");
                 }
             }catch(Exception e) {
-            	
+            	throw new InvalidDataException("CSV not read");
             }
         }catch(IOException e) {
-        	
+        	throw new InvalidDataException("Input stream not read");
         }
 		return response;
 	}

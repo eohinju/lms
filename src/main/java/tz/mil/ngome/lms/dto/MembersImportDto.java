@@ -1,7 +1,5 @@
 package tz.mil.ngome.lms.dto;
 
-import java.time.LocalDate;
-
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.AllArgsConstructor;
@@ -13,9 +11,8 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CollectReturnsDto {
+public class MembersImportDto {
 
-	private String date;
 	private MultipartFile file;
-	
+
 }
