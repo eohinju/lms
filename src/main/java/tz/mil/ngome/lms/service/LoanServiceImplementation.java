@@ -203,7 +203,7 @@ public class LoanServiceImplementation implements LoanService {
 	}
 	
 	@Override
-	public Response<List<LoanDto>> getLoans(String comp) {
+	public Response<List<LoanDto>> getLoans(int comp) {
 		return new Response<List<LoanDto>>(ResponseCode.SUCCESS,"Success",loanRepo.getLoansByMember(comp));
 	}
 
