@@ -201,6 +201,11 @@ public class LoanServiceImplementation implements LoanService {
 	public Response<List<LoanDto>> getLoans() {
 		return new Response<List<LoanDto>>(ResponseCode.SUCCESS,"Success",loanRepo.getAllLoans());
 	}
+	
+	@Override
+	public Response<List<LoanDto>> getLoans(String comp) {
+		return new Response<List<LoanDto>>(ResponseCode.SUCCESS,"Success",loanRepo.getLoansByMember(comp));
+	}
 
 	@Override
 	public Response<List<LoanDto>> getRequestedLoans(String subUnit) {

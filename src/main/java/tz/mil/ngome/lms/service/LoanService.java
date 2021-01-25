@@ -18,6 +18,7 @@ public interface LoanService {
 	Response<LoanDto> authorizeLoan(LoanDto loanDto);
 	Response<LoanDto> disburseLoan(LoanDto loanDto);
 	Response<List<LoanDto>> getLoans();
+	Response<List<LoanDto>> getLoans(String comp);
 	Response<List<LoanDto>> getRequestedLoans(String subUnit);
 	Response<List<LoanDto>> getApprovedLoans();
 	Response<List<LoanDto>> getAuthorizedLoans();
