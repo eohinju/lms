@@ -17,7 +17,9 @@ import org.springframework.stereotype.Service;
 
 import au.com.bytecode.opencsv.CSVReader;
 import tz.mil.ngome.lms.dto.CollectReturnsDto;
+import tz.mil.ngome.lms.dto.CollectedReturnsResponseDto;
 import tz.mil.ngome.lms.dto.LoanDto;
+import tz.mil.ngome.lms.dto.MemberPayDto;
 import tz.mil.ngome.lms.entity.Loan;
 import tz.mil.ngome.lms.entity.Loan.LoanStatus;
 import tz.mil.ngome.lms.entity.LoanReturn;
@@ -226,8 +228,11 @@ public class LoanServiceImplementation implements LoanService {
 	}
 
 	@Override
-	public Response<List<LoanDto>> collectLoansReturns(CollectReturnsDto returnDto) {
-		Response<List<LoanDto>> response = new Response<List<LoanDto>>();
+	public Response<CollectedReturnsResponseDto> collectLoansReturns(CollectReturnsDto returnDto) {
+		List<MemberPayDto> success = new ArrayList<MemberPayDto>();
+		List<MemberPayDto> overdeducted = new ArrayList<MemberPayDto>();
+		List<MemberPayDto> undeducted = new ArrayList<MemberPayDto>();
+		List<MemberPayDto> nonmember = new ArrayList<MemberPayDto>();
 		
 		if(returnDto.getFile()==null || returnDto.getFile().isEmpty())
 			throw new InvalidDataException("File is required");
@@ -243,52 +248,66 @@ public class LoanServiceImplementation implements LoanService {
 		}
 		
 		List<String[]> objectList = new ArrayList<>();
-        try (Reader reader = new InputStreamReader(inputStream)) {
-            try (CSVReader csvReader = new CSVReader(reader)) {
-                objectList = csvReader.readAll();
-                for (String[] strings : objectList) {
-                    if (!strings[0].equals("Not set")) {
-                    	if(!strings[0].toLowerCase().contains("employee")) {
-                    		int cn = Integer.parseInt(strings[0]);
-                    		Optional<Member> oMember = memberRepo.findByCompNumber(cn);
-                    		if(oMember.isPresent()) {
-                    			boolean found = false;
-                    			Member member = oMember.get();
-                    			LocalDate effectDate = LocalDate.parse(strings[3]);
-                    			int returns = Integer.parseInt(strings[4]);
-                    			int balance = strings[5].contains("-")?0:Integer.parseInt(strings[5]);
-                    			int loanAmount = strings[6].contains("-")?0:Integer.parseInt(strings[6]);
-                    			List<LoanDto> loans = loanRepo.findLoansByMemberAndStatus(member.getId(),LoanStatus.RETURNING);
-                    			for(LoanDto loan : loans) {
-                    				if(loan.getBalance()==balance+returns) {
-                    					LoanReturn loanReturn = new LoanReturn();
-                    					loanReturn.setAmount(returns);
-                    					loanReturn.setLoan(loanRepo.findById(loan.getId()).get());
-                    					loanReturn.setMonth(month(LocalDate.parse(returnDto.getDate())));
-                    					loanReturn.setCreatedBy(userService.me().getId());
-                    					loanReturnRepo.save(loanReturn);
-                    					Loan _loan = loanRepo.findById(loan.getId()).get();
-                    					_loan.setBalance(loan.getBalance()-returns);
-                    					loanRepo.save(_loan);
-                    					found = true;
-                    				}
-                    			}
-                    			if(!found)
-                    				throw new InvalidDataException(member.getFirstName()+" "+member.getMiddleName()+" "+member.getLastName()+" hana mkopo wenye makato ya "+returns);
-                    		}else
-                    			logger.info("Member not found with comp # "+strings[0]);
-                    	}
-                    	
-                    }else
-                    	throw new InvalidDataException("No data found");
-                }
-            }catch(Exception e) {
-            	throw new InvalidDataException("CSV not read");
-            }
-        }catch(IOException e) {
-        	throw new InvalidDataException("Input stream not read");
+		Reader reader = new InputStreamReader(inputStream);
+		CSVReader csvReader = new CSVReader(reader);
+		try {
+			objectList = csvReader.readAll();
+			csvReader.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		boolean found;
+		for (String[] strings : objectList) {
+            if (!strings[0].equals("Not set")) {
+            	if(!strings[0].toLowerCase().contains("employee")) {
+            		int cn = Integer.parseInt(strings[0]);
+            		Optional<Member> oMember = memberRepo.findByCompNumber(cn);
+            		if(oMember.isPresent()) {
+            			found = false;
+            			Member member = oMember.get();
+            			int returns = Integer.parseInt(strings[4]);
+            			int balance = strings[5].contains("-")?0:Integer.parseInt(strings[5]);
+            			List<LoanDto> loans = loanRepo.findLoansByMemberAndStatus(member.getId(),LoanStatus.RETURNING);
+            			for(LoanDto loan : loans) {
+            				if(loan.getReturns()==returns && loan.getBalance()==balance+returns) {
+            					found = true;
+            					if(loanReturnRepo.findByLoanAndMonth(loan.getId(),month(LocalDate.parse(returnDto.getDate()))).isEmpty()) {
+            						LoanReturn loanReturn = new LoanReturn();
+                					loanReturn.setAmount(returns);
+                					loanReturn.setLoan(loanRepo.findById(loan.getId()).get());
+                					loanReturn.setMonth(month(LocalDate.parse(returnDto.getDate())));
+                					loanReturn.setCreatedBy(userService.me().getId());
+                					loanReturnRepo.save(loanReturn);
+                					
+                					Loan _loan = loanRepo.findById(loan.getId()).get();
+                					_loan.setBalance(loan.getBalance()-returns);
+                					if(_loan.getBalance()==0)
+                						_loan.setStatus(LoanStatus.COMPLETED);
+                					else
+                						_loan.setStatus(LoanStatus.RETURNING);
+                					loanRepo.save(_loan);
+                					success.add(new MemberPayDto(strings[1]+" "+strings[2],Integer.parseInt(strings[4])));
+            					}else
+            						overdeducted.add(new MemberPayDto(strings[1]+" "+strings[2],Integer.parseInt(strings[4])));
+            				}
+            			}
+            			if(!found)
+            				overdeducted.add(new MemberPayDto(strings[1]+" "+strings[2],Integer.parseInt(strings[4])));
+            		}else {
+            			nonmember.add(new MemberPayDto(strings[1]+" "+strings[2],Integer.parseInt(strings[4])));
+            		}
+            			
+            	}
+            	
+            }else
+            	throw new InvalidDataException("No data found");
         }
-		return response;
+		List<Loan> notPaid = loanRepo.getNonReturnedLoansOnMonth(month(LocalDate.parse(returnDto.getDate())),LoanStatus.PAID.ordinal());
+		notPaid.addAll(loanRepo.getNonReturnedLoansOnMonth(month(LocalDate.parse(returnDto.getDate())),LoanStatus.RETURNING.ordinal()));
+		for(Loan loan:notPaid)
+			undeducted.add(new MemberPayDto(loan.getMember().getServiceNumber()+" "+loan.getMember().getRank()+" "+loan.getMember().getFirstName(),loan.getReturns()));
+		return new Response<CollectedReturnsResponseDto>(ResponseCode.SUCCESS,"Success", new CollectedReturnsResponseDto(success,overdeducted,undeducted,nonmember));
 	}
 	
 	private String month(LocalDate date) {

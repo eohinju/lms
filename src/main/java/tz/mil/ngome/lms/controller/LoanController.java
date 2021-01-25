@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import tz.mil.ngome.lms.dto.CollectReturnsDto;
+import tz.mil.ngome.lms.dto.CollectedReturnsResponseDto;
 import tz.mil.ngome.lms.dto.LoanDto;
 import tz.mil.ngome.lms.exception.InvalidDataException;
 import tz.mil.ngome.lms.service.LoanService;
@@ -80,7 +81,7 @@ public class LoanController {
 	}
 	
 	@PostMapping(value = "collect-returns")
-	private Response<List<LoanDto>> createMedia(@ModelAttribute CollectReturnsDto collectReturnsDto) {
+	private Response<CollectedReturnsResponseDto> collectReturns(@ModelAttribute CollectReturnsDto collectReturnsDto) {
 		return this.loanService.collectLoansReturns(collectReturnsDto);
 	}
 	

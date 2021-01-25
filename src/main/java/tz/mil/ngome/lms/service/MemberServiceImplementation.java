@@ -138,24 +138,6 @@ public class MemberServiceImplementation implements MemberService {
 	        }else
 	        	throw new InvalidDataException("No data found");
 	    }
-//        try (Reader reader = new InputStreamReader(inputStream)) {
-//            try (CSVReader csvReader = new CSVReader(reader)) {
-//                objectList = csvReader.readAll();
-//                for (String[] strings : objectList) {
-//                    if (!strings[0].equals("Not set")) {
-//                    	if(strings.length<8)
-//                    		throw new InvalidDataException("Invalid number of collumns");
-//                    	registeredMembers.add(saveMember(new MemberDto(Integer.parseInt(strings[0]),strings[1].trim(),strings[2].trim(),strings[3],strings[4],strings[5],strings[6],strings[7])));
-//                    }else
-//                    	throw new InvalidDataException("No data found");
-//                }
-//            }catch(Exception e) {
-//            	e.printStackTrace();
-//            	throw new InvalidDataException("CSV not read");
-//            }
-//        }catch(IOException e) {
-//        	throw new InvalidDataException("Input stream not read");
-//        }
 	    Response<List<MemberDto>> response = new Response<List<MemberDto>>();
 		response.setCode(ResponseCode.SUCCESS);
 		response.setData(registeredMembers);
