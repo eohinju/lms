@@ -306,7 +306,7 @@ public class LoanServiceImplementation implements LoanService {
 		List<Loan> notPaid = loanRepo.getNonReturnedLoansOnMonth(month(LocalDate.parse(returnDto.getDate())),LoanStatus.PAID.ordinal());
 		notPaid.addAll(loanRepo.getNonReturnedLoansOnMonth(month(LocalDate.parse(returnDto.getDate())),LoanStatus.RETURNING.ordinal()));
 		for(Loan loan:notPaid)
-			undeducted.add(new MemberPayDto(loan.getMember().getServiceNumber()+" "+loan.getMember().getRank()+" "+loan.getMember().getFirstName(),loan.getReturns()));
+			undeducted.add(new MemberPayDto(loan.getMember().getServiceNumber()+" "+loan.getMember().getRank()+" "+loan.getMember().getFirstName()+" "+loan.getMember().getMiddleName()+" "+loan.getMember().getLastName(),loan.getReturns()));
 		return new Response<CollectedReturnsResponseDto>(ResponseCode.SUCCESS,"Success", new CollectedReturnsResponseDto(success,overdeducted,undeducted,nonmember));
 	}
 	
