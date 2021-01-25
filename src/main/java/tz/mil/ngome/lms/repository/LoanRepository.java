@@ -53,7 +53,7 @@ public interface LoanRepository  extends JpaRepository<Loan, String> {
 			+ "FROM Loan AS loan WHERE loan.member.id=:id and loan.status=:status order by loan.createdAt desc")
 	List<LoanDto> findLoansByMemberAndStatus(String id, LoanStatus status);
 
-	@Query(value = "select * from loan where id in(select distinct loan from loanreturn inner join loan on loan.id=loanreturn.loan where loan.status=:status and loanreturn.loan not in (select distinct loan from loanreturn where month=:month))", nativeQuery = true)
+	@Query(value = "select * from loan where status=:status and id not in(select distinct loan as id from loanreturn where month=:month)", nativeQuery = true)
 	List<Loan> getNonReturnedLoansOnMonth(String month, int status);
 
 }
