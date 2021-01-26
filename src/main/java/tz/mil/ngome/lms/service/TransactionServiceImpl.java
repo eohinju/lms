@@ -53,7 +53,7 @@ public class TransactionServiceImpl implements TransactionService {
 		TransactionDetail detail = new TransactionDetail(txn,payAccount,0,loan.getAmount());
 		detail.setCreatedBy(userService.me().getId());
 		detailRepo.save(detail);
-		detail = new TransactionDetail(txn,payAccount,0,loan.getAmount());
+		detail = new TransactionDetail(txn,accountRepo.findByCode(loan.getMember().getCompNumber()),loan.getAmount(),0);
 		detail.setCreatedBy(userService.me().getId());
 		detailRepo.save(detail);
 		return new Response<TransactionDto>(ResponseCode.SUCCESS,"Success",transactionRepo.findTransactionById(txn.getId()));

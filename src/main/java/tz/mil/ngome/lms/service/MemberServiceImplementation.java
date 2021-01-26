@@ -93,6 +93,9 @@ public class MemberServiceImplementation implements MemberService {
 		BeanUtils.copyProperties(memberDto, member, "id");
 		member.setCreatedBy(userService.me().getId());
 		member.setUnit(conf.getUnit());
+		member.setFirstName(member.getFirstName().trim().toUpperCase());
+		member.setMiddleName(member.getMiddleName().trim().toUpperCase());
+		member.setLastName(member.getLastName().trim().toUpperCase());
 		
 		try {
 			Member savedMember = memberRepo.save(member);

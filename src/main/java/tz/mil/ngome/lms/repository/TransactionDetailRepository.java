@@ -22,7 +22,7 @@ public interface TransactionDetailRepository extends JpaRepository<TransactionDe
 
 	@Query("SELECT new tz.mil.ngome.lms.dto.TransactionDetailDto("
 			+ "detail.id, detail.account.id, detail.debit, detail.credit)"
-			+ "FROM TransactionDetail AS detail where detail.transaction=:id order by detail.debit asc")
+			+ "FROM TransactionDetail AS detail where detail.transaction.id=:id order by detail.debit asc")
 	List<TransactionDetailDto> findDetailsByTransactionId(String id);
 
 }
