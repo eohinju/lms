@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.uuid.Logger;
+
 import tz.mil.ngome.lms.dto.AccountDto;
 import tz.mil.ngome.lms.dto.AccountTypeDto;
 import tz.mil.ngome.lms.entity.Account;
@@ -45,6 +47,8 @@ public class AccountServiceImpl implements AccountService {
 			throw new InvalidDataException("Name is required");
 		
 		Account account = new Account();
+		Logger.logInfo("Default code "+account.getCode());
+//		account.setCode(0);
 		account.setName(accountDto.getName());
 		account.setAccountType(accountTypeRepo.findById(accountDto.getType().getId()).get());
 		account.setCreatedBy(userService.me().getId());
