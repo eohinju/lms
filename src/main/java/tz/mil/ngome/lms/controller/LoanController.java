@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import tz.mil.ngome.lms.dto.CollectReturnsDto;
 import tz.mil.ngome.lms.dto.CollectedReturnsResponseDto;
+import tz.mil.ngome.lms.dto.DisburseLoanDto;
 import tz.mil.ngome.lms.dto.LoanDto;
 import tz.mil.ngome.lms.exception.InvalidDataException;
 import tz.mil.ngome.lms.service.LoanService;
@@ -81,7 +82,7 @@ public class LoanController {
 	}
 	
 	@PostMapping(value = "disburse-loan", consumes = MediaType.APPLICATION_JSON_VALUE)
-	private Response<LoanDto> disburseLoan(@RequestBody LoanDto loanDto) {
+	private Response<LoanDto> disburseLoan(@RequestBody DisburseLoanDto loanDto) {
 		return this.loanService.disburseLoan(loanDto);
 	}
 	

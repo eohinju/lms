@@ -8,9 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import tz.mil.ngome.lms.entity.Account;
 import tz.mil.ngome.lms.entity.AccountType;
 import tz.mil.ngome.lms.entity.User;
 import tz.mil.ngome.lms.entity.User.Role;
+import tz.mil.ngome.lms.repository.AccountRepository;
 import tz.mil.ngome.lms.repository.AccountTypeRepository;
 import tz.mil.ngome.lms.repository.UserRepository;
 import tz.mil.ngome.lms.security.JwtAuthTokenFilter;
@@ -27,12 +29,16 @@ public class Initializer {
 	AccountTypeRepository accountTypeRepo;
 	
 	@Autowired
+	AccountRepository accountRepo;
+	
+	@Autowired
     PasswordEncoder encoder;
 	
 	@PostConstruct
 	public void init() {
 		initializeUser();
 		initializeAccountTypes();
+		initializeAccounts();
 	}
 	
 	private void initializeUser() {
@@ -48,6 +54,14 @@ public class Initializer {
 			aType.setCreatedBy("Initializer");
 			try { accountTypeRepo.save(aType); }catch(Exception e) {}
 		}
+	}
+	
+	private void initializeAccounts() {
+		Account account = new Account();
+		account.setName("Interest");
+		account.setAccountType(accountTypeRepo.findByName("Revenue").get(0));
+		account.setCreatedBy("Initializer");
+		try{accountRepo.save(account);}catch(Exception e) {}
 	}
 
 }

@@ -5,9 +5,10 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import tz.mil.ngome.lms.dto.TransactionDto;
 import tz.mil.ngome.lms.entity.Transaction;
 
-public interface TransactionRepo extends JpaRepository<Transaction, String> {
+public interface TransactionRepository extends JpaRepository<Transaction, String> {
 
 	@Query(value = "select sum(due_amount)-sum(paid_amount) from tx_transactions where deleted=false and partner=:id", nativeQuery = true)
 	Integer findDebtByPartnerId(String id);
@@ -17,6 +18,11 @@ public interface TransactionRepo extends JpaRepository<Transaction, String> {
 
 	@Query(value = "select * from tx_transactions where type=:type and deleted=false order by created_at desc", nativeQuery = true)
 	List<Transaction> getAllByType(int type);
+	
+	@Query("SELECT new tz.mil.ngome.lms.dto.TransactionDto("
+			+ "txn.id, txn.date, txn.receipt, txn.description)"
+			+ "FROM Transaction AS txn WHERE txn.id=:id")
+	TransactionDto findTransactionById(String id);
 
 //	@Query("select new webapi.campaign.dto.StatsDTO(count(u.objective_type_id),u.objective_type_id,u.modified_at) "
 //	        + "from user_campaign_objective u where u.campaign_id = ?1 group by u.objective_type_id,u.modified_at")

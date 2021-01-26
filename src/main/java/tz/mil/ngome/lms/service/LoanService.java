@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import tz.mil.ngome.lms.dto.CollectReturnsDto;
 import tz.mil.ngome.lms.dto.CollectedReturnsResponseDto;
+import tz.mil.ngome.lms.dto.DisburseLoanDto;
 import tz.mil.ngome.lms.dto.LoanDto;
 import tz.mil.ngome.lms.utils.Response;
 
@@ -16,7 +17,7 @@ public interface LoanService {
 	Response<LoanDto> registerLoan(LoanDto loanDto);
 	Response<LoanDto> approveLoan(LoanDto loanDto);
 	Response<LoanDto> authorizeLoan(LoanDto loanDto);
-	Response<LoanDto> disburseLoan(LoanDto loanDto);
+	Response<LoanDto> disburseLoan(DisburseLoanDto loanDto);
 	Response<List<LoanDto>> getLoans();
 	Response<List<LoanDto>> getLoans(int comp);
 	Response<List<LoanDto>> getRequestedLoans(String subUnit);

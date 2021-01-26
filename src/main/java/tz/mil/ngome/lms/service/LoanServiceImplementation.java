@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import au.com.bytecode.opencsv.CSVReader;
 import tz.mil.ngome.lms.dto.CollectReturnsDto;
 import tz.mil.ngome.lms.dto.CollectedReturnsResponseDto;
+import tz.mil.ngome.lms.dto.DisburseLoanDto;
 import tz.mil.ngome.lms.dto.LoanDto;
 import tz.mil.ngome.lms.dto.MemberPayDto;
 import tz.mil.ngome.lms.entity.Loan;
@@ -27,6 +28,7 @@ import tz.mil.ngome.lms.entity.LoanType;
 import tz.mil.ngome.lms.entity.Member;
 import tz.mil.ngome.lms.exception.InvalidDataException;
 import tz.mil.ngome.lms.exception.UnauthorizedException;
+import tz.mil.ngome.lms.repository.AccountRepository;
 import tz.mil.ngome.lms.repository.LoanRepository;
 import tz.mil.ngome.lms.repository.LoanTypeRepository;
 import tz.mil.ngome.lms.repository.MemberRepository;
@@ -46,6 +48,9 @@ public class LoanServiceImplementation implements LoanService {
 	LoanRepository loanRepo;
 	
 	@Autowired
+	AccountRepository accountRepo;
+	
+	@Autowired
 	LoanReturnRepository loanReturnRepo;
 	
 	@Autowired
@@ -53,6 +58,9 @@ public class LoanServiceImplementation implements LoanService {
 	
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	TransactionService transactionService;
 	
 	@Override
 	public Response<LoanDto> requestLoan(LoanDto loanDto) {
@@ -178,20 +186,30 @@ public class LoanServiceImplementation implements LoanService {
 	}
 
 	@Override
-	public Response<LoanDto> disburseLoan(LoanDto loanDto) {
+	public Response<LoanDto> disburseLoan(DisburseLoanDto loanDto) {
 		Response<LoanDto> response = new Response<LoanDto>();
-		if(loanDto.getId()==null || loanDto.getId().isEmpty())
+		if(loanDto.getLoan()==null || loanDto.getLoan().getId()==null || loanDto.getLoan().getId().isEmpty())
 			throw new InvalidDataException("Invalid Loan");
-		Optional<Loan> oLoan = loanRepo.findById(loanDto.getId());
+		
+		if(loanDto.getAccount()==null || loanDto.getAccount().getId()==null || loanDto.getAccount().getId().isEmpty())
+			throw new InvalidDataException("Account is required");
+		
+		if(!accountRepo.findById(loanDto.getAccount().getId()).isPresent())
+			throw new InvalidDataException("Invalid account");
+		
+		if(loanDto.getDate()==null)
+			throw new InvalidDataException("Invalid date");
+			
+		Optional<Loan> oLoan = loanRepo.findById(loanDto.getLoan().getId());
 		if(oLoan.isPresent()) {
 			Loan loan = oLoan.get();
 			if(loan.getStatus()!=LoanStatus.AUTHORIZED)
-				throw new UnauthorizedException("Loan can not be authorized");
+				throw new UnauthorizedException("Loan is not authorized");
 			loan.setStatus(LoanStatus.PAID);
 			Loan savedLoan = loanRepo.save(loan);
-			BeanUtils.copyProperties(savedLoan, loanDto);
+			transactionService.journalLoan(savedLoan, accountRepo.findById(loanDto.getAccount().getId()).get(), loanDto.getDate());
 			response.setCode(ResponseCode.SUCCESS);
-			response.setData(loanDto);
+			response.setData(loanRepo.findLoanById(savedLoan.getId()));
 			return response;
 		}else
 			throw new InvalidDataException("Invalid Loan");
