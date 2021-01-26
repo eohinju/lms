@@ -23,7 +23,7 @@ public interface AccountRepository extends JpaRepository<Account, String> {
 
 	@Query("SELECT new tz.mil.ngome.lms.dto.AccountDto("
 			+ "account.id, account.name, account.accountType.id)"
-			+ "FROM Account AS account order by account.name asc")
+			+ "FROM Account AS account where account.code>0 order by account.name asc")
 	List<AccountDto> findAllAccounts();
 		
 }

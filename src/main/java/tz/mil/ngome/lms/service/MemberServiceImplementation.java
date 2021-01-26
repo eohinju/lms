@@ -18,12 +18,16 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.uuid.Logger;
 
 import au.com.bytecode.opencsv.CSVReader;
+import tz.mil.ngome.lms.dto.MappedStringListDto;
 import tz.mil.ngome.lms.dto.MemberDto;
 import tz.mil.ngome.lms.dto.MembersImportDto;
+import tz.mil.ngome.lms.entity.Account;
 import tz.mil.ngome.lms.entity.Member;
 import tz.mil.ngome.lms.exception.DuplicateDataException;
 import tz.mil.ngome.lms.exception.FailureException;
 import tz.mil.ngome.lms.exception.InvalidDataException;
+import tz.mil.ngome.lms.repository.AccountRepository;
+import tz.mil.ngome.lms.repository.AccountTypeRepository;
 import tz.mil.ngome.lms.repository.MemberRepository;
 import tz.mil.ngome.lms.utils.Configuration;
 import tz.mil.ngome.lms.utils.Response;
@@ -37,6 +41,12 @@ public class MemberServiceImplementation implements MemberService {
 	
 	@Autowired
 	MemberRepository memberRepo;
+	
+	@Autowired
+	AccountTypeRepository accountTypeRepo;
+	
+	@Autowired
+	AccountRepository accountRepo;
 	
 	Configuration conf = new Configuration();
 
@@ -59,11 +69,11 @@ public class MemberServiceImplementation implements MemberService {
 			throw new InvalidDataException("Service number is required");
 		
 		if(!validServiceNumber(memberDto.getServiceNumber()))
-			throw new InvalidDataException("Invalid service number "+memberDto.getServiceNumber());
+			throw new InvalidDataException("Invalid service number is required for computer number "+memberDto.getCompNumber());
 		memberDto.setServiceNumber(memberDto.getServiceNumber().toUpperCase());
 		
 		if(memberDto.getRank()==null || !conf.getRanks().contains(memberDto.getRank().toUpperCase()))
-			throw new InvalidDataException("A valid rank is required");
+			throw new InvalidDataException("A valid rank is required for computer number "+memberDto.getCompNumber());
 		memberDto.setRank(memberDto.getRank().toUpperCase());
 		
 		if(memberRepo.findByServiceNumber(memberDto.getServiceNumber()).isPresent())
@@ -78,7 +88,7 @@ public class MemberServiceImplementation implements MemberService {
 			throw new InvalidDataException("All three names are required for computer number "+memberDto.getCompNumber());
 		
 		if(memberDto.getSubUnit()==null || !conf.getSubUnits().contains(memberDto.getSubUnit()))
-			throw new InvalidDataException("A valid sub unit is required");
+			throw new InvalidDataException("A valid sub unit is required for computer number "+memberDto.getCompNumber());
 		
 		BeanUtils.copyProperties(memberDto, member, "id");
 		member.setCreatedBy(userService.me().getId());
@@ -87,6 +97,16 @@ public class MemberServiceImplementation implements MemberService {
 		try {
 			Member savedMember = memberRepo.save(member);
 			if (savedMember!=null) {
+				Account account = new Account();
+				account.setAccountType(accountTypeRepo.findByName("Asset").get(0));
+				account.setCode(savedMember.getCompNumber());
+				account.setName(savedMember.getServiceNumber()+" "+savedMember.getRank()+" "+savedMember.getFirstName()+" "+savedMember.getMiddleName()+" "+savedMember.getLastName());
+				account.setCreatedBy(userService.me().getId());
+				try {
+					accountRepo.save(account);
+				}catch(Exception e) {
+					
+				}
 				return memberRepo.findMemberById(savedMember.getId());
 			}else
 				throw new FailureException("Sorry, could not save member");
@@ -108,7 +128,7 @@ public class MemberServiceImplementation implements MemberService {
 	}
 
 	@Override
-	public Response<List<MemberDto>> importMembers(MembersImportDto membersDto) {
+	public Response<List<MappedStringListDto>> importMembers(MembersImportDto membersDto) {
 		
 		if(membersDto==null || membersDto.getFile()==null || membersDto.getFile().isEmpty())
 			throw new InvalidDataException("No file provided");
@@ -130,18 +150,37 @@ public class MemberServiceImplementation implements MemberService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	    for (String[] strings : objectList) {
+		
+		MappedStringListDto success = new MappedStringListDto();
+		MappedStringListDto duplicates = new MappedStringListDto();
+		MappedStringListDto error = new MappedStringListDto();
+	    success.setKey("Success");
+	    duplicates.setKey("Duplicates");
+	    error.setKey("Error");
+		for (String[] strings : objectList) {
 	        if (!strings[0].equals("Not set")) {
 	        	if(strings.length<8)
-	          		throw new InvalidDataException("Invalid number of collumns");
-	          	registeredMembers.add(saveMember(new MemberDto(Integer.parseInt(strings[0]),strings[1].trim(),strings[2].trim(),strings[3],strings[4],strings[5],strings[6],strings[7])));
+	        		error.values.add("Invalid number of collums for column "+strings[0]);
+	        	else {
+	        		try {
+	        			saveMember(new MemberDto(Integer.parseInt(strings[0]),strings[1].trim(),strings[2].trim(),strings[3],strings[4],strings[5],strings[6],strings[7]));
+	        			success.values.add(strings[1]+" "+strings[2]+" "+strings[3]+" "+strings[4]+" "+strings[5]);
+	        		}catch(InvalidDataException e) {
+	        			error.values.add(e.getMessage());
+	        		}catch(DuplicateDataException e) {
+	        			duplicates.values.add(e.getMessage());
+	        		}catch(Exception e) {
+	        			Logger.logInfo(e.getMessage());
+	        		}
+	        	}
 	        }else
 	        	throw new InvalidDataException("No data found");
 	    }
-	    Response<List<MemberDto>> response = new Response<List<MemberDto>>();
-		response.setCode(ResponseCode.SUCCESS);
-		response.setData(registeredMembers);
-		return response;
+		List<MappedStringListDto> result = new ArrayList<MappedStringListDto>();
+		result.add(success);
+		result.add(duplicates);
+		result.add(error);
+		return new Response<List<MappedStringListDto>>(ResponseCode.SUCCESS,"Success",result);
 	}
 
 }

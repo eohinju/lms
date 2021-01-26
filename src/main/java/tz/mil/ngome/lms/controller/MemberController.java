@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import tz.mil.ngome.lms.dto.MappedStringListDto;
 import tz.mil.ngome.lms.dto.MemberDto;
 import tz.mil.ngome.lms.dto.MembersImportDto;
 import tz.mil.ngome.lms.service.MemberService;
@@ -36,7 +37,7 @@ public class MemberController {
 	}
 	
 	@PostMapping(value = "import-members")
-	private Response<List<MemberDto>> importMembers(@ModelAttribute MembersImportDto membersDto) {
+	private Response<List<MappedStringListDto>> importMembers(@ModelAttribute MembersImportDto membersDto) {
 		return this.memberService.importMembers(membersDto);
 	}
 	

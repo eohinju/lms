@@ -1,5 +1,6 @@
 package  tz.mil.ngome.lms.entity;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 import javax.persistence.Basic;
@@ -22,6 +23,10 @@ import tz.mil.ngome.lms.utils.BaseEntity;
 @Entity
 public class Transaction extends BaseEntity {
 
+	@Basic(optional = false)
+	@Column(name = "date", nullable = false)
+	private LocalDate date;
+	
 	@Basic(optional = true)
 	@Column(name = "receipt", length = 128, nullable = true)
 	private String receipt;

@@ -23,6 +23,10 @@ public class Account extends BaseEntity {
 	@Column(name = "name", length = 64, nullable = false, unique = true)
 	private String name;
 	
+	@Basic(optional = true)
+	@Column(name = "code")
+	private int code = 0;
+	
 	@Basic(optional = false)
 	@ManyToOne
 	@JoinColumn(name = "account_type", referencedColumnName = "id", nullable = false)
