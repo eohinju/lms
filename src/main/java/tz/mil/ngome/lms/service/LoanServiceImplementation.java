@@ -16,11 +16,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import au.com.bytecode.opencsv.CSVReader;
+import tz.mil.ngome.lms.dto.CollectReturnDto;
 import tz.mil.ngome.lms.dto.CollectReturnsDto;
 import tz.mil.ngome.lms.dto.CollectedReturnsResponseDto;
 import tz.mil.ngome.lms.dto.DisburseLoanDto;
+import tz.mil.ngome.lms.dto.DisburseLoansDto;
 import tz.mil.ngome.lms.dto.LoanDto;
+import tz.mil.ngome.lms.dto.MappedStringListDto;
 import tz.mil.ngome.lms.dto.MemberPayDto;
+import tz.mil.ngome.lms.dto.TransactionDetailDto;
+import tz.mil.ngome.lms.dto.TransactionDto;
 import tz.mil.ngome.lms.entity.Loan;
 import tz.mil.ngome.lms.entity.Loan.LoanStatus;
 import tz.mil.ngome.lms.entity.LoanReturn;
@@ -32,6 +37,7 @@ import tz.mil.ngome.lms.repository.AccountRepository;
 import tz.mil.ngome.lms.repository.LoanRepository;
 import tz.mil.ngome.lms.repository.LoanTypeRepository;
 import tz.mil.ngome.lms.repository.MemberRepository;
+import tz.mil.ngome.lms.repository.TransactionRepository;
 import tz.mil.ngome.lms.repository.LoanReturnRepository;
 import tz.mil.ngome.lms.utils.Response;
 import tz.mil.ngome.lms.utils.ResponseCode;
@@ -61,6 +67,9 @@ public class LoanServiceImplementation implements LoanService {
 	
 	@Autowired
 	TransactionService transactionService;
+	
+	@Autowired
+	TransactionRepository transactionRepo;
 	
 	@Override
 	public Response<LoanDto> requestLoan(LoanDto loanDto) {
@@ -213,7 +222,50 @@ public class LoanServiceImplementation implements LoanService {
 			return response;
 		}else
 			throw new InvalidDataException("Invalid Loan");
-	}	
+	}
+	
+	@Override
+	public Response<List<MappedStringListDto>> disburseLoans(DisburseLoansDto loansDto) {
+		if(loansDto.getAccount()==null || loansDto.getAccount().getId()==null || loansDto.getAccount().getId().isEmpty())
+			throw new InvalidDataException("Account is required");
+		
+		if(!accountRepo.findById(loansDto.getAccount().getId()).isPresent())
+			throw new InvalidDataException("Invalid account");
+		
+		if(loansDto.getDate()==null)
+			throw new InvalidDataException("Invalid date");
+		
+		Optional<Loan> oLoan;
+		MappedStringListDto success = new MappedStringListDto("Success");
+		MappedStringListDto errors = new MappedStringListDto("Error");
+		for(LoanDto loanDto : loansDto.getLoans()) {
+			oLoan = loanRepo.findById(loanDto.getId());
+			if(oLoan.isPresent()) {
+				Loan loan = oLoan.get();
+				if(loan.getStatus()==LoanStatus.AUTHORIZED) {
+					loan.setStatus(LoanStatus.PAID);
+					Loan savedLoan = loanRepo.save(loan);
+					try {
+						transactionService.journalLoan(savedLoan, accountRepo.findById(loansDto.getAccount().getId()).get(), loansDto.getDate());
+						success.values.add("Disbursed loan for "+memberRepo.findNameById(loan.getMember().getId()));
+					}catch(NullPointerException e) {
+						loan.setStatus(LoanStatus.AUTHORIZED);
+						loanRepo.save(loan);
+						errors.values.add("No loan account found for "+memberRepo.findNameById(loan.getMember().getId()));
+					}
+				}else if(loan.getStatus()==LoanStatus.PAID)
+					errors.values.add("Already paid loan for "+memberRepo.findNameById(loan.getMember().getId()));
+				else
+					errors.values.add("Unauthorized loan for "+memberRepo.findNameById(loan.getMember().getId()));
+				
+			}else
+				errors.values.add("Invalid loan ["+loanDto.getId()+"]");
+		}
+		List<MappedStringListDto> result = new ArrayList<MappedStringListDto>();
+		result.add(success);
+		result.add(errors);
+		return new Response<List<MappedStringListDto>>(ResponseCode.SUCCESS,"Success",result);
+	}
 	
 	@Override
 	public Response<List<LoanDto>> getLoans() {
@@ -249,7 +301,7 @@ public class LoanServiceImplementation implements LoanService {
 	public Response<List<LoanDto>> getIncompleteDisbursedLoans() {
 		return new Response<List<LoanDto>>(ResponseCode.SUCCESS,"Success",loanRepo.getLoansByStatus(LoanStatus.PAID));
 	}
-
+	
 	@Override
 	public Response<CollectedReturnsResponseDto> collectLoansReturns(CollectReturnsDto returnDto) {
 		List<MemberPayDto> success = new ArrayList<MemberPayDto>();
@@ -280,6 +332,13 @@ public class LoanServiceImplementation implements LoanService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		TransactionDto txn = new TransactionDto();
+		txn.setDescription("Being return on loan collected on "+returnDto.getDate());
+		txn.setDate(LocalDate.parse(returnDto.getDate()));
+		List<TransactionDetailDto> txnDetails = new ArrayList<TransactionDetailDto>();
+		int interest = 0;
+		int repay = 0;
 		boolean found;
 		for (String[] strings : objectList) {
             if (!strings[0].equals("Not set")) {
@@ -303,6 +362,15 @@ public class LoanServiceImplementation implements LoanService {
                 					loanReturn.setCreatedBy(userService.me().getId());
                 					loanReturnRepo.save(loanReturn);
                 					
+                					int i = (int) Math.floor(loanReturn.getAmount()*(loanReturn.getLoan().getInterest()/100));
+                					interest+=i;
+                					int n = loanReturn.getAmount() - i;
+                					repay+=n;
+                					TransactionDetailDto txnDetail = new TransactionDetailDto();
+                					txnDetail.setCredit(n);
+                					txnDetail.setDebit(0);
+                					txnDetail.setAccount(accountRepo.findAccountByCode(cn));
+                					txnDetails.add(txnDetail);
                 					Loan _loan = loanRepo.findById(loan.getId()).get();
                 					_loan.setBalance(loan.getBalance()-returns);
                 					if(_loan.getBalance()==0)
@@ -310,6 +378,7 @@ public class LoanServiceImplementation implements LoanService {
                 					else
                 						_loan.setStatus(LoanStatus.RETURNING);
                 					loanRepo.save(_loan);
+                					
                 					success.add(new MemberPayDto(strings[1]+" "+strings[2],Integer.parseInt(strings[4])));
             					}else
             						overdeducted.add(new MemberPayDto(strings[1]+" "+strings[2],Integer.parseInt(strings[4])));
@@ -326,6 +395,21 @@ public class LoanServiceImplementation implements LoanService {
             }else
             	throw new InvalidDataException("No data found");
         }
+		if(interest>0) {
+			TransactionDetailDto txnDetail = new TransactionDetailDto();
+			txnDetail.setCredit(interest);
+			txnDetail.setDebit(0);
+			txnDetail.setAccount(accountRepo.findAccountByName("Interest"));
+			txnDetails.add(txnDetail);
+			txnDetail = new TransactionDetailDto();
+			txnDetail.setCredit(0);
+			txnDetail.setDebit(interest+repay);
+			txnDetail.setAccount(accountRepo.findAccountById(accountRepo.findById(returnDto.getAccount()).get().getId()));
+			txnDetails.add(txnDetail);
+			txn.setDetails(txnDetails);
+			transactionService.saveTransaction(txn);			
+		}
+		
 		List<Loan> notPaid = loanRepo.getNonReturnedLoansOnMonth(month(LocalDate.parse(returnDto.getDate())),LoanStatus.PAID.ordinal());
 		notPaid.addAll(loanRepo.getNonReturnedLoansOnMonth(month(LocalDate.parse(returnDto.getDate())),LoanStatus.RETURNING.ordinal()));
 		for(Loan loan:notPaid)
@@ -337,6 +421,12 @@ public class LoanServiceImplementation implements LoanService {
 		int y = date.getYear();
 		int m = date.getMonthValue();
 		return m<10?y+"-0"+m:y+"-"+m;
+	}
+
+	@Override
+	public Response<LoanDto> collectLoanReturn(CollectReturnDto returnDto) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import tz.mil.ngome.lms.dto.AccountDto;
-import tz.mil.ngome.lms.dto.AccountTypeDto;
 import tz.mil.ngome.lms.entity.Account;
 
 public interface AccountRepository extends JpaRepository<Account, String> {
@@ -20,6 +19,11 @@ public interface AccountRepository extends JpaRepository<Account, String> {
 			+ "account.id, account.name, account.accountType.id)"
 			+ "FROM Account AS account WHERE account.id=:id")
 	AccountDto findAccountById(String id);
+	
+	@Query("SELECT new tz.mil.ngome.lms.dto.AccountDto("
+			+ "account.id, account.name, account.accountType.id)"
+			+ "FROM Account AS account WHERE account.name=:name")
+	AccountDto findAccountByName(String name);
 
 	@Query("SELECT new tz.mil.ngome.lms.dto.AccountDto("
 			+ "account.id, account.name, account.accountType.id)"
@@ -27,5 +31,10 @@ public interface AccountRepository extends JpaRepository<Account, String> {
 	List<AccountDto> findAllAccounts();
 
 	Account findByCode(int compNumber);
+
+	@Query("SELECT new tz.mil.ngome.lms.dto.AccountDto("
+			+ "account.id, account.name, account.accountType.id)"
+			+ "FROM Account AS account WHERE account.code=:code")
+	AccountDto findAccountByCode(int code);
 		
 }

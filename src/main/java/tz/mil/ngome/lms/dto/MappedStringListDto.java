@@ -17,4 +17,8 @@ public class MappedStringListDto {
 	public String key;
 	public List<String> values = new ArrayList<String>();
 	
+	public MappedStringListDto(String key) {
+		this.key = key;
+	}
+	
 }

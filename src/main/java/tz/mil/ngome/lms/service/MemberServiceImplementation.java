@@ -154,12 +154,9 @@ public class MemberServiceImplementation implements MemberService {
 			e.printStackTrace();
 		}
 		
-		MappedStringListDto success = new MappedStringListDto();
-		MappedStringListDto duplicates = new MappedStringListDto();
-		MappedStringListDto error = new MappedStringListDto();
-	    success.setKey("Success");
-	    duplicates.setKey("Duplicates");
-	    error.setKey("Error");
+		MappedStringListDto success = new MappedStringListDto("Success");
+		MappedStringListDto duplicates = new MappedStringListDto("Duplicates");
+		MappedStringListDto error = new MappedStringListDto("Error");
 		for (String[] strings : objectList) {
 	        if (!strings[0].equals("Not set")) {
 	        	if(strings.length<8)

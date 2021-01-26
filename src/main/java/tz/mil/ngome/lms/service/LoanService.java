@@ -4,10 +4,13 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import tz.mil.ngome.lms.dto.CollectReturnDto;
 import tz.mil.ngome.lms.dto.CollectReturnsDto;
 import tz.mil.ngome.lms.dto.CollectedReturnsResponseDto;
 import tz.mil.ngome.lms.dto.DisburseLoanDto;
+import tz.mil.ngome.lms.dto.DisburseLoansDto;
 import tz.mil.ngome.lms.dto.LoanDto;
+import tz.mil.ngome.lms.dto.MappedStringListDto;
 import tz.mil.ngome.lms.utils.Response;
 
 @Service
@@ -18,6 +21,7 @@ public interface LoanService {
 	Response<LoanDto> approveLoan(LoanDto loanDto);
 	Response<LoanDto> authorizeLoan(LoanDto loanDto);
 	Response<LoanDto> disburseLoan(DisburseLoanDto loanDto);
+	Response<List<MappedStringListDto>> disburseLoans(DisburseLoansDto loansDto);
 	Response<List<LoanDto>> getLoans();
 	Response<List<LoanDto>> getLoans(int comp);
 	Response<List<LoanDto>> getRequestedLoans(String subUnit);
@@ -26,5 +30,6 @@ public interface LoanService {
 	Response<List<LoanDto>> getIncompleteDisbursedLoans();	
 	Response<List<LoanDto>> getDisbursedLoans();	
 	Response<CollectedReturnsResponseDto> collectLoansReturns(CollectReturnsDto returnDto);
+	Response<LoanDto> collectLoanReturn(CollectReturnDto returnDto);
 	
 }

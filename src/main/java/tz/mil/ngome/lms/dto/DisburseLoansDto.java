@@ -1,8 +1,7 @@
 package tz.mil.ngome.lms.dto;
 
 import java.time.LocalDate;
-
-import org.springframework.web.multipart.MultipartFile;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,10 +13,10 @@ import tz.mil.ngome.lms.entity.Account;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CollectReturnsDto {
-
-	private String date;
-	private String account;
-	private MultipartFile file;
+public class DisburseLoansDto {
+	
+	private LocalDate date;
+	private Account account;
+	private List<LoanDto> loans;
 	
 }

@@ -27,4 +27,7 @@ public interface MemberRepository extends JpaRepository<Member, String> {
 
 	Optional<Member> findByCompNumber(int compNumber);
 
+	@Query(value = "select concat(servicenumber,' ',rank,' ',firstname,' ',middlename,' ',lastname) as name from member where id=:id", nativeQuery = true)
+	String findNameById(String id);
+
 }

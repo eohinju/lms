@@ -3,11 +3,11 @@ package tz.mil.ngome.lms.service;
 import java.time.LocalDate;
 
 import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import tz.mil.ngome.lms.dto.TransactionDetailDto;
 import tz.mil.ngome.lms.dto.TransactionDto;
 import tz.mil.ngome.lms.entity.Account;
 import tz.mil.ngome.lms.entity.Loan;
@@ -57,6 +57,31 @@ public class TransactionServiceImpl implements TransactionService {
 		detail.setCreatedBy(userService.me().getId());
 		detailRepo.save(detail);
 		return new Response<TransactionDto>(ResponseCode.SUCCESS,"Success",transactionRepo.findTransactionById(txn.getId()));
+	}
+
+	@Override
+	public TransactionDto saveTransaction(TransactionDto transactionDto) {
+		Transaction txn = new Transaction();
+		txn.setCreatedBy(userService.me().getId());
+		txn.setDate(transactionDto.getDate());
+		txn.setDescription(transactionDto.getDescription());
+		transactionRepo.save(txn);
+		int debit = 0;
+		int credit = 0;
+		for(TransactionDetailDto detail: transactionDto.getDetails() ) {
+			TransactionDetail txnDetail = new TransactionDetail(txn,accountRepo.findById(detail.getAccount().getId()).get(),detail.getDebit(),detail.getCredit());
+			txnDetail.setCreatedBy(userService.me().getId());
+			detailRepo.save(txnDetail);
+			debit+=detail.getDebit();
+			credit+=detail.getCredit();
+		}
+		txn.setCredit(credit);
+		txn.setDebit(debit);
+		if(credit==debit)
+			transactionRepo.save(txn);
+		else
+			transactionRepo.delete(txn);
+		return transactionRepo.findTransactionById(txn.getId());
 	}
 
 
