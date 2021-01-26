@@ -8,8 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import tz.mil.ngome.lms.entity.AccountType;
 import tz.mil.ngome.lms.entity.User;
 import tz.mil.ngome.lms.entity.User.Role;
+import tz.mil.ngome.lms.repository.AccountTypeRepository;
 import tz.mil.ngome.lms.repository.UserRepository;
 import tz.mil.ngome.lms.security.JwtAuthTokenFilter;
 
@@ -22,21 +24,29 @@ public class Initializer {
 	UserRepository userRepo;
 	
 	@Autowired
+	AccountTypeRepository accountTypeRepo;
+	
+	@Autowired
     PasswordEncoder encoder;
 	
 	@PostConstruct
 	public void init() {
 		initializeUser();
+		initializeAccountTypes();
 	}
 	
 	private void initializeUser() {
 		User user = new User("root",encoder.encode("toor"),Role.ROLE_ADMIN,null);
 		user.setCreatedBy("Initializer");
-		try {
-			userRepo.save(user);
-			logger.info("root seeded");
-		}catch(Exception e) {
-			logger.warn("root already seeded");
+		try {userRepo.save(user);}catch(Exception e) {}
+	}
+	
+	private void initializeAccountTypes() {
+		String[] types = {"Asset","Liability","Capital","Revenue","Expense"};
+		for(String type : types) {
+			AccountType aType = new AccountType(type);
+			aType.setCreatedBy("Initializer");
+			try { accountTypeRepo.save(aType); }catch(Exception e) {}
 		}
 	}
 

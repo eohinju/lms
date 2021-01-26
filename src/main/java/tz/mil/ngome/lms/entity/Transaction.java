@@ -1,0 +1,45 @@
+package  tz.mil.ngome.lms.entity;
+
+import java.util.Set;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import tz.mil.ngome.lms.utils.BaseEntity;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+public class Transaction extends BaseEntity {
+
+	@Basic(optional = true)
+	@Column(name = "receipt", length = 128, nullable = true)
+	private String receipt;
+
+	@Basic(optional = true)
+	@Column(name = "description", length = 128, nullable = true)
+	private String description;
+
+	@Basic(optional = false)
+	@Column(name = "debit")
+	private int debit = 0;
+
+	@Basic(optional = false)
+	@Column(name = "credit")
+	private int credit = 0;
+
+	@OneToMany(mappedBy = "transaction")
+	@JsonManagedReference
+	private Set<TransactionDetail> details;
+	
+}
