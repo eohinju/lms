@@ -44,7 +44,6 @@ public class Member extends BaseEntity {
 	private String subUnit;
 	
 	public String getName() {
-		return this.firstName+" "+this.middleName+" "+this.lastName;
+		return this.serviceNumber.trim()+" "+this.getRank().trim()+" "+this.firstName.trim()+" "+this.middleName.trim()+" "+this.lastName.trim();
 	}
-
 }

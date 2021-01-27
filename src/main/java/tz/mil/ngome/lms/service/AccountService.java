@@ -6,12 +6,15 @@ import org.springframework.stereotype.Service;
 
 import tz.mil.ngome.lms.dto.AccountDto;
 import tz.mil.ngome.lms.dto.AccountTypeDto;
+import tz.mil.ngome.lms.dto.MemberDto;
 import tz.mil.ngome.lms.utils.Response;
 
 @Service
 public interface AccountService {
 
 	Response<AccountDto> createAccount(AccountDto accountDto);
+	
+	Response<String> createMemberAccount(MemberDto memberDto);
 
 	Response<AccountDto> updateAccount(AccountDto accountDto);
 

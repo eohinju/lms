@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import tz.mil.ngome.lms.dto.AccountDto;
 import tz.mil.ngome.lms.dto.AccountTypeDto;
+import tz.mil.ngome.lms.dto.MemberDto;
 import tz.mil.ngome.lms.service.AccountService;
 import tz.mil.ngome.lms.utils.Response;
 
@@ -28,6 +29,11 @@ public class AccountController {
 	@PostMapping(value = "create-account", consumes = MediaType.APPLICATION_JSON_VALUE)
 	private Response<AccountDto> createAccount(@RequestBody AccountDto accountDto) {
 		return this.accountService.createAccount(accountDto);
+	}
+	
+	@PostMapping(value = "create-member-account", consumes = MediaType.APPLICATION_JSON_VALUE)
+	private Response<String> createMemberAccount(@RequestBody MemberDto memberDto) {
+		return this.accountService.createMemberAccount(memberDto);
 	}
 
 	@PostMapping(value = "update-account", consumes = MediaType.APPLICATION_JSON_VALUE)

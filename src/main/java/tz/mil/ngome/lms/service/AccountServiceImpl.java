@@ -12,12 +12,15 @@ import com.fasterxml.uuid.Logger;
 
 import tz.mil.ngome.lms.dto.AccountDto;
 import tz.mil.ngome.lms.dto.AccountTypeDto;
+import tz.mil.ngome.lms.dto.MemberDto;
 import tz.mil.ngome.lms.entity.Account;
+import tz.mil.ngome.lms.entity.Member;
 import tz.mil.ngome.lms.exception.DuplicateDataException;
 import tz.mil.ngome.lms.exception.InvalidDataException;
 import tz.mil.ngome.lms.exception.NotFoundException;
 import tz.mil.ngome.lms.repository.AccountRepository;
 import tz.mil.ngome.lms.repository.AccountTypeRepository;
+import tz.mil.ngome.lms.repository.MemberRepository;
 import tz.mil.ngome.lms.utils.Response;
 import tz.mil.ngome.lms.utils.ResponseCode;
 
@@ -32,6 +35,9 @@ public class AccountServiceImpl implements AccountService {
 	
 	@Autowired
 	AccountTypeRepository accountTypeRepo;
+	
+	@Autowired
+	MemberRepository memberRepo;
 	
 	@Override
 	public Response<AccountDto> createAccount(AccountDto accountDto) {
@@ -122,6 +128,23 @@ public class AccountServiceImpl implements AccountService {
 			return response;
 		}else
 			throw new NotFoundException("No account found with given identity");
+	}
+
+	@Override
+	public Response<String> createMemberAccount(MemberDto memberDto) {
+		if(memberDto==null || memberDto.getId()==null || memberDto.getId().isEmpty() || !memberRepo.findById(memberDto.getId()).isPresent())
+			throw new InvalidDataException("Valid member required");
+		
+		Member member = memberRepo.findById(memberDto.getId()).get();
+		if(accountRepo.findByCode(member.getCompNumber())!=null)
+			throw new DuplicateDataException("Member already has an account");
+		Account account = new Account();
+		account.setName(member.getName());
+		account.setCode(member.getCompNumber());
+		account.setAccountType(accountTypeRepo.findByName("Asset").get(0));
+		account.setCreatedBy(userService.me().getId());
+		accountRepo.save(account);
+		return new Response<String>(ResponseCode.SUCCESS,"Success","Account created successfully");
 	}
 
 }
