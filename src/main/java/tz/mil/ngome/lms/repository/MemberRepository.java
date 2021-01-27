@@ -16,7 +16,7 @@ public interface MemberRepository extends JpaRepository<Member, String> {
 	@Query("SELECT new tz.mil.ngome.lms.dto.MemberDto("
 			+ "_member.id,_member.compNumber,_member.serviceNumber,_member.rank,_member.firstName,_member.middleName,_member.lastName,"
 			+ "_member.phone,_member.unit,_member.subUnit)"
-			+ "FROM Member AS _member WHERE _member.deleted=false")
+			+ "FROM Member AS _member WHERE _member.deleted=false order by _member.compNumber asc")
 	List<MemberDto> getMembers();
 
 	@Query("SELECT new tz.mil.ngome.lms.dto.MemberDto("
