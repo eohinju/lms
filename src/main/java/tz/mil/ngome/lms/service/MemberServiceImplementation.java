@@ -12,6 +12,8 @@ import java.util.regex.Pattern;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -120,8 +122,8 @@ public class MemberServiceImplementation implements MemberService {
 	}
 
 	@Override
-	public Response<List<MemberDto>> getMembers() {
-		return new Response<List<MemberDto>> (ResponseCode.SUCCESS,"Success",memberRepo.getMembers());
+	public Response<Page<MemberDto>> getMembers(Pageable pageable) {
+		return new Response<Page<MemberDto>> (ResponseCode.SUCCESS,"Success",memberRepo.getMembers(pageable));
 	}
 	
 	public boolean validServiceNumber(String number) {

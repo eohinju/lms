@@ -2,8 +2,9 @@ package tz.mil.ngome.lms.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import tz.mil.ngome.lms.dto.MappedStringListDto;
 import tz.mil.ngome.lms.dto.MemberDto;
@@ -19,6 +20,6 @@ public interface MemberService {
 
 	public Response<List<MappedStringListDto>> importMembers(MembersImportDto file);
 	
-	public Response<List<MemberDto>> getMembers();
+	public Response<Page<MemberDto>> getMembers(Pageable pageable);
 	
 }
