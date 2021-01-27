@@ -65,7 +65,7 @@ public class MemberController {
 	private Response<Page<MemberDto>> getMembers(@RequestParam(name = "page", required = false) Integer page,@RequestParam(name = "size", required = false) Integer size) {
 		int p = page==null || page.intValue()<0?0:page.intValue();
 		int s = size==null || size.intValue()<0?conf.getDefaultPageSize():size.intValue();
-		Pageable pageable = PageRequest.of(p, s, Sort.by(Sort.Order.asc("compnumber")));
+		Pageable pageable = PageRequest.of(p, s, Sort.by(Sort.Order.asc("compNumber")));
 		return this.memberService.getMembers(pageable);
 	}
 	
