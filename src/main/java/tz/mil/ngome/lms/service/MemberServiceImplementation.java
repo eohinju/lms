@@ -205,7 +205,7 @@ public class MemberServiceImplementation implements MemberService {
 		}
 		
 		if(memberDto.getSubUnit()!=null && !memberDto.getSubUnit().contentEquals(member.getSubUnit())) {
-			if(!conf.getSubUnits().contains(memberDto.getSubUnit().toUpperCase()))
+			if(!conf.getSubUnits().contains(memberDto.getSubUnit()))
 				throw new InvalidDataException("Invalid sub unit");
 			member.setSubUnit(memberDto.getSubUnit());
 		}
