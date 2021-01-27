@@ -14,6 +14,8 @@ import tz.mil.ngome.lms.utils.Response;
 public interface MemberService {
 
 	public Response<MemberDto> registerMember(MemberDto memberDto);
+	
+	public Response<MemberDto> updateMember(MemberDto memberDto);
 
 	public Response<List<MappedStringListDto>> importMembers(MembersImportDto file);
 	

@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.BeanUtils;
@@ -181,6 +182,48 @@ public class MemberServiceImplementation implements MemberService {
 		result.add(duplicates);
 		result.add(error);
 		return new Response<List<MappedStringListDto>>(ResponseCode.SUCCESS,"Success",result);
+	}
+
+	@Override
+	public Response<MemberDto> updateMember(MemberDto memberDto) {
+		if(memberDto==null || memberDto.getId()==null || memberDto.getId().isEmpty() || !memberRepo.findById(memberDto.getId()).isPresent())
+			throw new InvalidDataException("Invalid member");
+		
+		Member member = memberRepo.findById(memberDto.getId()).get();
+		if(memberDto.getServiceNumber()!=null && !memberDto.getServiceNumber().contentEquals(member.getServiceNumber())) {
+			if(!validServiceNumber(memberDto.getServiceNumber()))
+				throw new InvalidDataException("Invalid service number");
+			if(memberRepo.findByServiceNumber(memberDto.getServiceNumber()).isPresent())
+				throw new DuplicateDataException("Service number is already used");
+			member.setServiceNumber(memberDto.getServiceNumber());
+		}
+		
+		if(memberDto.getRank()!=null && !memberDto.getRank().contentEquals(member.getRank())) {
+			if(!conf.getRanks().contains(memberDto.getRank().toUpperCase()))
+				throw new InvalidDataException("Invalid rank");
+			member.setRank(memberDto.getRank().toUpperCase());
+		}
+		
+		if(memberDto.getSubUnit()!=null && !memberDto.getSubUnit().contentEquals(member.getSubUnit())) {
+			if(!conf.getSubUnits().contains(memberDto.getSubUnit().toUpperCase()))
+				throw new InvalidDataException("Invalid sub unit");
+			member.setSubUnit(memberDto.getSubUnit());
+		}
+		
+		if(memberDto.getFirstName()!=null && !memberDto.getFirstName().isEmpty())
+			member.setFirstName(memberDto.getFirstName().trim().toUpperCase());
+		
+		if(memberDto.getMiddleName()!=null && !memberDto.getMiddleName().isEmpty())
+			member.setMiddleName(memberDto.getMiddleName().trim().toUpperCase());
+		
+		if(memberDto.getLastName()!=null && !memberDto.getLastName().isEmpty())
+			member.setLastName(memberDto.getLastName().trim().toUpperCase());
+		
+		if(memberDto.getPhone()!=null && !memberDto.getPhone().isEmpty())
+			member.setPhone(memberDto.getPhone().trim());
+		
+		memberRepo.save(member);
+		return new Response<MemberDto>(ResponseCode.SUCCESS,"Success",memberRepo.findMemberById(member.getId()));
 	}
 
 }

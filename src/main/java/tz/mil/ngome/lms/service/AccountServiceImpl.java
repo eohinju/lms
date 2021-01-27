@@ -54,7 +54,6 @@ public class AccountServiceImpl implements AccountService {
 		
 		Account account = new Account();
 		Logger.logInfo("Default code "+account.getCode());
-//		account.setCode(0);
 		account.setName(accountDto.getName());
 		account.setAccountType(accountTypeRepo.findById(accountDto.getType().getId()).get());
 		account.setCreatedBy(userService.me().getId());
@@ -83,11 +82,11 @@ public class AccountServiceImpl implements AccountService {
 			if(accountDto.getName()!=null && accountRepo.findByName(accountDto.getName()).size()>0 && accountRepo.findByName(accountDto.getName()).get(0).getId()!=accountDto.getId())
 				throw new DuplicateDataException("Name is already used by another account");
 			
-			if (accountDto.getType()==null || !accountTypeRepo.findById(accountDto.getType().getId()).isPresent())
-				throw new InvalidDataException("Valid account type is required");
+//			if (accountDto.getType()==null || !accountTypeRepo.findById(accountDto.getType().getId()).isPresent())
+//				throw new InvalidDataException("Valid account type is required");
 			
 			account.setName(accountDto.getName());
-			account.setAccountType(accountTypeRepo.findById(accountDto.getType().getId()).get());
+//			account.setAccountType(accountTypeRepo.findById(accountDto.getType().getId()).get());
 			Account savedAccount = accountRepo.save(account);
 			response.setCode(ResponseCode.SUCCESS);
 			response.setData(accountRepo.findAccountById(savedAccount.getId()));

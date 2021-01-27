@@ -36,6 +36,11 @@ public class MemberController {
 		return this.memberService.registerMember(memberDto);
 	}
 	
+	@PostMapping(value = "update-member", consumes = MediaType.APPLICATION_JSON_VALUE)
+	private Response<MemberDto> updateMember(@RequestBody MemberDto memberDto) {
+		return this.memberService.updateMember(memberDto);
+	}
+	
 	@PostMapping(value = "import-members")
 	private Response<List<MappedStringListDto>> importMembers(@ModelAttribute MembersImportDto membersDto) {
 		return this.memberService.importMembers(membersDto);
