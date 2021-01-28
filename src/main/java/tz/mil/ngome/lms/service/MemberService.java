@@ -22,4 +22,6 @@ public interface MemberService {
 	
 	public Response<Page<MemberDto>> getMembers(Pageable pageable);
 	
+	public Response<List<MemberDto>> findMember(String data);
+	
 }

@@ -5,8 +5,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.BeanUtils;
@@ -226,6 +228,21 @@ public class MemberServiceImplementation implements MemberService {
 		
 		memberRepo.save(member);
 		return new Response<MemberDto>(ResponseCode.SUCCESS,"Success",memberRepo.findMemberById(member.getId()));
+	}
+
+	@Override
+	public Response<List<MemberDto>> findMember(String data) {
+		String[] parts = data.trim().split(" ");
+		Set<MemberDto> members = new HashSet<MemberDto>();
+		for(String part:parts) {
+			List<MemberDto> listMembers = memberRepo.findMembers(part);
+			if(listMembers!=null && !listMembers.isEmpty()) {
+				for(MemberDto m:listMembers) {
+					members.add(m);
+				}
+			}
+		}
+		return new Response<List<MemberDto>>(ResponseCode.SUCCESS,"Success",new ArrayList<MemberDto>(members));
 	}
 
 }

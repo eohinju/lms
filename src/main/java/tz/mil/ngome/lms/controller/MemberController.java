@@ -11,12 +11,14 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.uuid.Logger;
 
 import tz.mil.ngome.lms.dto.MappedStringListDto;
 import tz.mil.ngome.lms.dto.MemberDto;
@@ -63,10 +65,17 @@ public class MemberController {
 	
 	@GetMapping(value = "get-members")
 	private Response<Page<MemberDto>> getMembers(@RequestParam(name = "page", required = false) Integer page,@RequestParam(name = "size", required = false) Integer size) {
-		int p = page==null || page.intValue()<0?0:page.intValue();
-		int s = size==null || size.intValue()<0?conf.getDefaultPageSize():size.intValue();
-		Pageable pageable = PageRequest.of(p, s, Sort.by(Sort.Order.asc("compNumber")));
-		return this.memberService.getMembers(pageable);
+		if(page==null || size==null)
+			return this.memberService.getMembers(PageRequest.of(0, Integer.MAX_VALUE, Sort.by(Sort.Order.asc("compNumber"))));
+		int p = page.intValue()<0?0:page.intValue();
+		int s = size.intValue()<0?conf.getDefaultPageSize():size.intValue();
+		return this.memberService.getMembers(PageRequest.of(p, s, Sort.by(Sort.Order.asc("compNumber"))));
+	}
+	
+	@GetMapping(value = "get-members/{data}")
+	private Response<List<MemberDto>> findMember(@PathVariable(name = "data", required = true) String data) {
+		data = data==null?"":data;
+		return this.memberService.findMember(data);
 	}
 	
 }
