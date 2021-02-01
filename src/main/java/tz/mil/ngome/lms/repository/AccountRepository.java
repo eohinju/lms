@@ -12,7 +12,7 @@ public interface AccountRepository extends JpaRepository<Account, String> {
 
 	List<Account> findByName(String name);
 
-	@Query(value = "select * from account where deleted=false order by name asc", nativeQuery = true)
+	@Query(value = "select * from accounts where deleted=false order by name asc", nativeQuery = true)
 	List<Account> getAll();
 	
 	@Query("SELECT new tz.mil.ngome.lms.dto.AccountDto("
