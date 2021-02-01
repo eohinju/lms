@@ -13,7 +13,7 @@ public interface AccountTypeRepository extends JpaRepository<AccountType, String
 
 	List<AccountType> findByName(String name);
 
-	@Query(value = "select * from accounttype where deleted=false order by name asc", nativeQuery = true)
+	@Query(value = "select * from account_types where deleted=false order by name asc", nativeQuery = true)
 	List<AccountType> getAll();
 
 	@Query("SELECT new tz.mil.ngome.lms.dto.AccountTypeDto("

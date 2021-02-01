@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -20,6 +21,7 @@ import tz.mil.ngome.lms.utils.BaseEntity;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "transaction_details")
 public class TransactionDetail extends BaseEntity {
 
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)

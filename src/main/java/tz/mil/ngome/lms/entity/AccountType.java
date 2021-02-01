@@ -3,6 +3,7 @@ package  tz.mil.ngome.lms.entity;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +16,7 @@ import tz.mil.ngome.lms.utils.BaseEntity;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "account_types")
 public class AccountType extends BaseEntity {
 
 	@Basic(optional = false)

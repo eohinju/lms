@@ -2,6 +2,7 @@ package tz.mil.ngome.lms.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,6 +15,7 @@ import tz.mil.ngome.lms.utils.BaseEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "loan_types")
 public class LoanType extends BaseEntity {
 	
 	@Column(nullable = false, length = 16)

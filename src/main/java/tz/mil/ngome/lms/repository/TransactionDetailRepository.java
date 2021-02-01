@@ -17,7 +17,7 @@ public interface TransactionDetailRepository extends JpaRepository<TransactionDe
 
 	@Transactional
 	@Modifying
-	@Query(value = "delete from transactiondetail where transaction=:id", nativeQuery = true)
+	@Query(value = "delete from transaction_details where transaction=:id", nativeQuery = true)
 	void deleteByTransactionId(String id);
 
 	@Query("SELECT new tz.mil.ngome.lms.dto.TransactionDetailDto("
@@ -25,10 +25,10 @@ public interface TransactionDetailRepository extends JpaRepository<TransactionDe
 			+ "FROM TransactionDetail AS detail where detail.transaction.id=:id order by detail.debit asc")
 	List<TransactionDetailDto> findDetailsByTransactionId(String id);
 
-	@Query(value = "select sum(debit) as debit from transactiondetail where account=:id", nativeQuery = true)
+	@Query(value = "select sum(debit) as debit from transaction_details where account=:id", nativeQuery = true)
 	Integer getDebitByAccount(String id);
 
-	@Query(value = "select sum(credit) as credit from transactiondetail where account=:id", nativeQuery = true)
+	@Query(value = "select sum(credit) as credit from transaction_details where account=:id", nativeQuery = true)
 	Integer getCreditByAccount(String id);
 
 }
