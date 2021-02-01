@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import tz.mil.ngome.lms.dto.UserDto;
 import tz.mil.ngome.lms.dto.SignDto;
 import tz.mil.ngome.lms.dto.SignedDto;
+import tz.mil.ngome.lms.dto.SignupDto;
 import tz.mil.ngome.lms.service.UserService;
 import tz.mil.ngome.lms.utils.Configuration;
 import tz.mil.ngome.lms.utils.Response;
@@ -33,7 +33,7 @@ public class UserController {
 	Configuration conf = new Configuration();
 
 	@PostMapping(value = "auth/signup", consumes = MediaType.APPLICATION_JSON_VALUE)
-	private Response<String> signUp(@RequestBody UserDto userDto) {
+	private Response<String> signUp(@RequestBody SignupDto userDto) {
 		return this.userService.signUp(userDto);
 	}
 	

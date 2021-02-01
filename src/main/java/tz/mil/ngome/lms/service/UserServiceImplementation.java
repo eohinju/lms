@@ -17,6 +17,7 @@ import tz.mil.ngome.lms.dto.MemberDto;
 import tz.mil.ngome.lms.dto.RoleSettingDto;
 import tz.mil.ngome.lms.dto.SignDto;
 import tz.mil.ngome.lms.dto.SignedDto;
+import tz.mil.ngome.lms.dto.SignupDto;
 import tz.mil.ngome.lms.dto.UserDto;
 import tz.mil.ngome.lms.entity.User;
 import tz.mil.ngome.lms.entity.User.Role;
@@ -47,7 +48,7 @@ public class UserServiceImplementation implements UserService {
     PasswordEncoder encoder;
 	
 	@Override
-	public Response<String> signUp(UserDto userDto) {
+	public Response<String> signUp(SignupDto userDto) {
 		Response<String> response = new Response<String>();
 		
 		if(userDto.getUsername()==null || userDto.getUsername().isEmpty())
