@@ -17,6 +17,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,12 +29,15 @@ import tz.mil.ngome.lms.dto.MemberDto;
 import tz.mil.ngome.lms.dto.MembersImportDto;
 import tz.mil.ngome.lms.entity.Account;
 import tz.mil.ngome.lms.entity.Member;
+import tz.mil.ngome.lms.entity.User;
+import tz.mil.ngome.lms.entity.User.Role;
 import tz.mil.ngome.lms.exception.DuplicateDataException;
 import tz.mil.ngome.lms.exception.FailureException;
 import tz.mil.ngome.lms.exception.InvalidDataException;
 import tz.mil.ngome.lms.repository.AccountRepository;
 import tz.mil.ngome.lms.repository.AccountTypeRepository;
 import tz.mil.ngome.lms.repository.MemberRepository;
+import tz.mil.ngome.lms.repository.UserRepository;
 import tz.mil.ngome.lms.utils.Configuration;
 import tz.mil.ngome.lms.utils.Response;
 import tz.mil.ngome.lms.utils.ResponseCode;
@@ -52,6 +56,12 @@ public class MemberServiceImplementation implements MemberService {
 	
 	@Autowired
 	AccountRepository accountRepo;
+	
+	@Autowired
+	UserRepository userRepo;
+	
+	@Autowired
+    PasswordEncoder encoder;
 	
 	Configuration conf = new Configuration();
 
@@ -110,11 +120,19 @@ public class MemberServiceImplementation implements MemberService {
 				account.setCode(savedMember.getCompNumber());
 				account.setName(savedMember.getServiceNumber()+" "+savedMember.getRank()+" "+savedMember.getFirstName()+" "+savedMember.getMiddleName()+" "+savedMember.getLastName());
 				account.setCreatedBy(userService.me().getId());
+				User user = new User(String.valueOf(member.getCompNumber()),encoder.encode(String.valueOf(member.getCompNumber())),Role.ROLE_MEMBER,member);
+				user.setCreatedBy(userService.me().getId());
 				try {
 					accountRepo.save(account);
 				}catch(Exception e) {
 					
 				}
+				try {
+					userRepo.save(user);
+				}catch(Exception e) {
+					
+				}
+				
 				return memberRepo.findMemberById(savedMember.getId());
 			}else
 				throw new FailureException("Sorry, could not save member");
