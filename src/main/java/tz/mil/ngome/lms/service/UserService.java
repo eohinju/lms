@@ -1,7 +1,12 @@
 package tz.mil.ngome.lms.service;
 
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import tz.mil.ngome.lms.dto.RoleSettingDto;
 import tz.mil.ngome.lms.dto.SignDto;
 import tz.mil.ngome.lms.dto.SignedDto;
 import tz.mil.ngome.lms.dto.UserDto;
@@ -15,5 +20,8 @@ public interface UserService {
 	Response<SignedDto> signIn(SignDto signDto);
 	User me();
 	String lang();
-	
+	Response<Page<UserDto>> getUsers(Pageable pageable);
+	Response<List<UserDto>> getSpecialUsers();
+	Response<UserDto> setRole(RoleSettingDto user);
+
 }

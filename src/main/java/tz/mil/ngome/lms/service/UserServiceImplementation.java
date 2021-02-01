@@ -1,8 +1,11 @@
 package tz.mil.ngome.lms.service;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -10,6 +13,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import tz.mil.ngome.lms.dto.MemberDto;
+import tz.mil.ngome.lms.dto.RoleSettingDto;
 import tz.mil.ngome.lms.dto.SignDto;
 import tz.mil.ngome.lms.dto.SignedDto;
 import tz.mil.ngome.lms.dto.UserDto;
@@ -132,6 +137,22 @@ public class UserServiceImplementation implements UserService {
 	public String lang() {
 		// TODO Auto-generated method stub
 		return "sw";
+	}
+
+	@Override
+	public Response<Page<UserDto>> getUsers(Pageable pageable) {
+		return new Response<Page<UserDto>> (ResponseCode.SUCCESS,"Success",userRepo.getUsers(pageable));
+	}
+
+	@Override
+	public Response<List<UserDto>> getSpecialUsers() {
+		return new Response<List<UserDto>> (ResponseCode.SUCCESS,"Success",userRepo.getUsersNotInRole(Role.ROLE_MEMBER));
+	}
+
+	@Override
+	public Response<UserDto> setRole(RoleSettingDto user) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
