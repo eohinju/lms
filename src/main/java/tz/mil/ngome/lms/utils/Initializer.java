@@ -42,7 +42,7 @@ public class Initializer {
 	}
 	
 	private void initializeUser() {
-		if(userRepo.count()>0)
+		if(userRepo.count()>=0)
 			return;
 		User user = new User("root",encoder.encode("toor"),Role.ROLE_ADMIN,null);
 		user.setCreatedBy("Initializer");
@@ -50,7 +50,7 @@ public class Initializer {
 	}
 	
 	private void initializeAccountTypes() {
-		if(accountTypeRepo.count()>0)
+		if(accountTypeRepo.count()>=0)
 			return;
 		String[] types = {"Asset","Liability","Capital","Revenue","Expense"};
 		for(String type : types) {
@@ -61,7 +61,7 @@ public class Initializer {
 	}
 	
 	private void initializeAccounts() {
-		if(accountRepo.count()>0)
+		if(accountRepo.count()>=0)
 			return;
 		Account account = new Account();
 		account.setName("Interest");
