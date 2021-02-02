@@ -22,6 +22,7 @@ public interface UserService {
 	User me();
 	String lang();
 	Response<Page<UserDto>> getUsers(Pageable pageable);
+	Response<List<UserDto>> findUsers(String data);
 	Response<List<UserDto>> getSpecialUsers();
 	Response<UserDto> setRole(RoleSettingDto user);
 

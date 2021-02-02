@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import tz.mil.ngome.lms.dto.MemberDto;
 import tz.mil.ngome.lms.dto.UserDto;
 import tz.mil.ngome.lms.entity.User;
 import tz.mil.ngome.lms.entity.User.Role;
@@ -26,6 +27,14 @@ public interface UserRepository  extends JpaRepository<User, String> {
 			countQuery = " select count(user) from User as user where user.deleted=false"
 			)
 	Page<UserDto> getUsers(Pageable pageable);
+	
+	@Query(value="SELECT new tz.mil.ngome.lms.dto.UserDto("
+			+ "user.id, user.username, user.member.id, user.role)"
+			+ "FROM User AS user WHERE user.deleted=false and "
+			+ "(cast(user.member.compNumber as text) like %:data% or lower(user.username) like %:data%  or lower(user.member.serviceNumber) like %:data% or lower(user.member.firstName) like %:data% "
+			+ "or lower(user.member.middleName) like %:data% or lower(user.member.lastName) like %:data%)"
+			)
+	List<UserDto> findUsers(String data);
 	
 	@Query(value="SELECT new tz.mil.ngome.lms.dto.UserDto("
 			+ "user.id, user.username, user.member.id, user.role)"

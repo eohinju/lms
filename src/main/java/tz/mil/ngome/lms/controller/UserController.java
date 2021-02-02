@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import tz.mil.ngome.lms.dto.UserDto;
+import tz.mil.ngome.lms.dto.MemberDto;
 import tz.mil.ngome.lms.dto.RoleSettingDto;
 import tz.mil.ngome.lms.dto.SignDto;
 import tz.mil.ngome.lms.dto.SignedDto;
@@ -50,6 +52,12 @@ public class UserController {
 		int p = page.intValue()<0?0:page.intValue();
 		int s = size.intValue()<0?conf.getDefaultPageSize():size.intValue();
 		return this.userService.getUsers(PageRequest.of(p, s));
+	}
+	
+	@GetMapping(value = "get-users/{data}")
+	private Response<List<UserDto>> findMember(@PathVariable(name = "data", required = true) String data) {
+		data = data==null?"":data;
+		return this.userService.findUsers(data);
 	}
 	
 	@GetMapping(value = "get-special-users")

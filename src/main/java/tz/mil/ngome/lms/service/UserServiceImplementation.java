@@ -1,6 +1,9 @@
 package tz.mil.ngome.lms.service;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -144,6 +147,21 @@ public class UserServiceImplementation implements UserService {
 	public Response<Page<UserDto>> getUsers(Pageable pageable) {
 		return new Response<Page<UserDto>> (ResponseCode.SUCCESS,"Success",userRepo.getUsers(pageable));
 	}
+	
+	@Override
+	public Response<List<UserDto>> findUsers(String data) {
+		String[] parts = data.trim().split(" ");
+		Set<UserDto> users = new HashSet<UserDto>();
+		for(String part:parts) {
+			List<UserDto> listMembers = userRepo.findUsers(part);
+			if(listMembers!=null && !listMembers.isEmpty()) {
+				for(UserDto m:listMembers) {
+					users.add(m);
+				}
+			}
+		}
+		return new Response<List<UserDto>>(ResponseCode.SUCCESS,"Success",new ArrayList<UserDto>(users));
+	}
 
 	@Override
 	public Response<List<UserDto>> getSpecialUsers() {
@@ -171,5 +189,7 @@ public class UserServiceImplementation implements UserService {
 		userRepo.save(user);
 		return new Response<UserDto> (ResponseCode.SUCCESS,"Success",userRepo.getUser(user.getId()));
 	}
+
+	
 
 }
