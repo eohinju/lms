@@ -151,9 +151,25 @@ public class UserServiceImplementation implements UserService {
 	}
 
 	@Override
-	public Response<UserDto> setRole(RoleSettingDto user) {
-		// TODO Auto-generated method stub
-		return null;
+	public Response<UserDto> setRole(RoleSettingDto data) {
+		if(data==null)
+			throw new InvalidDataException("Invalid data");
+		
+		if(data.getUser()==null ||data.getUser().getId()==null || !userRepo.findById(data.getUser().getId()).isPresent())
+			throw new InvalidDataException("Valid user required");
+		
+		if(data.getRole()==null)
+			throw new InvalidDataException("Valid role required");
+		User user = userRepo.findById(data.getUser().getId()).get();
+		if(data.getRole()==Role.ROLE_CHAIRMAN) 
+			userRepo.setRoleByRole(Role.ROLE_MEMBER.ordinal(), Role.ROLE_CHAIRMAN.ordinal());
+		else if(data.getRole()==Role.ROLE_ACCOUNTANT) 
+			userRepo.setRoleByRole(Role.ROLE_MEMBER.ordinal(), Role.ROLE_ACCOUNTANT.ordinal());
+		else if(data.getRole()==Role.ROLE_LEADER) 
+			userRepo.setRoleByRoleAndSubUnit(Role.ROLE_MEMBER.ordinal(), Role.ROLE_LEADER.ordinal(), user.getMember().getSubUnit());
+		user.setRole(data.getRole());
+		userRepo.save(user);
+		return new Response<UserDto> (ResponseCode.SUCCESS,"Success",userRepo.getUser(user.getId()));
 	}
 
 }

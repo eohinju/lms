@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import tz.mil.ngome.lms.dto.UserDto;
+import tz.mil.ngome.lms.dto.RoleSettingDto;
 import tz.mil.ngome.lms.dto.SignDto;
 import tz.mil.ngome.lms.dto.SignedDto;
 import tz.mil.ngome.lms.dto.SignupDto;
@@ -54,6 +55,11 @@ public class UserController {
 	@GetMapping(value = "get-special-users")
 	private Response<List<UserDto>> getSpecialUsers() {
 		return this.userService.getSpecialUsers();
+	}
+	
+	@PostMapping(value = "set-role", consumes = MediaType.APPLICATION_JSON_VALUE)
+	private Response<UserDto> setRole(@RequestBody RoleSettingDto data) {
+		return this.userService.setRole(data);
 	}
 	
 }
