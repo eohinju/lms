@@ -56,7 +56,7 @@ public class UserController {
 	
 	@GetMapping(value = "get-users/{data}")
 	private Response<List<UserDto>> findMember(@PathVariable(name = "data", required = true) String data) {
-		data = data==null?"":data;
+		data = data==null?"":data.toLowerCase();
 		return this.userService.findUsers(data);
 	}
 	

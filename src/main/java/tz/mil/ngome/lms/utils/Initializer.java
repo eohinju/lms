@@ -44,7 +44,7 @@ public class Initializer {
 	private void initializeUser() {
 		if(userRepo.count()>0)
 			return;
-		User user = new User("root",encoder.encode("toor"),Role.ROLE_ADMIN,null);
+		User user = new User("root",encoder.encode("toor"),Role.ROLE_ADMIN,false,null);
 		user.setCreatedBy("Initializer");
 		try {userRepo.save(user);}catch(Exception e) {}
 	}

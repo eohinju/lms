@@ -31,6 +31,9 @@ public class User extends BaseEntity {
 	@Column
 	private Role role;
 	
+	@Column
+	private boolean changePassword = true;
+	
 	@ManyToOne
 	@JoinColumn(nullable = true, referencedColumnName = "id")
 	private Member member;

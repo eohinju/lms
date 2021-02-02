@@ -101,11 +101,16 @@ public class UserServiceImplementation implements UserService {
 			);        
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-		String jwt = jwtProvider.generateJwtToken(authentication);
+		
 		
 		Optional<User> oUser = userRepo.findByUsername(authentication.getName());
 		if(oUser.isPresent()) {
 			User user = oUser.get();
+			String jwt = "";
+			if(!user.isChangePassword())
+				jwt = jwtProvider.generateJwtToken(authentication);
+			else
+				response.setMessage("Change password");
 			SignedDto signed = new SignedDto();
 			if(user.getMember()!=null) {
 				signed.setPhone(user.getMember().getPhone());
