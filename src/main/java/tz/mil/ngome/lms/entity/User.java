@@ -31,7 +31,7 @@ public class User extends BaseEntity {
 	@Column
 	private Role role;
 	
-	@Column
+	@Column(columnDefinition = "boolean default true")
 	private boolean changePassword = true;
 	
 	@ManyToOne
