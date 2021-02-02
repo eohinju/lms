@@ -120,7 +120,7 @@ public class MemberServiceImplementation implements MemberService {
 				account.setCode(savedMember.getCompNumber());
 				account.setName(savedMember.getServiceNumber()+" "+savedMember.getRank()+" "+savedMember.getFirstName()+" "+savedMember.getMiddleName()+" "+savedMember.getLastName());
 				account.setCreatedBy(userService.me().getId());
-				User user = new User(String.valueOf(member.getCompNumber()),encoder.encode(String.valueOf(member.getCompNumber())),Role.ROLE_MEMBER,member);
+				User user = new User(String.valueOf(member.getCompNumber()),encoder.encode(String.valueOf(member.getCompNumber())),Role.ROLE_MEMBER,true,member);
 				user.setCreatedBy(userService.me().getId());
 				try {
 					accountRepo.save(account);
