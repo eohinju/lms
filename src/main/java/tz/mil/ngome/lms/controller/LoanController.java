@@ -3,6 +3,8 @@ package tz.mil.ngome.lms.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import tz.mil.ngome.lms.dto.CollectReturnsDto;
@@ -19,8 +22,10 @@ import tz.mil.ngome.lms.dto.DisburseLoanDto;
 import tz.mil.ngome.lms.dto.DisburseLoansDto;
 import tz.mil.ngome.lms.dto.LoanDto;
 import tz.mil.ngome.lms.dto.MappedStringListDto;
+import tz.mil.ngome.lms.dto.LoanDto;
 import tz.mil.ngome.lms.exception.InvalidDataException;
 import tz.mil.ngome.lms.service.LoanService;
+import tz.mil.ngome.lms.utils.Configuration;
 import tz.mil.ngome.lms.utils.Response;
 
 @CrossOrigin( origins = "*", allowedHeaders = "*")
@@ -31,9 +36,19 @@ public class LoanController {
 	@Autowired
 	LoanService loanService;
 	
+	Configuration conf = new Configuration();
+	
+//	@GetMapping(value = "get-loans")
+//	private Response<List<LoanDto>> getLoans() {
+//		return this.loanService.getLoans();
+//	}
 	@GetMapping(value = "get-loans")
-	private Response<List<LoanDto>> getLoans() {
-		return this.loanService.getLoans();
+	private Response<Page<LoanDto>> getLoans(@RequestParam(name = "page", required = false) Integer page,@RequestParam(name = "size", required = false) Integer size) {
+		if(page==null || size==null)
+			return this.loanService.getLoans(PageRequest.of(0, Integer.MAX_VALUE));
+		int p = page.intValue()<0?0:page.intValue();
+		int s = size.intValue()<0?conf.getDefaultPageSize():size.intValue();
+		return this.loanService.getLoans(PageRequest.of(p, s));
 	}
 	
 	@GetMapping(value = "get-loans/{comp}")

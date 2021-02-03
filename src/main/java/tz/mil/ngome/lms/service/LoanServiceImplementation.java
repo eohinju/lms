@@ -11,6 +11,8 @@ import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import au.com.bytecode.opencsv.CSVReader;
@@ -271,8 +273,10 @@ public class LoanServiceImplementation implements LoanService {
 	}
 	
 	@Override
-	public Response<List<LoanDto>> getLoans() {
-		return new Response<List<LoanDto>>(ResponseCode.SUCCESS,"Success",loanRepo.getAllLoans());
+	public Response<Page<LoanDto>> getLoans(Pageable pageable) {
+		if(userService.me().getRole()==Role.ROLE_LEADER)
+			return new Response<Page<LoanDto>>(ResponseCode.SUCCESS,"Success",loanRepo.getSubUnitLoansByStatus(userService.me().getMember().getSubUnit(),LoanStatus.REQUESTED.ordinal(),pageable));
+		return new Response<Page<LoanDto>>(ResponseCode.SUCCESS,"Success",loanRepo.getLoans(pageable));
 	}
 	
 	@Override

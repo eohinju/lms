@@ -2,6 +2,8 @@ package tz.mil.ngome.lms.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -11,12 +13,32 @@ import tz.mil.ngome.lms.entity.Loan.LoanStatus;
 
 public interface LoanRepository  extends JpaRepository<Loan, String> {
 
-	@Query("SELECT new tz.mil.ngome.lms.dto.LoanDto("
+	@Query(value = "SELECT new tz.mil.ngome.lms.dto.LoanDto("
 			+ "loan.id, loan.member.id, loan.loanType.id, loan.amount, loan.effectDate,"
 			+ "loan.returns, loan.unit, loan.subUnit, loan.loanName, loan.interest,"
 			+ "loan.periods, loan.period, loan.status)"
-			+ "FROM Loan AS loan WHERE loan.deleted=false order by loan.createdAt desc")
-	List<LoanDto> getAllLoans();
+			+ "FROM Loan AS loan WHERE loan.deleted=false order by loan.createdAt desc",
+			countQuery = " select count(loan) from Loan as loan where loan.deleted=false"
+			)
+	Page<LoanDto> getLoans(Pageable pageable);
+	
+	@Query(value = "SELECT new tz.mil.ngome.lms.dto.LoanDto("
+			+ "loan.id, loan.member.id, loan.loanType.id, loan.amount, loan.effectDate,"
+			+ "loan.returns, loan.unit, loan.subUnit, loan.loanName, loan.interest,"
+			+ "loan.periods, loan.period, loan.status)"
+			+ "FROM Loan AS loan WHERE loan.deleted=false  and loan.subUnit=:subUnit order by loan.createdAt desc",
+			countQuery = " select count(loan) from Loan as loan where loan.deleted=false and loan.subUnit=:subUnit"
+			)
+	Page<LoanDto> getSubUnitLoans(String subUnit, Pageable pageable);
+	
+	@Query(value = "SELECT new tz.mil.ngome.lms.dto.LoanDto("
+			+ "loan.id, loan.member.id, loan.loanType.id, loan.amount, loan.effectDate,"
+			+ "loan.returns, loan.unit, loan.subUnit, loan.loanName, loan.interest,"
+			+ "loan.periods, loan.period, loan.status)"
+			+ "FROM Loan AS loan WHERE loan.deleted=false and loan.subUnit=:subUnit and loan.status=:status order by loan.createdAt desc",
+			countQuery = " select count(loan) from Loan as loan where loan.deleted=false and loan.subUnit=:subUnit and loan.status=:status"
+			)
+	Page<LoanDto> getSubUnitLoansByStatus(String subUnit, int status, Pageable pageable);
 	
 	@Query("SELECT new tz.mil.ngome.lms.dto.LoanDto("
 			+ "loan.id, loan.member.id, loan.loanType.id, loan.amount, loan.effectDate,"

@@ -2,6 +2,8 @@ package tz.mil.ngome.lms.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import tz.mil.ngome.lms.dto.CollectReturnDto;
@@ -26,7 +28,7 @@ public interface LoanService {
 	Response<LoanDto> topUpLoan(TopUpDto topUpDto);
 	Response<LoanDto> disburseLoan(DisburseLoanDto loanDto);
 	Response<List<MappedStringListDto>> disburseLoans(DisburseLoansDto loansDto);
-	Response<List<LoanDto>> getLoans();
+	Response<Page<LoanDto>> getLoans(Pageable pageable);
 	Response<List<LoanDto>> getLoans(int comp);
 	Response<List<LoanDto>> getRequestedLoans(String subUnit);
 	Response<List<LoanDto>> getApprovedLoans();
