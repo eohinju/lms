@@ -50,4 +50,12 @@ public interface MemberRepository extends JpaRepository<Member, String> {
 	@Query(value = "select concat(servicenumber,' ',rank,' ',firstname,' ',middlename,' ',lastname) as name from members where id=:id", nativeQuery = true)
 	String findNameById(String id);
 
+	@Query(value="SELECT new tz.mil.ngome.lms.dto.MemberDto("
+			+ "_member.id,_member.compNumber,_member.serviceNumber,_member.rank,_member.firstName,_member.middleName,_member.lastName,"
+			+ "_member.phone,_member.unit,_member.subUnit)"
+			+ "FROM Member AS _member WHERE _member.deleted=false and _member.subUnit=:subUnit",
+			countQuery = " select count(_member) from Member as _member where _member.deleted=false and _member.subUnit=:subUnit"
+			)
+	Page<MemberDto> getSubUnitMembers(String subUnit, Pageable pageable);
+
 }

@@ -11,6 +11,7 @@ import tz.mil.ngome.lms.dto.DisburseLoanDto;
 import tz.mil.ngome.lms.dto.DisburseLoansDto;
 import tz.mil.ngome.lms.dto.LoanDto;
 import tz.mil.ngome.lms.dto.MappedStringListDto;
+import tz.mil.ngome.lms.dto.TopUpDto;
 import tz.mil.ngome.lms.utils.Response;
 
 @Service
@@ -20,6 +21,9 @@ public interface LoanService {
 	Response<LoanDto> registerLoan(LoanDto loanDto);
 	Response<LoanDto> approveLoan(LoanDto loanDto);
 	Response<LoanDto> authorizeLoan(LoanDto loanDto);
+	Response<String> cancelLoan(LoanDto loanDto);
+	Response<LoanDto> denyLoan(LoanDto loanDto);
+	Response<LoanDto> topUpLoan(TopUpDto topUpDto);
 	Response<LoanDto> disburseLoan(DisburseLoanDto loanDto);
 	Response<List<MappedStringListDto>> disburseLoans(DisburseLoansDto loansDto);
 	Response<List<LoanDto>> getLoans();

@@ -17,12 +17,14 @@ public class UserDto {
 	
 	private String id;
 	private String username;
+	private String email;
 	private MemberDto member;
 	private Role role;
 
-	public UserDto(String id, String username, String memberId, Role role) {
+	public UserDto(String id, String username, String email, String memberId, Role role) {
 		this.id = id;
 		this.username = username;
+		this.email = email;
 		this.member = memberRepo.findMemberById(memberId);
 		this.role = role;
 	}

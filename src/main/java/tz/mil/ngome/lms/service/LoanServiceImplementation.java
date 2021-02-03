@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +22,7 @@ import tz.mil.ngome.lms.dto.DisburseLoansDto;
 import tz.mil.ngome.lms.dto.LoanDto;
 import tz.mil.ngome.lms.dto.MappedStringListDto;
 import tz.mil.ngome.lms.dto.MemberPayDto;
+import tz.mil.ngome.lms.dto.TopUpDto;
 import tz.mil.ngome.lms.dto.TransactionDetailDto;
 import tz.mil.ngome.lms.dto.TransactionDto;
 import tz.mil.ngome.lms.entity.Loan;
@@ -31,6 +30,7 @@ import tz.mil.ngome.lms.entity.Loan.LoanStatus;
 import tz.mil.ngome.lms.entity.LoanReturn;
 import tz.mil.ngome.lms.entity.LoanType;
 import tz.mil.ngome.lms.entity.Member;
+import tz.mil.ngome.lms.entity.User.Role;
 import tz.mil.ngome.lms.exception.InvalidDataException;
 import tz.mil.ngome.lms.exception.UnauthorizedException;
 import tz.mil.ngome.lms.repository.AccountRepository;
@@ -38,14 +38,14 @@ import tz.mil.ngome.lms.repository.LoanRepository;
 import tz.mil.ngome.lms.repository.LoanTypeRepository;
 import tz.mil.ngome.lms.repository.MemberRepository;
 import tz.mil.ngome.lms.repository.TransactionRepository;
+import tz.mil.ngome.lms.repository.UserRepository;
 import tz.mil.ngome.lms.repository.LoanReturnRepository;
+import tz.mil.ngome.lms.utils.EmailSender;
 import tz.mil.ngome.lms.utils.Response;
 import tz.mil.ngome.lms.utils.ResponseCode;
 
 @Service
 public class LoanServiceImplementation implements LoanService {
-
-	private static final Logger logger = LoggerFactory.getLogger(LoanService.class);
 	
 	@Autowired
 	LoanTypeRepository loanTypeRepo;
@@ -55,6 +55,9 @@ public class LoanServiceImplementation implements LoanService {
 	
 	@Autowired
 	AccountRepository accountRepo;
+	
+	@Autowired
+	UserRepository userRepo;
 	
 	@Autowired
 	LoanReturnRepository loanReturnRepo;
@@ -425,6 +428,44 @@ public class LoanServiceImplementation implements LoanService {
 
 	@Override
 	public Response<LoanDto> collectLoanReturn(CollectReturnDto returnDto) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Response<String> cancelLoan(LoanDto loanDto) {
+		if(loanDto==null || loanDto.getId()==null || loanDto.getId().isEmpty() || !loanRepo.findById(loanDto.getId()).isPresent())
+			throw new InvalidDataException("Valid loan required");
+		Loan loan = loanRepo.findById(loanDto.getId()).get();
+		if(loan.getStatus()!=LoanStatus.PAID && loan.getStatus()!=LoanStatus.RETURNING && loan.getStatus()!=LoanStatus.COMPLETED) {
+			if(loan.getMember().getId()==userService.me().getId()) {
+				loan.setStatus(LoanStatus.CANCELED);
+				loanRepo.save(loan);
+				String email = "";
+				EmailSender sender = new EmailSender();
+				String message = "Habari\n\n";
+				message+="Mkopo wa TZS "+loan.getAmount()+" ulioombwa na "+loan.getMember().getName()+" na kupata kibali chako, ameusitisha muombaji mwenyewe.\n\nNgome LMS";
+				if(loan.getStatus()==LoanStatus.AUTHORIZED)
+					email = userRepo.findEmailByRole(Role.ROLE_CHAIRMAN.ordinal());
+				else if(loan.getStatus()==LoanStatus.APPROVED)
+					email = userRepo.findEmailByRoleAndSubUnit(Role.ROLE_LEADER.ordinal(),loan.getMember().getSubUnit());
+				if(email!=null && email.length()>0)
+					sender.sendMail(email, "Loan Cancelation", message);
+				return new Response<String>(ResponseCode.SUCCESS,"Success","Loan cancelled successfully");
+			}else
+				throw new UnauthorizedException("You are not authorized to cancel loan");
+		}else
+			throw new InvalidDataException("The loan can not be canceled at this point");
+	}
+
+	@Override
+	public Response<LoanDto> denyLoan(LoanDto loanDto) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Response<LoanDto> topUpLoan(TopUpDto topUpDto) {
 		// TODO Auto-generated method stub
 		return null;
 	}

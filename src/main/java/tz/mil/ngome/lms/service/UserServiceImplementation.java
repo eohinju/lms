@@ -228,7 +228,7 @@ public class UserServiceImplementation implements UserService {
 			userRepo.save(user);
 			return new Response<String>(ResponseCode.SUCCESS,"Success","Password changed successfully");
 		}else
-			throw new UnauthorizedException("User not authorized");
+			throw new UnauthorizedException("Incorrect old password");
 	}
 
 	

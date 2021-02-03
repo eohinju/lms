@@ -120,7 +120,7 @@ public class MemberServiceImplementation implements MemberService {
 				account.setCode(savedMember.getCompNumber());
 				account.setName(savedMember.getServiceNumber()+" "+savedMember.getRank()+" "+savedMember.getFirstName()+" "+savedMember.getMiddleName()+" "+savedMember.getLastName());
 				account.setCreatedBy(userService.me().getId());
-				User user = new User(String.valueOf(member.getCompNumber()),encoder.encode(String.valueOf(member.getCompNumber())),Role.ROLE_MEMBER,true,member);
+				User user = new User(String.valueOf(member.getCompNumber()),String.valueOf(member.getCompNumber())+"@tpdf.mil.tz",encoder.encode(String.valueOf(member.getCompNumber())),Role.ROLE_MEMBER,true,member);
 				user.setCreatedBy(userService.me().getId());
 				try {
 					accountRepo.save(account);
@@ -143,6 +143,8 @@ public class MemberServiceImplementation implements MemberService {
 
 	@Override
 	public Response<Page<MemberDto>> getMembers(Pageable pageable) {
+		if(userService.me().getRole()==Role.ROLE_LEADER)
+			return new Response<Page<MemberDto>> (ResponseCode.SUCCESS,"Success",memberRepo.getSubUnitMembers(userService.me().getMember().getSubUnit(),pageable));
 		return new Response<Page<MemberDto>> (ResponseCode.SUCCESS,"Success",memberRepo.getMembers(pageable));
 	}
 	

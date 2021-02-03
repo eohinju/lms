@@ -98,4 +98,9 @@ public class LoanController {
 		return this.loanService.collectLoansReturns(collectReturnsDto);
 	}
 	
+	@PostMapping(value = "cancel-loan", consumes = MediaType.APPLICATION_JSON_VALUE)
+	private Response<String> cancelLoan(@RequestBody LoanDto loanDto) {
+		return this.loanService.cancelLoan(loanDto);
+	}
+	
 }
