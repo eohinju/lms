@@ -16,6 +16,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.uuid.Logger;
+
+import tz.mil.ngome.lms.dto.ChangePasswordDto;
 import tz.mil.ngome.lms.dto.MemberDto;
 import tz.mil.ngome.lms.dto.RoleSettingDto;
 import tz.mil.ngome.lms.dto.SignDto;
@@ -26,9 +29,11 @@ import tz.mil.ngome.lms.entity.User;
 import tz.mil.ngome.lms.entity.User.Role;
 import tz.mil.ngome.lms.exception.DuplicateDataException;
 import tz.mil.ngome.lms.exception.InvalidDataException;
+import tz.mil.ngome.lms.exception.UnauthorizedException;
 import tz.mil.ngome.lms.repository.MemberRepository;
 import tz.mil.ngome.lms.repository.UserRepository;
 import tz.mil.ngome.lms.security.JwtProvider;
+import tz.mil.ngome.lms.utils.EmailSender;
 import tz.mil.ngome.lms.utils.Response;
 import tz.mil.ngome.lms.utils.ResponseCode;
 
@@ -49,6 +54,9 @@ public class UserServiceImplementation implements UserService {
 	
 	@Autowired
     PasswordEncoder encoder;
+	
+	@Autowired
+	EmailSender emailSender;
 	
 	@Override
 	public Response<String> signUp(SignupDto userDto) {
@@ -121,7 +129,6 @@ public class UserServiceImplementation implements UserService {
 			signed.setRole(user.getRole().name());
 			signed.setUsername(user.getUsername());
 			signed.setToken(jwt);
-			
 			response.setCode(ResponseCode.SUCCESS);
 			response.setData(signed);
 		}else {
@@ -183,6 +190,7 @@ public class UserServiceImplementation implements UserService {
 		
 		if(data.getRole()==null)
 			throw new InvalidDataException("Valid role required");
+		
 		User user = userRepo.findById(data.getUser().getId()).get();
 		if(data.getRole()==Role.ROLE_CHAIRMAN) 
 			userRepo.setRoleByRole(Role.ROLE_MEMBER.ordinal(), Role.ROLE_CHAIRMAN.ordinal());
@@ -193,6 +201,32 @@ public class UserServiceImplementation implements UserService {
 		user.setRole(data.getRole());
 		userRepo.save(user);
 		return new Response<UserDto> (ResponseCode.SUCCESS,"Success",userRepo.getUser(user.getId()));
+	}
+
+	@Override
+	public Response<String> changePassword(ChangePasswordDto passwordChange) {
+		if(passwordChange.getUsername()==null || passwordChange.getUsername().isEmpty())
+			throw new InvalidDataException("Username is required");
+		if(passwordChange.getNewPassword()==null || passwordChange.getNewPassword().isEmpty())
+			throw new InvalidDataException("Invalid password");
+		if(passwordChange.getNewPassword().length()<8)
+			throw new InvalidDataException("Password too short");
+		Authentication authentication = authenticationManager.authenticate(
+        		new UsernamePasswordAuthenticationToken(
+        				passwordChange.getUsername(),
+        				passwordChange.getOldPassword()
+        		)
+			);
+
+		Optional<User> oUser = userRepo.findByUsername(authentication.getName());
+		if(oUser.isPresent()) {
+			User user = oUser.get();
+			user.setPassword(encoder.encode(passwordChange.getNewPassword()));
+			user.setChangePassword(false);
+			userRepo.save(user);
+			return new Response<String>(ResponseCode.SUCCESS,"Success","Password changed successfully");
+		}else
+			throw new UnauthorizedException("User not authorized");
 	}
 
 	

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import tz.mil.ngome.lms.dto.ChangePasswordDto;
 import tz.mil.ngome.lms.dto.RoleSettingDto;
 import tz.mil.ngome.lms.dto.SignDto;
 import tz.mil.ngome.lms.dto.SignedDto;
@@ -25,5 +26,6 @@ public interface UserService {
 	Response<List<UserDto>> findUsers(String data);
 	Response<List<UserDto>> getSpecialUsers();
 	Response<UserDto> setRole(RoleSettingDto user);
+	Response<String> changePassword(ChangePasswordDto passwordChange);
 
 }

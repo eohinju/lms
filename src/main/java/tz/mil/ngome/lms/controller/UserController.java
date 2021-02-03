@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import tz.mil.ngome.lms.dto.UserDto;
+import tz.mil.ngome.lms.dto.ChangePasswordDto;
 import tz.mil.ngome.lms.dto.MemberDto;
 import tz.mil.ngome.lms.dto.RoleSettingDto;
 import tz.mil.ngome.lms.dto.SignDto;
@@ -68,6 +69,11 @@ public class UserController {
 	@PostMapping(value = "set-role", consumes = MediaType.APPLICATION_JSON_VALUE)
 	private Response<UserDto> setRole(@RequestBody RoleSettingDto data) {
 		return this.userService.setRole(data);
+	}
+	
+	@PostMapping(value = "auth/change-password", consumes = MediaType.APPLICATION_JSON_VALUE)
+	private Response<String> changePassword(@RequestBody ChangePasswordDto passwordChange) {
+		return this.userService.changePassword(passwordChange);
 	}
 	
 }

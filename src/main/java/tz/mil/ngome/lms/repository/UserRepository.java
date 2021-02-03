@@ -10,7 +10,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
-import tz.mil.ngome.lms.dto.MemberDto;
 import tz.mil.ngome.lms.dto.UserDto;
 import tz.mil.ngome.lms.entity.User;
 import tz.mil.ngome.lms.entity.User.Role;
@@ -57,5 +56,7 @@ public interface UserRepository  extends JpaRepository<User, String> {
 	@Modifying
 	@Query(value = "update users set role=:newRole where role=:oldRole and member_id in(select id from members where subunit=:subUnit)", nativeQuery = true)
 	void setRoleByRoleAndSubUnit(int newRole, int oldRole, String subUnit);
+
+	Optional<User> findByUsernameAndPassword(String username, String newPassword);
 	
 }
