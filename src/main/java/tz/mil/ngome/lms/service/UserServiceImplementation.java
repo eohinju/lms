@@ -211,6 +211,8 @@ public class UserServiceImplementation implements UserService {
 			throw new InvalidDataException("Invalid password");
 		if(passwordChange.getNewPassword().length()<8)
 			throw new InvalidDataException("Password too short");
+		if(passwordChange.getOldPassword().contentEquals(passwordChange.getNewPassword()))
+			throw new InvalidDataException("New password is the same as old");
 		Authentication authentication = authenticationManager.authenticate(
         		new UsernamePasswordAuthenticationToken(
         				passwordChange.getUsername(),
