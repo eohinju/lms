@@ -26,6 +26,14 @@ public interface LoanRepository  extends JpaRepository<Loan, String> {
 			+ "loan.id, loan.member.id, loan.loanType.id, loan.amount, loan.effectDate,"
 			+ "loan.returns, loan.unit, loan.subUnit, loan.loanName, loan.interest,"
 			+ "loan.periods, loan.period, loan.status)"
+			+ "FROM Loan AS loan WHERE loan.member.compNumber=:comp and loan.deleted=false order by loan.createdAt desc",
+			countQuery = " select count(loan) from Loan as loan where loan.member.compNumber=:comp and loan.deleted=false")
+	Page<LoanDto> getLoansByMember(int comp, Pageable pageable);
+	
+	@Query(value = "SELECT new tz.mil.ngome.lms.dto.LoanDto("
+			+ "loan.id, loan.member.id, loan.loanType.id, loan.amount, loan.effectDate,"
+			+ "loan.returns, loan.unit, loan.subUnit, loan.loanName, loan.interest,"
+			+ "loan.periods, loan.period, loan.status)"
 			+ "FROM Loan AS loan WHERE loan.deleted=false  and loan.subUnit=:subUnit order by loan.createdAt desc",
 			countQuery = " select count(loan) from Loan as loan where loan.deleted=false and loan.subUnit=:subUnit"
 			)
@@ -40,19 +48,14 @@ public interface LoanRepository  extends JpaRepository<Loan, String> {
 			)
 	Page<LoanDto> getSubUnitLoansByStatus(String subUnit, LoanStatus status, Pageable pageable);
 	
-	@Query("SELECT new tz.mil.ngome.lms.dto.LoanDto("
-			+ "loan.id, loan.member.id, loan.loanType.id, loan.amount, loan.effectDate,"
-			+ "loan.returns, loan.unit, loan.subUnit, loan.loanName, loan.interest,"
-			+ "loan.periods, loan.period, loan.status)"
-			+ "FROM Loan AS loan WHERE loan.member.compNumber=:comp and loan.deleted=false order by loan.createdAt desc")
-	List<LoanDto> getLoansByMember(int comp);
 	
-	@Query("SELECT new tz.mil.ngome.lms.dto.LoanDto("
-			+ "loan.id, loan.member.id, loan.loanType.id, loan.amount, loan.effectDate,"
-			+ "loan.returns, loan.unit, loan.subUnit, loan.loanName, loan.interest,"
-			+ "loan.periods, loan.period, loan.status)"
-			+ "FROM Loan AS loan WHERE loan.deleted=false order by loan.createdAt desc")
-	List<LoanDto> getLoans();
+//	
+//	@Query("SELECT new tz.mil.ngome.lms.dto.LoanDto("
+//			+ "loan.id, loan.member.id, loan.loanType.id, loan.amount, loan.effectDate,"
+//			+ "loan.returns, loan.unit, loan.subUnit, loan.loanName, loan.interest,"
+//			+ "loan.periods, loan.period, loan.status)"
+//			+ "FROM Loan AS loan WHERE loan.deleted=false order by loan.createdAt desc")
+//	List<LoanDto> getLoans();
 
 	@Query("SELECT new tz.mil.ngome.lms.dto.LoanDto("
 			+ "loan.id, loan.member.id, loan.loanType.id, loan.amount, loan.effectDate,"

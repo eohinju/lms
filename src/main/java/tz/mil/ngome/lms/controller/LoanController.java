@@ -52,11 +52,17 @@ public class LoanController {
 	}
 	
 	@GetMapping(value = "get-loans/{comp}")
-	private Response<List<LoanDto>> getPersonsLoans(@PathVariable(name = "comp", required = false) Integer comp) {
+	private Response<Page<LoanDto>> getPersonsLoans(@PathVariable(name = "comp", required = false) Integer comp, @RequestParam(name = "page", required = false) Integer page,@RequestParam(name = "size", required = false) Integer size) {
+		if(page==null || size==null) {
+			page = 0;
+			size = Integer.MAX_VALUE;
+		}
+		int p = page.intValue()<0?0:page.intValue();
+		int s = size.intValue()<0?conf.getDefaultPageSize():size.intValue();
 		if(comp!=null)
-			return this.loanService.getLoans(comp);
+			return this.loanService.getLoans(comp,PageRequest.of(p, s));
 		else
-			return this.loanService.getLoans();
+			return this.loanService.getLoans(PageRequest.of(p, s));
 	}
 	
 	@GetMapping(value = "get-requested-loans/{subUnit}")
