@@ -52,8 +52,11 @@ public class LoanController {
 	}
 	
 	@GetMapping(value = "get-loans/{comp}")
-	private Response<List<LoanDto>> getPersonsLoans(@PathVariable(name = "comp") int comp) {
-		return this.loanService.getLoans(comp);
+	private Response<List<LoanDto>> getPersonsLoans(@PathVariable(name = "comp", required = false) Integer comp) {
+		if(comp!=null)
+			return this.loanService.getLoans(comp);
+		else
+			return this.loanService.getLoans();
 	}
 	
 	@GetMapping(value = "get-requested-loans/{subUnit}")

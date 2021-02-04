@@ -30,6 +30,7 @@ public interface LoanService {
 	Response<List<MappedStringListDto>> disburseLoans(DisburseLoansDto loansDto);
 	Response<Page<LoanDto>> getLoans(Pageable pageable);
 	Response<List<LoanDto>> getLoans(int comp);
+	Response<List<LoanDto>> getLoans();
 	Response<List<LoanDto>> getRequestedLoans(String subUnit);
 	Response<List<LoanDto>> getApprovedLoans();
 	Response<List<LoanDto>> getAuthorizedLoans();
