@@ -275,7 +275,7 @@ public class LoanServiceImplementation implements LoanService {
 	@Override
 	public Response<Page<LoanDto>> getLoans(Pageable pageable) {
 		if(userService.me().getRole()==Role.ROLE_LEADER)
-			return new Response<Page<LoanDto>>(ResponseCode.SUCCESS,"Success",loanRepo.getSubUnitLoansByStatus(userService.me().getMember().getSubUnit(),LoanStatus.REQUESTED.ordinal(),pageable));
+			return new Response<Page<LoanDto>>(ResponseCode.SUCCESS,"Success",loanRepo.getSubUnitLoansByStatus(userService.me().getMember().getSubUnit(),LoanStatus.REQUESTED,pageable));
 		return new Response<Page<LoanDto>>(ResponseCode.SUCCESS,"Success",loanRepo.getLoans(pageable));
 	}
 	

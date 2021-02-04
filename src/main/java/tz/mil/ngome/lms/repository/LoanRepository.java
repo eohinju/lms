@@ -38,7 +38,7 @@ public interface LoanRepository  extends JpaRepository<Loan, String> {
 			+ "FROM Loan AS loan WHERE loan.deleted=false and loan.subUnit=:subUnit and loan.status=:status order by loan.createdAt desc",
 			countQuery = " select count(loan) from Loan as loan where loan.deleted=false and loan.subUnit=:subUnit and loan.status=:status"
 			)
-	Page<LoanDto> getSubUnitLoansByStatus(String subUnit, int status, Pageable pageable);
+	Page<LoanDto> getSubUnitLoansByStatus(String subUnit, LoanStatus status, Pageable pageable);
 	
 	@Query("SELECT new tz.mil.ngome.lms.dto.LoanDto("
 			+ "loan.id, loan.member.id, loan.loanType.id, loan.amount, loan.effectDate,"
