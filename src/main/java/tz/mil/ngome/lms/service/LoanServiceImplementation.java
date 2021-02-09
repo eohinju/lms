@@ -456,19 +456,13 @@ public class LoanServiceImplementation implements LoanService {
 				String email = "";
 				String message = "Habari\n\n";
 				message+="Mkopo wa TZS "+loan.getAmount()+" ulioombwa na "+loan.getMember().getName()+" na kupata kibali chako, ameusitisha muombaji mwenyewe.\n\nNgome LMS";
-				Logger.logInfo(loan.getStatus().toString());
 				if(loan.getStatus()==LoanStatus.AUTHORIZED) {
-					Logger.logInfo("Authorized");
 					email = userRepo.findEmailByRole(Role.ROLE_CHAIRMAN.ordinal());
 				}else if(loan.getStatus()==LoanStatus.APPROVED) {
-					Logger.logInfo("Approved");
-					Logger.logInfo(Role.ROLE_LEADER.ordinal()+" : "+loan.getMember().getSubUnit());
 					email = userRepo.findEmailByRoleAndSubUnit(Role.ROLE_LEADER.ordinal(),loan.getMember().getSubUnit());
 				}
 				if(email!=null && email.length()>0)
 					sender.sendMail(email, "Loan Cancelation", message);
-				else
-					Logger.logInfo("No information provided");
 				loan.setStatus(LoanStatus.CANCELED);
 				loanRepo.save(loan);
 				return new Response<String>(ResponseCode.SUCCESS,"Success","Loan cancelled successfully");
