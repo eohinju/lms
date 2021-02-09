@@ -15,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.uuid.Logger;
+
 import au.com.bytecode.opencsv.CSVReader;
 import tz.mil.ngome.lms.dto.CollectReturnDto;
 import tz.mil.ngome.lms.dto.CollectReturnsDto;
@@ -75,6 +77,9 @@ public class LoanServiceImplementation implements LoanService {
 	
 	@Autowired
 	TransactionRepository transactionRepo;
+	
+	@Autowired
+	EmailSender sender;
 	
 	@Override
 	public Response<LoanDto> requestLoan(LoanDto loanDto) {
@@ -446,20 +451,26 @@ public class LoanServiceImplementation implements LoanService {
 		if(loanDto==null || loanDto.getId()==null || loanDto.getId().isEmpty() || !loanRepo.findById(loanDto.getId()).isPresent())
 			throw new InvalidDataException("Valid loan required");
 		Loan loan = loanRepo.findById(loanDto.getId()).get();
-		if(loan.getStatus()!=LoanStatus.PAID && loan.getStatus()!=LoanStatus.RETURNING && loan.getStatus()!=LoanStatus.COMPLETED) {
-			if(loan.getMember().getId()==userService.me().getId()) {
-				loan.setStatus(LoanStatus.CANCELED);
-				loanRepo.save(loan);
+		if(loan.getStatus()!=LoanStatus.PAID && loan.getStatus()!=LoanStatus.RETURNING && loan.getStatus()!=LoanStatus.COMPLETED && loan.getStatus()!=LoanStatus.CANCELED) {
+			if(userService.me().getRole()==Role.ROLE_CLERK || loan.getMember().getId()==userService.me().getMember().getId()) {
 				String email = "";
-				EmailSender sender = new EmailSender();
 				String message = "Habari\n\n";
 				message+="Mkopo wa TZS "+loan.getAmount()+" ulioombwa na "+loan.getMember().getName()+" na kupata kibali chako, ameusitisha muombaji mwenyewe.\n\nNgome LMS";
-				if(loan.getStatus()==LoanStatus.AUTHORIZED)
+				Logger.logInfo(loan.getStatus().toString());
+				if(loan.getStatus()==LoanStatus.AUTHORIZED) {
+					Logger.logInfo("Authorized");
 					email = userRepo.findEmailByRole(Role.ROLE_CHAIRMAN.ordinal());
-				else if(loan.getStatus()==LoanStatus.APPROVED)
+				}else if(loan.getStatus()==LoanStatus.APPROVED) {
+					Logger.logInfo("Approved");
+					Logger.logInfo(Role.ROLE_LEADER.ordinal()+" : "+loan.getMember().getSubUnit());
 					email = userRepo.findEmailByRoleAndSubUnit(Role.ROLE_LEADER.ordinal(),loan.getMember().getSubUnit());
+				}
 				if(email!=null && email.length()>0)
 					sender.sendMail(email, "Loan Cancelation", message);
+				else
+					Logger.logInfo("No information provided");
+				loan.setStatus(LoanStatus.CANCELED);
+				loanRepo.save(loan);
 				return new Response<String>(ResponseCode.SUCCESS,"Success","Loan cancelled successfully");
 			}else
 				throw new UnauthorizedException("You are not authorized to cancel loan");

@@ -60,7 +60,7 @@ public interface UserRepository  extends JpaRepository<User, String> {
 	@Query(value = "select email from users where role=:role", nativeQuery = true)
 	String findEmailByRole(int role);
 
-	@Query(value = "select email from users where role=:role and subunit=:subUnit", nativeQuery = true)
+	@Query(value = "select email from users inner join members on users.member_id=members.id where role=:role and subunit=:subUnit", nativeQuery = true)
 	String findEmailByRoleAndSubUnit(int role, String subUnit);
 	
 }
