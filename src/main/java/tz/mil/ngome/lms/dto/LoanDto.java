@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import tz.mil.ngome.lms.repository.LoanRepository;
 import tz.mil.ngome.lms.repository.LoanReturnRepository;
 import tz.mil.ngome.lms.repository.LoanTypeRepository;
 import tz.mil.ngome.lms.repository.MemberRepository;
@@ -31,10 +32,14 @@ public class LoanDto {
 	@JsonIgnore
 	private LoanReturnRepository loanReturnRepo = SpringContext.getBean(LoanReturnRepository.class);
 	
+	@JsonIgnore
+	private LoanRepository loanRepo = SpringContext.getBean(LoanRepository.class);
+	
 	private String id;
 	private MemberDto member;
 	private LoanTypeDto loanType;
 	private int amount;
+	private int amountToPay;
 	private LocalDate effectDate;
 	private int returns;
 	private int balance = 0;
@@ -46,13 +51,16 @@ public class LoanDto {
 	private Period period;
 	private LoanStatus status;
 	private List<LoanReturnsDto> repayments;
+	private List<LoanDto> topUps;
 	
+	private String remark;
 	
-	public LoanDto(String id, String memberId, String loanTypeId, int amount, LocalDate effectDate,
+	public LoanDto(String id, String memberId, String loanTypeId, int amount, int amountToPay, LocalDate effectDate,
 			int returns, String unit, String subUnit, String loanName, 
-			double interest, int periods, Period period, LoanStatus status) {
+			double interest, int periods, Period period, LoanStatus status, String remark) {
 		this.id = id;
 		this.amount = amount;
+		this.amountToPay = amountToPay;
 		this.returns = returns;
 		this.unit = unit;
 		this.subUnit = subUnit;
@@ -64,5 +72,7 @@ public class LoanDto {
 		this.member = memberRepo.findMemberById(memberId);
 		this.loanType = loanTypeRepo.findLoanTypeById(loanTypeId);
 		this.repayments = loanReturnRepo.findReturnsByLoan(id);
+		this.topUps = loanRepo.findTopUps(id);
+		this.remark = remark;
 	}
 }

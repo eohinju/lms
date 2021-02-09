@@ -31,8 +31,15 @@ public class Loan extends BaseEntity {
 	@JoinColumn(nullable = false,referencedColumnName = "id")
 	private LoanType loanType;
 	
+	@ManyToOne
+	@JoinColumn(referencedColumnName = "id")
+	private Loan clearer;
+	
 	@Column(nullable = false)
 	private int amount;
+	
+	@Column(columnDefinition = "int default 0")
+	private int amountToPay;
 	
 	@Column(nullable = true)
 	private LocalDate effectDate;
@@ -56,8 +63,10 @@ public class Loan extends BaseEntity {
 	
 	private LoanStatus status = LoanStatus.REQUESTED;
 	
+	private String remark;
+	
 	public enum LoanStatus{
-		REQUESTED, APPROVED, AUTHORIZED, PAID, RETURNING, COMPLETED, CANCELED
+		REQUESTED, APPROVED, AUTHORIZED, PAID, RETURNING, COMPLETED, CANCELED, DENIED
 	}
 
 }

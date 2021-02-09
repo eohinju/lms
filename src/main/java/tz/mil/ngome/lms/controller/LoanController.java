@@ -20,6 +20,7 @@ import tz.mil.ngome.lms.dto.CollectReturnsDto;
 import tz.mil.ngome.lms.dto.CollectedReturnsResponseDto;
 import tz.mil.ngome.lms.dto.DisburseLoanDto;
 import tz.mil.ngome.lms.dto.DisburseLoansDto;
+import tz.mil.ngome.lms.dto.LoanDenyDto;
 import tz.mil.ngome.lms.dto.LoanDto;
 import tz.mil.ngome.lms.dto.MappedStringListDto;
 import tz.mil.ngome.lms.dto.LoanDto;
@@ -125,6 +126,11 @@ public class LoanController {
 	@PostMapping(value = "cancel-loan", consumes = MediaType.APPLICATION_JSON_VALUE)
 	private Response<String> cancelLoan(@RequestBody LoanDto loanDto) {
 		return this.loanService.cancelLoan(loanDto);
+	}
+	
+	@PostMapping(value = "deny-loan", consumes = MediaType.APPLICATION_JSON_VALUE)
+	private Response<LoanDto> denyLoan(@RequestBody LoanDenyDto loanDto) {
+		return this.loanService.denyLoan(loanDto);
 	}
 	
 }

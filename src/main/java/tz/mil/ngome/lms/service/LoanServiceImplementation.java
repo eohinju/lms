@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -15,14 +16,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.uuid.Logger;
-
 import au.com.bytecode.opencsv.CSVReader;
 import tz.mil.ngome.lms.dto.CollectReturnDto;
 import tz.mil.ngome.lms.dto.CollectReturnsDto;
 import tz.mil.ngome.lms.dto.CollectedReturnsResponseDto;
 import tz.mil.ngome.lms.dto.DisburseLoanDto;
 import tz.mil.ngome.lms.dto.DisburseLoansDto;
+import tz.mil.ngome.lms.dto.LoanDenyDto;
 import tz.mil.ngome.lms.dto.LoanDto;
 import tz.mil.ngome.lms.dto.MappedStringListDto;
 import tz.mil.ngome.lms.dto.MemberPayDto;
@@ -100,6 +100,7 @@ public class LoanServiceImplementation implements LoanService {
 		
 		BeanUtils.copyProperties(loanDto, loan, "id");
 		loan.setMember(me);
+		loan.setAmountToPay(loanDto.getAmount());
 		loan.setLoanType(loanTypeRepo.findById(loanDto.getLoanType().getId()).get());
 		loan.setUnit(me.getUnit());
 		loan.setSubUnit(me.getSubUnit());
@@ -146,6 +147,7 @@ public class LoanServiceImplementation implements LoanService {
 		
 		BeanUtils.copyProperties(loanDto, loan, "id");
 		loan.setMember(me);
+		loan.setAmountToPay(loanDto.getAmount());
 		loan.setUnit(me.getUnit());
 		loan.setLoanType(loanTypeRepo.findById(loanDto.getLoanType().getId()).get());
 		loan.setSubUnit(me.getSubUnit());
@@ -464,6 +466,8 @@ public class LoanServiceImplementation implements LoanService {
 				if(email!=null && email.length()>0)
 					sender.sendMail(email, "Loan Cancelation", message);
 				loan.setStatus(LoanStatus.CANCELED);
+				loan.setUpdatedAt(LocalDateTime.now());
+				loan.setUpdatedBy(userService.me().getId());
 				loanRepo.save(loan);
 				return new Response<String>(ResponseCode.SUCCESS,"Success","Loan cancelled successfully");
 			}else
@@ -473,9 +477,27 @@ public class LoanServiceImplementation implements LoanService {
 	}
 
 	@Override
-	public Response<LoanDto> denyLoan(LoanDto loanDto) {
-		// TODO Auto-generated method stub
-		return null;
+	public Response<LoanDto> denyLoan(LoanDenyDto loanDto) {
+		if(loanDto==null || loanDto.getId()==null || loanDto.getId().isEmpty() || !loanRepo.findById(loanDto.getId()).isPresent())
+			throw new InvalidDataException("Valid loan required");
+		
+		if(loanDto.getReason()==null || loanDto.getReason().isEmpty())
+			throw new InvalidDataException("Reason for denial is required");
+		
+		Loan loan = loanRepo.findById(loanDto.getId()).get();
+		if((loan.getStatus()==LoanStatus.APPROVED && userService.me().getRole()==Role.ROLE_CHAIRMAN) || (loan.getStatus()==LoanStatus.REQUESTED && userService.me().getRole()==Role.ROLE_LEADER && loan.getMember().getSubUnit()==userService.me().getMember().getSubUnit())) {
+			loan.setStatus(LoanStatus.DENIED);
+			loan.setRemark(loanDto.getReason());
+			loan.setUpdatedAt(LocalDateTime.now());
+			loan.setUpdatedBy(userService.me().getId());
+			loanRepo.save(loan);
+			String email = userRepo.findEmailByMember(loan.getMember().getId());
+			String message = "Habari\n\nMkopo wa TZS "+loan.getAmount()+" ulioumba, umekataliwa. Sababu za kukataliwa ni "+loanDto.getReason()+"\n\nNgome LMS";			
+			if(email!=null && email.length()>0)
+				sender.sendMail(email, "Loan Denial", message);
+			return new Response<LoanDto>(ResponseCode.SUCCESS,"Success",loanRepo.findLoanById(loan.getId()));
+		}else
+			throw new UnauthorizedException("You are not authorized to deny the loan");
 	}
 
 	@Override
