@@ -26,6 +26,7 @@ public interface LoanService {
 	Response<LoanDto> authorizeLoan(LoanDto loanDto);
 	Response<String> cancelLoan(LoanDto loanDto);
 	Response<LoanDto> denyLoan(LoanDenyDto loanDto);
+	Response<LoanDto> updateLoan(LoanDto loanDto);
 	Response<LoanDto> topUpLoan(TopUpDto topUpDto);
 	Response<LoanDto> disburseLoan(DisburseLoanDto loanDto);
 	Response<List<MappedStringListDto>> disburseLoans(DisburseLoansDto loansDto);

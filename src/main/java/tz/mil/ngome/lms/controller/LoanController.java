@@ -132,5 +132,10 @@ public class LoanController {
 	private Response<LoanDto> denyLoan(@RequestBody LoanDenyDto loanDto) {
 		return this.loanService.denyLoan(loanDto);
 	}
+
+	@PostMapping(value = "update-loan", consumes = MediaType.APPLICATION_JSON_VALUE)
+	private Response<LoanDto> updateLoan(@RequestBody LoanDto loanDto) {
+		return this.loanService.updateLoan(loanDto);
+	}
 	
 }

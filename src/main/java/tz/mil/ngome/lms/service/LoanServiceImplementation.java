@@ -506,4 +506,32 @@ public class LoanServiceImplementation implements LoanService {
 		return null;
 	}
 
+	@Override
+	public Response<LoanDto> updateLoan(LoanDto loanDto) {
+		if(loanDto==null || loanDto.getId()==null || loanDto.getId().isEmpty() || !loanRepo.findById(loanDto.getId()).isPresent())
+			throw new InvalidDataException("Valid loan required");
+		
+		Loan loan = loanRepo.findById(loanDto.getId()).get();
+		if(loan.getMember().getId()!=userService.me().getMember().getId() || loan.getStatus()!=LoanStatus.REQUESTED)
+			throw new UnauthorizedException("You are not authorized to update this loan");
+		
+		if(loanDto.getAmount()>0 && loanDto.getAmount()!=loan.getAmount()) {
+			if(loanDto.getAmount()<loan.getLoanType().getMin() || loanDto.getAmount()>loan.getLoanType().getMax())
+				throw new InvalidDataException("Invalid amount provided");
+			
+			loan.setAmount(loanDto.getAmount());
+			loan.setAmountToPay(loanDto.getAmount());
+			loan.setLoanName(loan.getLoanType().getName());
+			loan.setInterest(loan.getLoanType().getInterest());
+			loan.setPeriod(loan.getLoanType().getPeriod());
+			loan.setPeriods(loan.getLoanType().getPeriods());
+			loan.setBalance((int)Math.floor(loan.getAmount()*(1+loan.getInterest()/100)));
+			loan.setReturns((int)Math.ceil(loan.getBalance()/loan.getPeriods()));			
+			loan.setUpdatedAt(LocalDateTime.now());
+			loan.setUpdatedBy(userService.me().getId());
+			loanRepo.save(loan);
+		}
+		return new Response<LoanDto>(ResponseCode.SUCCESS,"Success",loanRepo.findLoanById(loan.getId()));
+	}
+
 }
