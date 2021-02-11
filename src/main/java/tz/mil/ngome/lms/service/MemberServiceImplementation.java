@@ -7,7 +7,6 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -19,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.uuid.Logger;
 
@@ -168,12 +166,13 @@ public class MemberServiceImplementation implements MemberService {
 			e.printStackTrace();
 			throw new InvalidDataException("File could not be read");
 		}
-		List<MemberDto> registeredMembers = new ArrayList<MemberDto>();
+//		List<MemberDto> registeredMembers = new ArrayList<MemberDto>();
 		List<String[]> objectList = new ArrayList<>();
 		Reader reader = new InputStreamReader(inputStream);
 		CSVReader csvReader = new CSVReader(reader);
 		try {
 			objectList = csvReader.readAll();
+			csvReader.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

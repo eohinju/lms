@@ -23,7 +23,7 @@ import tz.mil.ngome.lms.dto.DisburseLoansDto;
 import tz.mil.ngome.lms.dto.LoanDenyDto;
 import tz.mil.ngome.lms.dto.LoanDto;
 import tz.mil.ngome.lms.dto.MappedStringListDto;
-import tz.mil.ngome.lms.dto.LoanDto;
+import tz.mil.ngome.lms.dto.TopUpDto;
 import tz.mil.ngome.lms.exception.InvalidDataException;
 import tz.mil.ngome.lms.service.LoanService;
 import tz.mil.ngome.lms.utils.Configuration;
@@ -136,6 +136,16 @@ public class LoanController {
 	@PostMapping(value = "update-loan", consumes = MediaType.APPLICATION_JSON_VALUE)
 	private Response<LoanDto> updateLoan(@RequestBody LoanDto loanDto) {
 		return this.loanService.updateLoan(loanDto);
+	}
+	
+	@PostMapping(value = "request-topup", consumes = MediaType.APPLICATION_JSON_VALUE)
+	private Response<LoanDto> requestTopUpLoan(@RequestBody TopUpDto topUpDto) {
+		return this.loanService.requestTopUpLoan(topUpDto);
+	}
+	
+	@PostMapping(value = "register-topup", consumes = MediaType.APPLICATION_JSON_VALUE)
+	private Response<LoanDto> registerTopUpLoan(@RequestBody TopUpDto topUpDto) {
+		return this.loanService.registerTopUpLoan(topUpDto);
 	}
 	
 }

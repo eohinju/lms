@@ -16,10 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.uuid.Logger;
-
 import tz.mil.ngome.lms.dto.ChangePasswordDto;
-import tz.mil.ngome.lms.dto.MemberDto;
 import tz.mil.ngome.lms.dto.RoleSettingDto;
 import tz.mil.ngome.lms.dto.SignDto;
 import tz.mil.ngome.lms.dto.SignedDto;
@@ -122,7 +119,7 @@ public class UserServiceImplementation implements UserService {
 			SignedDto signed = new SignedDto();
 			if(user.getMember()!=null) {
 				signed.setPhone(user.getMember().getPhone());
-				signed.setName(user.getMember().getName());
+				signed.setName(user.getMember().getShortName());
 			}else {
 				
 			}

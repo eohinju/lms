@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import tz.mil.ngome.lms.dto.AccountTypeDto;
-import tz.mil.ngome.lms.dto.LoanDto;
 import tz.mil.ngome.lms.entity.AccountType;
 
 public interface AccountTypeRepository extends JpaRepository<AccountType, String> {

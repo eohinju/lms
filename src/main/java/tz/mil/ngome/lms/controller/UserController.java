@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import tz.mil.ngome.lms.dto.UserDto;
 import tz.mil.ngome.lms.dto.ChangePasswordDto;
-import tz.mil.ngome.lms.dto.MemberDto;
 import tz.mil.ngome.lms.dto.RoleSettingDto;
 import tz.mil.ngome.lms.dto.SignDto;
 import tz.mil.ngome.lms.dto.SignedDto;

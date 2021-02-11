@@ -48,4 +48,11 @@ public class Member extends BaseEntity {
 	public String getName() {
 		return this.serviceNumber.trim()+" "+this.getRank().trim()+" "+this.firstName.trim()+" "+this.middleName.trim()+" "+this.lastName.trim();
 	}
+	
+	public String getShortName() {
+		if(rank=="PTE" || rank=="L/CPL" || rank=="CPL" || rank=="SGT" || rank=="SSGT" || rank=="WOI")
+			return rank+" "+lastName+" "+firstName.charAt(0)+middleName.charAt(0);
+		else
+			return rank+" "+firstName.charAt(0)+middleName.charAt(0)+" "+lastName;
+	}
 }

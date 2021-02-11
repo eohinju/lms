@@ -25,6 +25,7 @@ import tz.mil.ngome.lms.dto.DisburseLoansDto;
 import tz.mil.ngome.lms.dto.LoanDenyDto;
 import tz.mil.ngome.lms.dto.LoanDto;
 import tz.mil.ngome.lms.dto.MappedStringListDto;
+import tz.mil.ngome.lms.dto.MemberDto;
 import tz.mil.ngome.lms.dto.MemberPayDto;
 import tz.mil.ngome.lms.dto.TopUpDto;
 import tz.mil.ngome.lms.dto.TransactionDetailDto;
@@ -83,40 +84,13 @@ public class LoanServiceImplementation implements LoanService {
 	
 	@Override
 	public Response<LoanDto> requestLoan(LoanDto loanDto) {
-		Response<LoanDto> response = new Response<LoanDto>();
-		
-		if(loanDto.getLoanType()==null)
-			throw new InvalidDataException("Loan type required");
-		
-		if(loanDto.getLoanType().getId()==null || !loanTypeRepo.findById(loanDto.getLoanType().getId()).isPresent() )
-			throw new InvalidDataException("Invalid loan type provided");
-		
-		LoanType type = loanTypeRepo.findById(loanDto.getLoanType().getId()).get();
-		if(loanDto.getAmount()<type.getMin() || loanDto.getAmount()>type.getMax())
-			throw new InvalidDataException("Invalid amount provided");
-		
-		Loan loan = new Loan();
 		Member me = userService.me().getMember();
-		
-		BeanUtils.copyProperties(loanDto, loan, "id");
-		loan.setMember(me);
-		loan.setAmountToPay(loanDto.getAmount());
-		loan.setLoanType(loanTypeRepo.findById(loanDto.getLoanType().getId()).get());
-		loan.setUnit(me.getUnit());
-		loan.setSubUnit(me.getSubUnit());
-		loan.setLoanName(type.getName());
-		loan.setInterest(type.getInterest());
-		loan.setPeriod(type.getPeriod());
-		loan.setPeriods(type.getPeriods());
-		loan.setBalance((int)Math.floor(loan.getAmount()*(1+loan.getInterest()/100)));
-		loan.setReturns((int)Math.ceil(loan.getBalance()/loan.getPeriods()));
-		loan.setStatus(LoanStatus.REQUESTED);
-		loan.setCreatedBy(me.getId());
-		Loan savedLoan = loanRepo.save(loan);
-		loanDto = loanRepo.findLoanById(savedLoan.getId());
-		response.setCode(ResponseCode.SUCCESS);
-		response.setData(loanDto);
-		return response;
+		MemberDto member = new MemberDto();
+		member.setId(me.getId());
+		loanDto.setMember(member);
+		loanDto.setUnit(me.getUnit());
+		loanDto.setSubUnit(me.getSubUnit());
+		return registerLoan(loanDto);
 	}
 
 	@Override
@@ -501,12 +475,6 @@ public class LoanServiceImplementation implements LoanService {
 	}
 
 	@Override
-	public Response<LoanDto> topUpLoan(TopUpDto topUpDto) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public Response<LoanDto> updateLoan(LoanDto loanDto) {
 		if(loanDto==null || loanDto.getId()==null || loanDto.getId().isEmpty() || !loanRepo.findById(loanDto.getId()).isPresent())
 			throw new InvalidDataException("Valid loan required");
@@ -530,6 +498,52 @@ public class LoanServiceImplementation implements LoanService {
 			loan.setUpdatedAt(LocalDateTime.now());
 			loan.setUpdatedBy(userService.me().getId());
 			loanRepo.save(loan);
+		}
+		return new Response<LoanDto>(ResponseCode.SUCCESS,"Success",loanRepo.findLoanById(loan.getId()));
+	}
+
+	@Override
+	public Response<LoanDto> requestTopUpLoan(TopUpDto topUpDto) {
+		Member me = userService.me().getMember();
+		MemberDto member = new MemberDto();
+		member.setId(me.getId());
+		topUpDto.setMember(member);
+		topUpDto.setUnit(me.getUnit());
+		topUpDto.setSubUnit(me.getSubUnit());
+		return registerTopUpLoan(topUpDto);
+	}
+
+	@Override
+	public Response<LoanDto> registerTopUpLoan(TopUpDto topUpDto) {
+		if(topUpDto.getLoans()==null || topUpDto.getLoans().length==0)
+			throw new InvalidDataException("Loan(s) to be toped up must be provided");
+		int total = 0;
+		for(Loan loan : topUpDto.getLoans()) {
+			Optional<Loan> oLoan = loanRepo.findById(loan.getId());
+			if(!oLoan.isPresent())
+				throw new InvalidDataException("Invalid loan provided");
+			if(oLoan.get().getMember().getId()!=userService.me().getMember().getId())
+				throw new InvalidDataException("Unrelated loan provided");
+			if(oLoan.get().getStatus()!=LoanStatus.RETURNING)
+				throw new InvalidDataException("Non returning loan provided");
+			total+=oLoan.get().getBalance();
+		}
+		if(total>=topUpDto.getAmount())
+			throw new InvalidDataException("Loan balance exceeds reequested amount");
+		
+		LoanDto dto = new LoanDto();
+		BeanUtils.copyProperties(topUpDto, dto);
+		Response<LoanDto> loanDto = registerLoan(dto);
+		Loan loan = loanRepo.findById(loanDto.getData().getId()).get();
+		loan.setUpdatedAt(LocalDateTime.now());
+		loan.setUpdatedBy(userService.me().getId());
+		loan.setAmountToPay(loan.getAmountToPay() - total);
+		loanRepo.save(loan);
+		for(Loan _loan : topUpDto.getLoans()) {
+			_loan.setClearer(loan);
+			_loan.setUpdatedAt(LocalDateTime.now());
+			_loan.setUpdatedBy(userService.me().getId());
+			loanRepo.save(_loan);
 		}
 		return new Response<LoanDto>(ResponseCode.SUCCESS,"Success",loanRepo.findLoanById(loan.getId()));
 	}
