@@ -50,7 +50,7 @@ public class Member extends BaseEntity {
 	}
 	
 	public String getShortName() {
-		if(rank=="PTE" || rank=="L/CPL" || rank=="CPL" || rank=="SGT" || rank=="SSGT" || rank=="WOI")
+		if(rank.contentEquals("PTE") || rank.contentEquals("L/CPL") || rank.contentEquals("CPL") || rank.contentEquals("SGT") || rank.contentEquals("SSGT") || rank.contentEquals("WOII"))
 			return rank+" "+lastName+" "+firstName.charAt(0)+middleName.charAt(0);
 		else
 			return rank+" "+firstName.charAt(0)+middleName.charAt(0)+" "+lastName;
