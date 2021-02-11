@@ -55,12 +55,13 @@ public class LoanDto {
 	
 	private String remark;
 	
-	public LoanDto(String id, String memberId, String loanTypeId, int amount, int amountToPay, LocalDate effectDate,
+	public LoanDto(String id, String memberId, String loanTypeId, int amount, int amountToPay, int balance, LocalDate effectDate,
 			int returns, String unit, String subUnit, String loanName, 
 			double interest, int periods, Period period, LoanStatus status, String remark) {
 		this.id = id;
 		this.amount = amount;
 		this.amountToPay = amountToPay;
+		this.balance = balance;
 		this.returns = returns;
 		this.unit = unit;
 		this.subUnit = subUnit;

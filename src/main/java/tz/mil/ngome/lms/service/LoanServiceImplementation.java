@@ -539,7 +539,8 @@ public class LoanServiceImplementation implements LoanService {
 		loan.setUpdatedBy(userService.me().getId());
 		loan.setAmountToPay(loan.getAmountToPay() - total);
 		loanRepo.save(loan);
-		for(Loan _loan : topUpDto.getLoans()) {
+		for(Loan __loan : topUpDto.getLoans()) {
+			Loan _loan = loanRepo.findById(__loan.getId()).get();
 			_loan.setClearer(loan);
 			_loan.setUpdatedAt(LocalDateTime.now());
 			_loan.setUpdatedBy(userService.me().getId());
