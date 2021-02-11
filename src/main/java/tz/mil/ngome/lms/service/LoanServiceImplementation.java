@@ -418,8 +418,58 @@ public class LoanServiceImplementation implements LoanService {
 
 	@Override
 	public Response<LoanDto> collectLoanReturn(CollectReturnDto returnDto) {
-		// TODO Auto-generated method stub
-		return null;
+		if(returnDto.getLoan()==null || returnDto.getLoan().getId()==null || returnDto.getLoan().getId().isEmpty() || !loanRepo.findById(returnDto.getLoan().getId()).isPresent())
+			throw new InvalidDataException("Invalid loan");
+		if(returnDto.getAccount()==null || returnDto.getAccount().getId()==null || returnDto.getAccount().getId().isEmpty() || !accountRepo.findById(returnDto.getAccount().getId()).isPresent())
+			throw new InvalidDataException("Invalid account");
+		
+		Loan loan = loanRepo.findById(returnDto.getLoan().getId()).get();
+		if(loan.getBalance()<returnDto.getAmount())
+			throw new InvalidDataException("Amount exceeds remaining loan balance");
+		
+		LoanReturn loanReturn = new LoanReturn();
+		loanReturn.setAmount(returnDto.getAmount());
+		loanReturn.setLoan(loan);
+		loanReturn.setMonth(month(returnDto.getDate()));
+		loanReturn.setCreatedBy(userService.me().getId());
+		loanReturnRepo.save(loanReturn);
+		
+		loan.setBalance(loan.getBalance()-returnDto.getAmount());
+		if(loan.getBalance()<=0)
+			loan.setStatus(LoanStatus.COMPLETED);
+		else
+			loan.setStatus(LoanStatus.RETURNING);
+		loanRepo.save(loan);
+		
+		TransactionDto txn = new TransactionDto();
+		txn.setDescription("Being return on loan collected on "+returnDto.getDate());
+		txn.setDate(returnDto.getDate());
+		List<TransactionDetailDto> txnDetails = new ArrayList<TransactionDetailDto>();
+		
+		int i = (int) Math.floor(loanReturn.getAmount()*(loanReturn.getLoan().getInterest()/100));
+		int n = loanReturn.getAmount() - i;
+		TransactionDetailDto txnDetail = new TransactionDetailDto();
+		txnDetail.setCredit(n);
+		txnDetail.setDebit(0);
+		txnDetail.setAccount(accountRepo.findAccountByCode(loan.getMember().getCompNumber()));
+		txnDetails.add(txnDetail);
+		
+		txnDetail = new TransactionDetailDto();
+		txnDetail.setCredit(i);
+		txnDetail.setDebit(0);
+		txnDetail.setAccount(accountRepo.findAccountByName("Interest"));
+		txnDetails.add(txnDetail);
+		
+		txnDetail = new TransactionDetailDto();
+		txnDetail.setCredit(0);
+		txnDetail.setDebit(loanReturn.getAmount());
+		txnDetail.setAccount(accountRepo.findAccountById(returnDto.getAccount().getId()));
+		txnDetails.add(txnDetail);
+		
+		txn.setDetails(txnDetails);
+		transactionService.saveTransaction(txn);
+		
+		return new Response<LoanDto>(ResponseCode.SUCCESS,"Success",loanRepo.findLoanById(loan.getId()));
 	}
 
 	@Override

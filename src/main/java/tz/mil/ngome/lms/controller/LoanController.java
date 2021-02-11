@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import tz.mil.ngome.lms.dto.CollectReturnDto;
 import tz.mil.ngome.lms.dto.CollectReturnsDto;
 import tz.mil.ngome.lms.dto.CollectedReturnsResponseDto;
 import tz.mil.ngome.lms.dto.DisburseLoanDto;
@@ -121,6 +122,11 @@ public class LoanController {
 	@PostMapping(value = "collect-returns")
 	private Response<CollectedReturnsResponseDto> collectReturns(@ModelAttribute CollectReturnsDto collectReturnsDto) {
 		return this.loanService.collectLoansReturns(collectReturnsDto);
+	}
+	
+	@PostMapping(value = "collect-return", consumes = MediaType.APPLICATION_JSON_VALUE)
+	private Response<LoanDto> collectLoanReturn(@RequestBody CollectReturnDto returnDto) {
+		return this.loanService.collectLoanReturn(returnDto);
 	}
 	
 	@PostMapping(value = "cancel-loan", consumes = MediaType.APPLICATION_JSON_VALUE)
