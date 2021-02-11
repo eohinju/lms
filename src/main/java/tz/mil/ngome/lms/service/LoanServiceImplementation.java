@@ -424,6 +424,10 @@ public class LoanServiceImplementation implements LoanService {
 			throw new InvalidDataException("Invalid account");
 		
 		Loan loan = loanRepo.findById(returnDto.getLoan().getId()).get();
+		
+		if(loan.getStatus()!=LoanStatus.RETURNING && loan.getStatus()!=LoanStatus.PAID)
+			throw new InvalidDataException("Can not collect return for provided loan");
+		
 		if(loan.getBalance()<returnDto.getAmount())
 			throw new InvalidDataException("Amount exceeds remaining loan balance");
 		
