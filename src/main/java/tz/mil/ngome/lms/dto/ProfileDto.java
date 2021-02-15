@@ -10,7 +10,9 @@ import lombok.Setter;
 public class ProfileDto {
 
 	private String phone;
+	private String email;
 	private String subUnit;
+	private String payBank;
 	private String payAccount;
 	private LocalDate dob;
 	private LocalDate rod;

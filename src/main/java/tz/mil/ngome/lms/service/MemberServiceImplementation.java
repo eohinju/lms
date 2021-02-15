@@ -190,7 +190,7 @@ public class MemberServiceImplementation implements MemberService {
 	        		error.values.add("Invalid number of collums for column "+strings[0]);
 	        	else {
 	        		try {
-	        			saveMember(new MemberDto(Integer.parseInt(strings[0]),strings[1].trim(),strings[2].trim(),strings[3],strings[4],strings[5],strings[6],strings[7],null,null,null));
+	        			saveMember(new MemberDto(Integer.parseInt(strings[0]),strings[1].trim(),strings[2].trim(),strings[3],strings[4],strings[5],strings[6],strings[7]));
 	        			success.values.add(strings[1]+" "+strings[2]+" "+strings[3]+" "+strings[4]+" "+strings[5]);
 	        		}catch(InvalidDataException e) {
 	        			error.values.add(e.getMessage());
@@ -279,13 +279,25 @@ public class MemberServiceImplementation implements MemberService {
 	@Override
 	public Response<UserDto> updateProfile(ProfileDto profileDto) {
 		User user = userService.me();
+		
 		Member member = user.getMember();
+		
+		if(member==null)
+			return new Response<UserDto>(ResponseCode.SUCCESS,"Success",userRepo.findUserById(user.getId()));
+		
+		if(profileDto.getEmail()!=null && !profileDto.getEmail().isEmpty()) {
+			user.setEmail(profileDto.getEmail());
+			userRepo.save(user);
+		}
 		
 		if(profileDto.getPhone()!=null && !profileDto.getPhone().isEmpty())
 			member.setPhone(profileDto.getPhone());
 		
 		if(profileDto.getPayAccount()!=null && !profileDto.getPayAccount().isEmpty())
 			member.setPayAccount(profileDto.getPayAccount());
+		
+		if(profileDto.getPayBank()!=null && !profileDto.getPayBank().isEmpty())
+			member.setPayBank(profileDto.getPayBank());
 		
 		if(profileDto.getDob()!=null)
 			member.setDob(profileDto.getDob());

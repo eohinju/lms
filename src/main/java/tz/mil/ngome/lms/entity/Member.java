@@ -49,6 +49,9 @@ public class Member extends BaseEntity {
 	
 	@Column(length = 32)
 	private String payAccount;
+
+	@Column(length = 32)
+	private String payBank;
 	
 	private LocalDate dob;
 	
