@@ -119,6 +119,12 @@ public class LoanServiceImplementation implements LoanService {
 		Loan loan = new Loan();
 		Member me = memberRepo.findById(loanDto.getMember().getId()).get();
 		
+		if(me.getPayAccount()==null || me.getPayAccount().isEmpty())
+			throw new InvalidDataException("Member has no pay account");
+		
+		if(me.getRod()==null)
+			throw new InvalidDataException("Member ROD is not set");
+		
 		BeanUtils.copyProperties(loanDto, loan, "id");
 		loan.setMember(me);
 		loan.setAmountToPay(loanDto.getAmount());

@@ -17,7 +17,7 @@ public interface MemberRepository extends JpaRepository<Member, String> {
 
 	@Query(value="SELECT new tz.mil.ngome.lms.dto.MemberDto("
 			+ "_member.id,_member.compNumber,_member.serviceNumber,_member.rank,_member.firstName,_member.middleName,_member.lastName,"
-			+ "_member.phone,_member.unit,_member.subUnit)"
+			+ "_member.phone,_member.unit,_member.subUnit, _member.payAccount, _member.dob, _member.rod)"
 			+ "FROM Member AS _member WHERE _member.deleted=false",
 			countQuery = " select count(_member) from Member as _member where _member.deleted=false"
 			)
@@ -25,14 +25,14 @@ public interface MemberRepository extends JpaRepository<Member, String> {
 	
 //	@Query(value="SELECT new tz.mil.ngome.lms.dto.MemberDto("
 //			+ "_member.id,_member.compNumber,_member.serviceNumber,_member.rank,_member.firstName,_member.middleName,_member.lastName,"
-//			+ "_member.phone,_member.unit,_member.subUnit)"
+//			+ "_member.phone,_member.unit,_member.subUnit, _member.payAccount, _member.dob, _member.rod)"
 //			+ "FROM Member AS _member WHERE _member.deleted=false"
 //			)
 //	Page<MemberDto> getMembers(Pageable pageable);
 	
 	@Query(value="SELECT new tz.mil.ngome.lms.dto.MemberDto("
 			+ "_member.id,_member.compNumber,_member.serviceNumber,_member.rank,_member.firstName,_member.middleName,_member.lastName,"
-			+ "_member.phone,_member.unit,_member.subUnit)"
+			+ "_member.phone,_member.unit,_member.subUnit, _member.payAccount, _member.dob, _member.rod)"
 			+ "FROM Member AS _member WHERE _member.deleted=false and "
 			+ "(cast(_member.compNumber as text) like %:data% or lower(_member.serviceNumber) like %:data% or lower(_member.firstName) like %:data% "
 			+ "or lower(_member.middleName) like %:data% or lower(_member.lastName) like %:data%)"
@@ -41,7 +41,7 @@ public interface MemberRepository extends JpaRepository<Member, String> {
 
 	@Query("SELECT new tz.mil.ngome.lms.dto.MemberDto("
 			+ "_member.id,_member.compNumber,_member.serviceNumber,_member.rank,_member.firstName,_member.middleName,_member.lastName,"
-			+ "_member.phone,_member.unit,_member.subUnit)"
+			+ "_member.phone,_member.unit,_member.subUnit, _member.payAccount, _member.dob, _member.rod)"
 			+ "FROM Member AS _member WHERE _member.id=:memberId")
 	MemberDto findMemberById(String memberId);
 
@@ -52,7 +52,7 @@ public interface MemberRepository extends JpaRepository<Member, String> {
 
 	@Query(value="SELECT new tz.mil.ngome.lms.dto.MemberDto("
 			+ "_member.id,_member.compNumber,_member.serviceNumber,_member.rank,_member.firstName,_member.middleName,_member.lastName,"
-			+ "_member.phone,_member.unit,_member.subUnit)"
+			+ "_member.phone,_member.unit,_member.subUnit, _member.payAccount, _member.dob, _member.rod)"
 			+ "FROM Member AS _member WHERE _member.deleted=false and _member.subUnit=:subUnit",
 			countQuery = " select count(_member) from Member as _member where _member.deleted=false and _member.subUnit=:subUnit"
 			)

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -25,6 +26,8 @@ import au.com.bytecode.opencsv.CSVReader;
 import tz.mil.ngome.lms.dto.MappedStringListDto;
 import tz.mil.ngome.lms.dto.MemberDto;
 import tz.mil.ngome.lms.dto.MembersImportDto;
+import tz.mil.ngome.lms.dto.ProfileDto;
+import tz.mil.ngome.lms.dto.UserDto;
 import tz.mil.ngome.lms.entity.Account;
 import tz.mil.ngome.lms.entity.Member;
 import tz.mil.ngome.lms.entity.User;
@@ -187,7 +190,7 @@ public class MemberServiceImplementation implements MemberService {
 	        		error.values.add("Invalid number of collums for column "+strings[0]);
 	        	else {
 	        		try {
-	        			saveMember(new MemberDto(Integer.parseInt(strings[0]),strings[1].trim(),strings[2].trim(),strings[3],strings[4],strings[5],strings[6],strings[7]));
+	        			saveMember(new MemberDto(Integer.parseInt(strings[0]),strings[1].trim(),strings[2].trim(),strings[3],strings[4],strings[5],strings[6],strings[7],null,null,null));
 	        			success.values.add(strings[1]+" "+strings[2]+" "+strings[3]+" "+strings[4]+" "+strings[5]);
 	        		}catch(InvalidDataException e) {
 	        			error.values.add(e.getMessage());
@@ -245,6 +248,15 @@ public class MemberServiceImplementation implements MemberService {
 		if(memberDto.getPhone()!=null && !memberDto.getPhone().isEmpty())
 			member.setPhone(memberDto.getPhone().trim());
 		
+		if(memberDto.getPayAccount()!=null && !memberDto.getPayAccount().isEmpty())
+			member.setPayAccount(memberDto.getPayAccount());
+		
+		if(memberDto.getRod()!=null)
+			member.setRod(memberDto.getRod());
+		
+		if(memberDto.getDob()!=null)
+			member.setDob(memberDto.getDob());
+		
 		memberRepo.save(member);
 		return new Response<MemberDto>(ResponseCode.SUCCESS,"Success",memberRepo.findMemberById(member.getId()));
 	}
@@ -262,6 +274,30 @@ public class MemberServiceImplementation implements MemberService {
 			}
 		}
 		return new Response<List<MemberDto>>(ResponseCode.SUCCESS,"Success",new ArrayList<MemberDto>(members));
+	}
+
+	@Override
+	public Response<UserDto> updateProfile(ProfileDto profileDto) {
+		User user = userService.me();
+		Member member = user.getMember();
+		
+		if(profileDto.getPhone()!=null && !profileDto.getPhone().isEmpty())
+			member.setPhone(profileDto.getPhone());
+		
+		if(profileDto.getPayAccount()!=null && !profileDto.getPayAccount().isEmpty())
+			member.setPayAccount(profileDto.getPayAccount());
+		
+		if(profileDto.getDob()!=null)
+			member.setDob(profileDto.getDob());
+		
+		if(profileDto.getRod()!=null)
+			member.setRod(profileDto.getRod());
+		
+		member.setUpdatedAt(LocalDateTime.now());
+		member.setUpdatedBy(userService.me().getId());
+		memberRepo.save(member);
+		
+		return new Response<UserDto>(ResponseCode.SUCCESS,"Success",userRepo.findUserById(user.getId()));
 	}
 
 }

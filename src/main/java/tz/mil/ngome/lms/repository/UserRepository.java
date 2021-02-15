@@ -41,12 +41,6 @@ public interface UserRepository  extends JpaRepository<User, String> {
 			)
 	List<UserDto> getUsersNotInRole(Role role);
 	
-	@Query(value="SELECT new tz.mil.ngome.lms.dto.UserDto("
-			+ "user.id, user.username, user.email, user.member.id, user.role)"
-			+ "FROM User AS user WHERE user.deleted=false and user.id=:id"
-			)
-	UserDto getUser(String id);
-	
 	@Transactional
 	@Modifying
 	@Query(value = "update users set role=:newRole where role=:oldRole", nativeQuery = true)
@@ -65,5 +59,11 @@ public interface UserRepository  extends JpaRepository<User, String> {
 
 	@Query(value = "select email from users where member_id=:id", nativeQuery = true)
 	String findEmailByMember(String id);
+
+	@Query(value="SELECT new tz.mil.ngome.lms.dto.UserDto("
+			+ "user.id, user.username, user.email, user.member.id, user.role)"
+			+ "FROM User AS user WHERE user.deleted=false and user.id=:id"
+			)
+	UserDto findUserById(String id);
 	
 }

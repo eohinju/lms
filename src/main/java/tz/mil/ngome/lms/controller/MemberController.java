@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import tz.mil.ngome.lms.dto.MappedStringListDto;
 import tz.mil.ngome.lms.dto.MemberDto;
 import tz.mil.ngome.lms.dto.MembersImportDto;
+import tz.mil.ngome.lms.dto.ProfileDto;
+import tz.mil.ngome.lms.dto.UserDto;
 import tz.mil.ngome.lms.service.MemberService;
 import tz.mil.ngome.lms.utils.Configuration;
 import tz.mil.ngome.lms.utils.Response;
@@ -43,6 +45,11 @@ public class MemberController {
 	@PostMapping(value = "update-member", consumes = MediaType.APPLICATION_JSON_VALUE)
 	private Response<MemberDto> updateMember(@RequestBody MemberDto memberDto) {
 		return this.memberService.updateMember(memberDto);
+	}
+	
+	@PostMapping(value = "update-profile", consumes = MediaType.APPLICATION_JSON_VALUE)
+	private Response<UserDto> updateProfile(@RequestBody ProfileDto profileDto) {
+		return this.memberService.updateProfile(profileDto);
 	}
 	
 	@PostMapping(value = "import-members")

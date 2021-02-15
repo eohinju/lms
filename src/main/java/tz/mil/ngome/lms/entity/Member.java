@@ -1,5 +1,7 @@
 package tz.mil.ngome.lms.entity;
 
+import java.time.LocalDate;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -44,6 +46,13 @@ public class Member extends BaseEntity {
 	
 	@Column(nullable = false, length = 16)
 	private String subUnit;
+	
+	@Column(length = 32)
+	private String payAccount;
+	
+	private LocalDate dob;
+	
+	private LocalDate rod;
 	
 	public String getName() {
 		return this.serviceNumber.trim()+" "+this.getRank().trim()+" "+this.firstName.trim()+" "+this.middleName.trim()+" "+this.lastName.trim();

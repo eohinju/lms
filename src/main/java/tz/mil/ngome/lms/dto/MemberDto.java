@@ -1,5 +1,7 @@
 package tz.mil.ngome.lms.dto;
 
+import java.time.LocalDate;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,8 +24,11 @@ public class MemberDto {
 	private String phone;
 	private String unit;
 	private String subUnit;
+	private String payAccount;
+	private LocalDate dob;
+	private LocalDate rod;
 	
-	public MemberDto(int comp, String svc, String rank, String fname, String mname, String lname, String subUnit, String phone) {
+	public MemberDto(int comp, String svc, String rank, String fname, String mname, String lname, String subUnit, String phone, String account, LocalDate dob, LocalDate rod) {
 		Configuration conf = new Configuration();
 		this.compNumber = comp;
 		this.serviceNumber = svc;
@@ -33,6 +38,8 @@ public class MemberDto {
 		this.lastName = lname;
 		this.subUnit = subUnit;
 		this.phone = phone;
+		this.dob = dob;
+		this.rod = rod;
 		this.unit = conf.getUnit();
 	}
 

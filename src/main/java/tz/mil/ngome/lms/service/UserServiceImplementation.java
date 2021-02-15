@@ -197,7 +197,7 @@ public class UserServiceImplementation implements UserService {
 			userRepo.setRoleByRoleAndSubUnit(Role.ROLE_MEMBER.ordinal(), Role.ROLE_LEADER.ordinal(), user.getMember().getSubUnit());
 		user.setRole(data.getRole());
 		userRepo.save(user);
-		return new Response<UserDto> (ResponseCode.SUCCESS,"Success",userRepo.getUser(user.getId()));
+		return new Response<UserDto> (ResponseCode.SUCCESS,"Success",userRepo.findUserById(user.getId()));
 	}
 
 	@Override

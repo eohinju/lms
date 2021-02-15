@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import tz.mil.ngome.lms.dto.MappedStringListDto;
 import tz.mil.ngome.lms.dto.MemberDto;
 import tz.mil.ngome.lms.dto.MembersImportDto;
+import tz.mil.ngome.lms.dto.ProfileDto;
+import tz.mil.ngome.lms.dto.UserDto;
 import tz.mil.ngome.lms.utils.Response;
 
 @Service
@@ -23,5 +25,7 @@ public interface MemberService {
 	public Response<Page<MemberDto>> getMembers(Pageable pageable);
 	
 	public Response<List<MemberDto>> findMember(String data);
+	
+	public Response<UserDto> updateProfile(ProfileDto profileDto);
 	
 }
