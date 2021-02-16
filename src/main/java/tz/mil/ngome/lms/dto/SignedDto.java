@@ -14,6 +14,7 @@ public class SignedDto {
 	private String username;
 	private String name;
 	private String phone;
+	private String svc;
 	private String role;
 	private String token;
 	

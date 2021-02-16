@@ -577,12 +577,16 @@ public class LoanServiceImplementation implements LoanService {
 	public Response<LoanDto> registerTopUpLoan(TopUpDto topUpDto) {
 		if(topUpDto.getLoans()==null || topUpDto.getLoans().length==0)
 			throw new InvalidDataException("Loan(s) to be toped up must be provided");
+		
+		if(topUpDto.getMember()==null || topUpDto.getMember().getId()==null || topUpDto.getMember().getId().isEmpty() || !memberRepo.findById(topUpDto.getMember().getId()).isPresent())
+			throw new InvalidDataException("Invalid member provided");
+		Member member = memberRepo.findById(topUpDto.getMember().getId()).get();
 		int total = 0;
 		for(Loan loan : topUpDto.getLoans()) {
 			Optional<Loan> oLoan = loanRepo.findById(loan.getId());
 			if(!oLoan.isPresent())
 				throw new InvalidDataException("Invalid loan provided");
-			if(oLoan.get().getMember().getId()!=userService.me().getMember().getId())
+			if(oLoan.get().getMember().getId()!=member.getId())
 				throw new InvalidDataException("Unrelated loan provided");
 			if(oLoan.get().getStatus()!=LoanStatus.RETURNING)
 				throw new InvalidDataException("Non returning loan provided");

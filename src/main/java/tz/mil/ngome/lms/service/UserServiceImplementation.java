@@ -125,6 +125,7 @@ public class UserServiceImplementation implements UserService {
 			}
 			signed.setRole(user.getRole().name());
 			signed.setUsername(user.getUsername());
+			signed.setSvc(user.getMember().getServiceNumber());
 			signed.setToken(jwt);
 			response.setCode(ResponseCode.SUCCESS);
 			response.setData(signed);
