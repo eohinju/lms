@@ -55,6 +55,12 @@ public class LoanDto {
 	
 	private String remark;
 	
+	public LoanDto( int amount, String memberId, String loanType) {
+		this.member = memberRepo.findMemberById(memberId);
+		this.loanType = loanTypeRepo.findLoanTypeById(loanType);
+		this.amount = amount;
+	}
+	
 	public LoanDto(String id, String memberId, String loanTypeId, int amount, int amountToPay, int balance, LocalDate effectDate,
 			int returns, String unit, String subUnit, String loanName, 
 			double interest, int periods, Period period, LoanStatus status, String remark) {

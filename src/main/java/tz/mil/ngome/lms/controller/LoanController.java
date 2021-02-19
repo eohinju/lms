@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -23,6 +24,7 @@ import tz.mil.ngome.lms.dto.DisburseLoanDto;
 import tz.mil.ngome.lms.dto.DisburseLoansDto;
 import tz.mil.ngome.lms.dto.LoanDenyDto;
 import tz.mil.ngome.lms.dto.LoanDto;
+import tz.mil.ngome.lms.dto.LoansDto;
 import tz.mil.ngome.lms.dto.MappedStringListDto;
 import tz.mil.ngome.lms.dto.TopUpDto;
 import tz.mil.ngome.lms.exception.InvalidDataException;
@@ -154,4 +156,14 @@ public class LoanController {
 		return this.loanService.registerTopUpLoan(topUpDto);
 	}
 	
+	@PostMapping(value = "register-loans")
+	private Response<List<String>> registerLoans(@ModelAttribute LoansDto loansDto) {
+		return this.loanService.registerLoans(loansDto);
+	}
+	
+	@GetMapping(value = "report/loans")
+	private ResponseEntity<?> reportLoans() {
+		return this.loanService.getLoansReport();
+	}
+
 }

@@ -7,14 +7,21 @@ import java.io.Reader;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
+import javax.transaction.Transactional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.uuid.Logger;
 
 import au.com.bytecode.opencsv.CSVReader;
 import tz.mil.ngome.lms.dto.CollectReturnDto;
@@ -23,7 +30,9 @@ import tz.mil.ngome.lms.dto.CollectedReturnsResponseDto;
 import tz.mil.ngome.lms.dto.DisburseLoanDto;
 import tz.mil.ngome.lms.dto.DisburseLoansDto;
 import tz.mil.ngome.lms.dto.LoanDenyDto;
+import tz.mil.ngome.lms.dto.LoanDisburseDto;
 import tz.mil.ngome.lms.dto.LoanDto;
+import tz.mil.ngome.lms.dto.LoansDto;
 import tz.mil.ngome.lms.dto.MappedStringListDto;
 import tz.mil.ngome.lms.dto.MemberDto;
 import tz.mil.ngome.lms.dto.MemberPayDto;
@@ -45,12 +54,16 @@ import tz.mil.ngome.lms.repository.MemberRepository;
 import tz.mil.ngome.lms.repository.TransactionRepository;
 import tz.mil.ngome.lms.repository.UserRepository;
 import tz.mil.ngome.lms.repository.LoanReturnRepository;
+import tz.mil.ngome.lms.utils.Configuration;
 import tz.mil.ngome.lms.utils.EmailSender;
+import tz.mil.ngome.lms.utils.Report;
 import tz.mil.ngome.lms.utils.Response;
 import tz.mil.ngome.lms.utils.ResponseCode;
 
 @Service
 public class LoanServiceImplementation implements LoanService {
+	
+	private final String logo = "classpath:reports/logo.png";
 	
 	@Autowired
 	LoanTypeRepository loanTypeRepo;
@@ -236,6 +249,7 @@ public class LoanServiceImplementation implements LoanService {
 				Loan loan = oLoan.get();
 				if(loan.getStatus()==LoanStatus.AUTHORIZED) {
 					loan.setStatus(LoanStatus.PAID);
+					loan.setEffectDate(loansDto.getDate());
 					Loan savedLoan = loanRepo.save(loan);
 					try {
 						transactionService.journalLoan(savedLoan, accountRepo.findById(loansDto.getAccount().getId()).get(), loansDto.getDate());
@@ -611,6 +625,82 @@ public class LoanServiceImplementation implements LoanService {
 			loanRepo.save(_loan);
 		}
 		return new Response<LoanDto>(ResponseCode.SUCCESS,"Success",loanRepo.findLoanById(loan.getId()));
+	}
+
+	@Transactional
+	@Override
+	public Response<List<String>> registerLoans(LoansDto loansDto) {
+		List<String> nonmember = new ArrayList<String>();
+		
+		if(loansDto.getFile()==null || loansDto.getFile().isEmpty())
+			throw new InvalidDataException("File is required");
+		
+		if(loansDto.getDate()==null)
+			throw new InvalidDataException("Date is required");
+		
+		if(loansDto.getAccount()==null || loansDto.getAccount().isEmpty() || !accountRepo.findById(loansDto.getAccount()).isPresent())
+			throw new InvalidDataException("Valid account required");
+		
+		InputStream inputStream = null;
+		try {
+			inputStream = loansDto.getFile().getInputStream();
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new InvalidDataException("File could not be read");
+		}
+		
+		List<String[]> objectList = new ArrayList<>();
+		Reader reader = new InputStreamReader(inputStream);
+		CSVReader csvReader = new CSVReader(reader);
+		try {
+			objectList = csvReader.readAll();
+			csvReader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		List<LoanDto> loans = new ArrayList<LoanDto>();
+		for (String[] strings : objectList) {
+            if (!strings[0].equals("Not set")) {
+            	if(!strings[0].toLowerCase().contains("employee")) {
+            		int cn = Integer.parseInt(strings[0]);
+            		Optional<Member> oMember = memberRepo.findByCompNumber(cn);
+            		if(oMember.isPresent()) {
+            			Member member = oMember.get();
+            			try {
+            				LoanDto loanDto = new LoanDto(Integer.parseInt(strings[1]),member.getId(),strings[2]);
+            				Response<LoanDto> res = this.registerLoan(loanDto);
+            				Loan loan = loanRepo.findById(res.getData().getId()).get();
+            				loan.setStatus(LoanStatus.AUTHORIZED);
+            				loanRepo.save(loan);
+            				loanDto.setId(loan.getId());
+            				loans.add(loanDto);
+            			}catch(Exception e) {
+            				nonmember.add(e.getMessage());
+            			}
+            		}else {
+            			
+            		}
+            	}
+            }
+		}
+        if(!nonmember.isEmpty())
+        	return new Response<List<String>>(ResponseCode.FAILURE,"Error",nonmember);
+        DisburseLoansDto disburse = new DisburseLoansDto(LocalDate.parse(loansDto.getDate()),accountRepo.findById(loansDto.getAccount()).get(),loans);
+        this.disburseLoans(disburse);
+        return new Response<List<String>>(ResponseCode.SUCCESS,"Success",null);
+	}
+
+	@Override
+	public ResponseEntity<?> getLoansReport() {
+		Configuration conf = new Configuration();
+		Map<String, Object> params = new HashMap<>();
+		params.put("logo", logo);
+		params.put("unit", conf.getUnit());
+		params.put("fund", conf.getUnit()+" Reliaf Fund");
+		params.put("title", "Mikopo iliyotolewa mwezi Aug 2020");
+		List<LoanDisburseDto> loans = loanRepo.reportStatusOnBetweenDates(LoanStatus.PAID,LocalDate.parse("2020-09-01"),LocalDate.parse("2021-03-01"));
+		Logger.logInfo("Loans processed "+String.valueOf(loans.size()));
+		return Report.generate("loans", loans , params);
 	}
 
 }

@@ -1,5 +1,6 @@
 package tz.mil.ngome.lms.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -7,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import tz.mil.ngome.lms.dto.LoanDisburseDto;
 import tz.mil.ngome.lms.dto.LoanDto;
 import tz.mil.ngome.lms.entity.Loan;
 import tz.mil.ngome.lms.entity.Loan.LoanStatus;
@@ -101,5 +103,10 @@ public interface LoanRepository  extends JpaRepository<Loan, String> {
 			+ "loan.periods, loan.period, loan.status, loan.remark)"
 			+ "FROM Loan AS loan WHERE loan.clearer.id=:id order by loan.createdAt desc")
 	List<LoanDto> findTopUps(String id);
+
+	@Query("SELECT new tz.mil.ngome.lms.dto.LoanDisburseDto("
+			+ "concat(loan.member.serviceNumber,'  ',loan.member.rank,' ',loan.member.firstName,' ',loan.member.middleName,' ',loan.member.lastName), loan.amount)"
+			+ "FROM Loan AS loan WHERE loan.deleted=false and loan.status=:status and loan.effectDate>=:start and loan.effectDate<=:end order by loan.amount desc")
+	List<LoanDisburseDto> reportStatusOnBetweenDates(LoanStatus status, LocalDate start, LocalDate end);
 
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import tz.mil.ngome.lms.dto.CollectReturnDto;
@@ -13,6 +14,7 @@ import tz.mil.ngome.lms.dto.DisburseLoanDto;
 import tz.mil.ngome.lms.dto.DisburseLoansDto;
 import tz.mil.ngome.lms.dto.LoanDenyDto;
 import tz.mil.ngome.lms.dto.LoanDto;
+import tz.mil.ngome.lms.dto.LoansDto;
 import tz.mil.ngome.lms.dto.MappedStringListDto;
 import tz.mil.ngome.lms.dto.TopUpDto;
 import tz.mil.ngome.lms.utils.Response;
@@ -41,5 +43,7 @@ public interface LoanService {
 	Response<List<LoanDto>> getDisbursedLoans();	
 	Response<CollectedReturnsResponseDto> collectLoansReturns(CollectReturnsDto returnDto);
 	Response<LoanDto> collectLoanReturn(CollectReturnDto returnDto);
+	Response<List<String>> registerLoans(LoansDto loansDto); 
 	
+	ResponseEntity<?> getLoansReport();
 }
