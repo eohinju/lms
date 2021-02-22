@@ -58,6 +58,28 @@ public class TransactionServiceImpl implements TransactionService {
 		detailRepo.save(detail);
 		return new Response<TransactionDto>(ResponseCode.SUCCESS,"Success",transactionRepo.findTransactionById(txn.getId()));
 	}
+	
+//	@Override
+	public Response<TransactionDto> journalReturn(Loan loan, Account payAccount, int amount, LocalDate date) {		
+		Transaction txn = new Transaction();
+		txn.setCreatedBy(userService.me().getId());
+		txn.setDate(date);
+		txn.setCredit(amount);
+		txn.setDebit(amount);
+		txn.setDescription("Being loan return from "+accountRepo.findByCode(loan.getMember().getCompNumber()).getName());
+		transactionRepo.save(txn);
+		TransactionDetail detail = new TransactionDetail(txn,payAccount,amount,0);
+		detail.setCreatedBy(userService.me().getId());
+		detailRepo.save(detail);
+		int i = (int) Math.floor(amount*(loan.getInterest()/100));
+		detail = new TransactionDetail(txn,accountRepo.findByCode(loan.getMember().getCompNumber()),0,amount-i);
+		detail.setCreatedBy(userService.me().getId());
+		detailRepo.save(detail);
+		detail = new TransactionDetail(txn,accountRepo.findById(accountRepo.findAccountByName("Interest").getId()).get(),0,i);
+		detail.setCreatedBy(userService.me().getId());
+		detailRepo.save(detail);
+		return new Response<TransactionDto>(ResponseCode.SUCCESS,"Success",transactionRepo.findTransactionById(txn.getId()));
+	}
 
 	@Override
 	public TransactionDto saveTransaction(TransactionDto transactionDto) {
