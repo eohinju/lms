@@ -1,5 +1,6 @@
 package tz.mil.ngome.lms.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -46,4 +47,5 @@ public interface LoanService {
 	Response<List<String>> registerLoans(LoansDto loansDto); 
 	
 	ResponseEntity<?> getLoansReport();
+	String month(LocalDate date);
 }

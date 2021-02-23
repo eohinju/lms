@@ -95,6 +95,9 @@ public class LoanServiceImplementation implements LoanService {
 	@Autowired
 	EmailSender sender;
 	
+	@Autowired
+	ReturnService returnService;
+	
 	@Override
 	public Response<LoanDto> requestLoan(LoanDto loanDto) {
 		Member me = userService.me().getMember();
@@ -201,32 +204,29 @@ public class LoanServiceImplementation implements LoanService {
 
 	@Override
 	public Response<LoanDto> disburseLoan(DisburseLoanDto loanDto) {
-		Response<LoanDto> response = new Response<LoanDto>();
-		if(loanDto.getLoan()==null || loanDto.getLoan().getId()==null || loanDto.getLoan().getId().isEmpty())
-			throw new InvalidDataException("Invalid Loan");
+		if(loanDto.getLoan()==null || loanDto.getLoan().getId()==null || loanDto.getLoan().getId().isEmpty() || !loanRepo.findById(loanDto.getLoan().getId()).isPresent())
+			throw new InvalidDataException("Valid loan required");
 		
-		if(loanDto.getAccount()==null || loanDto.getAccount().getId()==null || loanDto.getAccount().getId().isEmpty())
-			throw new InvalidDataException("Account is required");
-		
-		if(!accountRepo.findById(loanDto.getAccount().getId()).isPresent())
-			throw new InvalidDataException("Invalid account");
+		if(loanDto.getAccount()==null || loanDto.getAccount().getId()==null || loanDto.getAccount().getId().isEmpty() || !accountRepo.findById(loanDto.getAccount().getId()).isPresent())
+			throw new InvalidDataException("Valid account required");
 		
 		if(loanDto.getDate()==null)
 			throw new InvalidDataException("Invalid date");
 			
-		Optional<Loan> oLoan = loanRepo.findById(loanDto.getLoan().getId());
-		if(oLoan.isPresent()) {
-			Loan loan = oLoan.get();
-			if(loan.getStatus()!=LoanStatus.AUTHORIZED)
-				throw new UnauthorizedException("Loan is not authorized");
-			loan.setStatus(LoanStatus.PAID);
-			Loan savedLoan = loanRepo.save(loan);
-			transactionService.journalLoan(savedLoan, accountRepo.findById(loanDto.getAccount().getId()).get(), loanDto.getDate());
-			response.setCode(ResponseCode.SUCCESS);
-			response.setData(loanRepo.findLoanById(savedLoan.getId()));
-			return response;
-		}else
-			throw new InvalidDataException("Invalid Loan");
+		Loan loan = loanRepo.findById(loanDto.getLoan().getId()).get();
+		if(loan.getStatus()!=LoanStatus.AUTHORIZED)
+			throw new UnauthorizedException("Loan is not authorized");
+		loan.setStatus(LoanStatus.PAID);
+		Loan savedLoan = loanRepo.save(loan);
+		transactionService.journalLoan(savedLoan, accountRepo.findById(loanDto.getAccount().getId()).get(), loanDto.getDate());
+		List<Loan> cleareds = loanRepo.getLoansByClearer(savedLoan.getId());
+		if(cleareds.size()>0) {
+			for(Loan cleared:cleareds) {
+				transactionService.journalReturn(cleared, accountRepo.findById(loanDto.getAccount().getId()).get(), cleared.getBalance(), loanDto.getDate());
+				returnService.saveValidReturn(cleared, cleared.getBalance(), loanDto.getDate());
+			}
+		}
+		return new Response<LoanDto>(ResponseCode.SUCCESS,"Success",loanRepo.findLoanById(savedLoan.getId()));
 	}
 	
 	@Override
@@ -430,7 +430,8 @@ public class LoanServiceImplementation implements LoanService {
 		return new Response<CollectedReturnsResponseDto>(ResponseCode.SUCCESS,"Success", new CollectedReturnsResponseDto(success,overdeducted,undeducted,nonmember));
 	}
 	
-	private String month(LocalDate date) {
+	@Override
+	public String month(LocalDate date) {
 		int y = date.getYear();
 		int m = date.getMonthValue();
 		return m<10?y+"-0"+m:y+"-"+m;

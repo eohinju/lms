@@ -63,7 +63,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         		.and()
         		.csrf().disable()
                 .authorizeRequests()
-                	.antMatchers("/","/favicon.ico","/favicon.png","/flutter_service_worker.js","/index.html","/main.dart.js","/manifest.json","/version.json","/assets/**","/icons/**","/api/report/**").permitAll()
+                	.antMatchers("/","/favicon.png","/flutter_service_worker.js","/index.html","/main.dart.js","/main.dart.js.map","/manifest.json","/version.json","/assets/**","/icons/**","/splash/**").permitAll()
                 	.antMatchers("/api/auth/signin","/api/auth/signup","/api/auth/change-password").permitAll()
                 	.anyRequest().authenticated()
                 .and()

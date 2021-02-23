@@ -59,7 +59,7 @@ public class TransactionServiceImpl implements TransactionService {
 		return new Response<TransactionDto>(ResponseCode.SUCCESS,"Success",transactionRepo.findTransactionById(txn.getId()));
 	}
 	
-//	@Override
+	@Override
 	public Response<TransactionDto> journalReturn(Loan loan, Account payAccount, int amount, LocalDate date) {		
 		Transaction txn = new Transaction();
 		txn.setCreatedBy(userService.me().getId());

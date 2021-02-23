@@ -14,5 +14,6 @@ public interface TransactionService {
 
 	public Response<TransactionDto> journalLoan(Loan loan, Account payAccount, LocalDate date);
 	public TransactionDto saveTransaction(TransactionDto transactionDto);
+	Response<TransactionDto> journalReturn(Loan loan, Account payAccount, int amount, LocalDate date);
 
 }

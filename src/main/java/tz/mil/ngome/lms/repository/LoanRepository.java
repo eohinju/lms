@@ -96,6 +96,9 @@ public interface LoanRepository  extends JpaRepository<Loan, String> {
 
 	@Query(value = "select * from loans where status=:status and id not in(select distinct loans as id from loanreturn where month=:month)", nativeQuery = true)
 	List<Loan> getNonReturnedLoansOnMonth(String month, int status);
+	
+	@Query(value = "select * from loans where clearer=:id", nativeQuery = true)
+	List<Loan> getLoansByClearer(String id);
 
 	@Query("SELECT new tz.mil.ngome.lms.dto.LoanDto("
 			+ "loan.id, loan.member.id, loan.loanType.id, loan.amount, loan.amountToPay, loan.balance, loan.effectDate,"
