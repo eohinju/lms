@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import tz.mil.ngome.lms.dto.DeductionsRequiredDto;
 import tz.mil.ngome.lms.dto.LoanDisburseDto;
 import tz.mil.ngome.lms.dto.LoanDto;
 import tz.mil.ngome.lms.entity.Loan;
@@ -111,5 +112,10 @@ public interface LoanRepository  extends JpaRepository<Loan, String> {
 			+ "concat(loan.member.serviceNumber,'  ',loan.member.rank,' ',loan.member.firstName,' ',loan.member.middleName,' ',loan.member.lastName), loan.amount)"
 			+ "FROM Loan AS loan WHERE loan.deleted=false and loan.status=:status and loan.effectDate>=:start and loan.effectDate<=:end order by loan.amount desc")
 	List<LoanDisburseDto> reportStatusOnBetweenDates(LoanStatus status, LocalDate start, LocalDate end);
+	
+	@Query("SELECT new tz.mil.ngome.lms.dto.DeductionsRequiredDto("
+			+ "loan.id,loan.returns)"
+			+ "FROM Loan as loan WHERE loan.member.compNumber=:cn and (loan.status=5 or loan.status=6)")
+	List<DeductionsRequiredDto> getDeductionsByComputerNumber(int cn);
 
 }

@@ -20,13 +20,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.uuid.Logger;
+import com.google.gson.Gson;
 
 import au.com.bytecode.opencsv.CSVReader;
 import tz.mil.ngome.lms.dto.CollectReturnDto;
 import tz.mil.ngome.lms.dto.CollectReturnsDto;
 import tz.mil.ngome.lms.dto.CollectedReturnsResponseDto;
+import tz.mil.ngome.lms.dto.DeductionsDto;
+import tz.mil.ngome.lms.dto.DeductionsRequiredDto;
 import tz.mil.ngome.lms.dto.DisburseLoanDto;
 import tz.mil.ngome.lms.dto.DisburseLoansDto;
 import tz.mil.ngome.lms.dto.LoanDenyDto;
@@ -56,6 +60,7 @@ import tz.mil.ngome.lms.repository.UserRepository;
 import tz.mil.ngome.lms.repository.LoanReturnRepository;
 import tz.mil.ngome.lms.utils.Configuration;
 import tz.mil.ngome.lms.utils.EmailSender;
+import tz.mil.ngome.lms.utils.JSON;
 import tz.mil.ngome.lms.utils.Report;
 import tz.mil.ngome.lms.utils.Response;
 import tz.mil.ngome.lms.utils.ResponseCode;
@@ -315,21 +320,11 @@ public class LoanServiceImplementation implements LoanService {
 		return new Response<List<LoanDto>>(ResponseCode.SUCCESS,"Success",loanRepo.getLoansByStatus(LoanStatus.PAID));
 	}
 	
-	@Override
-	public Response<CollectedReturnsResponseDto> collectLoansReturns(CollectReturnsDto returnDto) {
-		List<MemberPayDto> success = new ArrayList<MemberPayDto>();
-		List<MemberPayDto> overdeducted = new ArrayList<MemberPayDto>();
-		List<MemberPayDto> undeducted = new ArrayList<MemberPayDto>();
-		List<MemberPayDto> nonmember = new ArrayList<MemberPayDto>();
-		
-		if(returnDto.getFile()==null || returnDto.getFile().isEmpty())
-			throw new InvalidDataException("File is required");
-		
-		if(returnDto.getDate()==null)
-			throw new InvalidDataException("Date is required");
+	private List<DeductionsDto> getDeductions(MultipartFile file){
+		List<DeductionsDto> list = new ArrayList<DeductionsDto>();
 		InputStream inputStream = null;
 		try {
-			inputStream = returnDto.getFile().getInputStream();
+			inputStream = file.getInputStream();
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new InvalidDataException("File could not be read");
@@ -345,89 +340,176 @@ public class LoanServiceImplementation implements LoanService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		TransactionDto txn = new TransactionDto();
-		txn.setDescription("Being return on loan collected on "+returnDto.getDate());
-		txn.setDate(LocalDate.parse(returnDto.getDate()));
-		List<TransactionDetailDto> txnDetails = new ArrayList<TransactionDetailDto>();
-		int interest = 0;
-		int repay = 0;
-		boolean found;
 		for (String[] strings : objectList) {
             if (!strings[0].equals("Not set")) {
             	if(!strings[0].toLowerCase().contains("employee")) {
             		int cn = Integer.parseInt(strings[0]);
-            		Optional<Member> oMember = memberRepo.findByCompNumber(cn);
-            		if(oMember.isPresent()) {
-            			found = false;
-            			Member member = oMember.get();
-            			int returns = Integer.parseInt(strings[4]);
-            			int balance = strings[5].contains("-")?0:Integer.parseInt(strings[5]);
-            			List<LoanDto> loans = loanRepo.findLoansByMemberAndStatus(member.getId(),LoanStatus.RETURNING);
-            			for(LoanDto loan : loans) {
-            				if(loan.getReturns()==returns && loan.getBalance()==balance+returns) {
-            					found = true;
-            					if(loanReturnRepo.findByLoanAndMonth(loan.getId(),month(LocalDate.parse(returnDto.getDate()))).isEmpty()) {
-            						LoanReturn loanReturn = new LoanReturn();
-                					loanReturn.setAmount(returns);
-                					loanReturn.setLoan(loanRepo.findById(loan.getId()).get());
-                					loanReturn.setMonth(month(LocalDate.parse(returnDto.getDate())));
-                					loanReturn.setCreatedBy(userService.me().getId());
-                					loanReturnRepo.save(loanReturn);
-                					
-                					int i = (int) Math.floor(loanReturn.getAmount()*(loanReturn.getLoan().getInterest()/100));
-                					interest+=i;
-                					int n = loanReturn.getAmount() - i;
-                					repay+=n;
-                					TransactionDetailDto txnDetail = new TransactionDetailDto();
-                					txnDetail.setCredit(n);
-                					txnDetail.setDebit(0);
-                					txnDetail.setAccount(accountRepo.findAccountByCode(cn));
-                					txnDetails.add(txnDetail);
-                					Loan _loan = loanRepo.findById(loan.getId()).get();
-                					_loan.setBalance(loan.getBalance()-returns);
-                					if(_loan.getBalance()==0)
-                						_loan.setStatus(LoanStatus.COMPLETED);
-                					else
-                						_loan.setStatus(LoanStatus.RETURNING);
-                					loanRepo.save(_loan);
-                					
-                					success.add(new MemberPayDto(strings[1]+" "+strings[2],Integer.parseInt(strings[4])));
-            					}else
-            						overdeducted.add(new MemberPayDto(strings[1]+" "+strings[2],Integer.parseInt(strings[4])));
-            				}
+            		boolean exists = false;
+            		for(DeductionsDto obj:list) {
+            			if(obj.getCompNumber()==cn) {
+            				exists=true;
+            				List<Integer> i = obj.getAmounts();
+            				i.add(Integer.parseInt(strings[4]));
+            				obj.setAmounts(i);
             			}
-            			if(!found)
-            				overdeducted.add(new MemberPayDto(strings[1]+" "+strings[2],Integer.parseInt(strings[4])));
-            		}else {
-            			nonmember.add(new MemberPayDto(strings[1]+" "+strings[2],Integer.parseInt(strings[4])));
             		}
-            			
+            		if(!exists) {
+            			List<Integer> i = new ArrayList<Integer>();
+            			i.add(Integer.parseInt(strings[4]));
+            			list.add(new DeductionsDto(cn,strings[1]+" "+strings[2],i));
+            		}
             	}
-            	
-            }else
-            	throw new InvalidDataException("No data found");
-        }
-		if(interest>0) {
-			TransactionDetailDto txnDetail = new TransactionDetailDto();
-			txnDetail.setCredit(interest);
-			txnDetail.setDebit(0);
-			txnDetail.setAccount(accountRepo.findAccountByName("Interest"));
-			txnDetails.add(txnDetail);
-			txnDetail = new TransactionDetailDto();
-			txnDetail.setCredit(0);
-			txnDetail.setDebit(interest+repay);
-			txnDetail.setAccount(accountRepo.findAccountById(accountRepo.findById(returnDto.getAccount()).get().getId()));
-			txnDetails.add(txnDetail);
-			txn.setDetails(txnDetails);
-			transactionService.saveTransaction(txn);			
+            }
 		}
+		return list;
+	}
+	
+	@Override
+	public Response<CollectedReturnsResponseDto> collectLoansReturns(CollectReturnsDto returnDto) {
+		if(returnDto.getFile()==null || returnDto.getFile().isEmpty())
+			throw new InvalidDataException("File is required");		
+		if(returnDto.getDate()==null)
+			throw new InvalidDataException("Date is required");
+		List<DeductionsDto> deductions = getDeductions(returnDto.getFile());
+		List<Integer> cnDeducted = new ArrayList<Integer>();
+		LocalDate date = LocalDate.parse(returnDto.getDate());
+		for(DeductionsDto deduction:deductions) {
+			if(memberRepo.findByCompNumber(deduction.getCompNumber()).isPresent()) {
+				cnDeducted.add(deduction.getCompNumber());
+				List<DeductionsRequiredDto> required = loanRepo.getDeductionsByComputerNumber(deduction.getCompNumber());
+				for(int amount:deduction.getAmounts()) {
+					boolean found = false;
+					for(DeductionsRequiredDto deni:required) {
+						if(deni.getAmount()==amount) {
+							found=true;
+							deni.setChecked(true);
+							returnService.saveValidReturn(loanRepo.findById(deni.getLoan()).get(), amount, date);		// a correct return
+						}
+					}
+					if(!found) {
+						returnService.saveOverReturn(memberRepo.findByCompNumber(deduction.getCompNumber()).get(), amount, date); // a wrong deduction for member
+					}
+				}
+				for(DeductionsRequiredDto deni:required) {
+					if(!deni.isChecked()) {
+						returnService.saveUnderReturn(loanRepo.findById(deni.getLoan()).get().getMember(), deni.getAmount(), date);
+					}
+				}
+				System.out.println(deduction.getCompNumber()+" : "+required);
+			}else {
+				for(int amount:deduction.getAmounts()) {
+					returnService.saveInValidReturn(deduction.getCompNumber(), amount, date); // non member deduction
+				}
+			}
+		}
+		return null;
+
+//		List<MemberPayDto> success = new ArrayList<MemberPayDto>();
+//		List<MemberPayDto> overdeducted = new ArrayList<MemberPayDto>();
+//		List<MemberPayDto> undeducted = new ArrayList<MemberPayDto>();
+//		List<MemberPayDto> nonmember = new ArrayList<MemberPayDto>();
 		
-		List<Loan> notPaid = loanRepo.getNonReturnedLoansOnMonth(month(LocalDate.parse(returnDto.getDate())),LoanStatus.PAID.ordinal());
-		notPaid.addAll(loanRepo.getNonReturnedLoansOnMonth(month(LocalDate.parse(returnDto.getDate())),LoanStatus.RETURNING.ordinal()));
-		for(Loan loan:notPaid)
-			undeducted.add(new MemberPayDto(loan.getMember().getServiceNumber()+" "+loan.getMember().getRank()+" "+loan.getMember().getFirstName()+" "+loan.getMember().getMiddleName()+" "+loan.getMember().getLastName(),loan.getReturns()));
-		return new Response<CollectedReturnsResponseDto>(ResponseCode.SUCCESS,"Success", new CollectedReturnsResponseDto(success,overdeducted,undeducted,nonmember));
+//		InputStream inputStream = null;
+//		try {
+//			inputStream = returnDto.getFile().getInputStream();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			throw new InvalidDataException("File could not be read");
+//		}
+//		
+//		List<String[]> objectList = new ArrayList<>();
+//		Reader reader = new InputStreamReader(inputStream);
+//		CSVReader csvReader = new CSVReader(reader);
+//		try {
+//			objectList = csvReader.readAll();
+//			csvReader.close();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//		TransactionDto txn = new TransactionDto();
+//		txn.setDescription("Being return on loan collected on "+returnDto.getDate());
+//		txn.setDate(LocalDate.parse(returnDto.getDate()));
+//		List<TransactionDetailDto> txnDetails = new ArrayList<TransactionDetailDto>();
+//		int interest = 0;
+//		int repay = 0;
+//		boolean found;
+//		for (String[] strings : objectList) {
+//            if (!strings[0].equals("Not set")) {
+//            	if(!strings[0].toLowerCase().contains("employee")) {
+//            		int cn = Integer.parseInt(strings[0]);
+//            		Optional<Member> oMember = memberRepo.findByCompNumber(cn);
+//            		if(oMember.isPresent()) {
+//            			found = false;
+//            			Member member = oMember.get();
+//            			int returns = Integer.parseInt(strings[4]);
+//            			int balance = strings[5].contains("-")?0:Integer.parseInt(strings[5]);
+//            			List<LoanDto> loans = loanRepo.findLoansByMemberAndStatus(member.getId(),LoanStatus.RETURNING);
+//            			for(LoanDto loan : loans) {
+//            				if(loan.getReturns()==returns && loan.getBalance()==balance+returns) {
+//            					found = true;
+//            					if(loanReturnRepo.findByLoanAndMonth(loan.getId(),month(LocalDate.parse(returnDto.getDate()))).isEmpty()) {
+//            						LoanReturn loanReturn = new LoanReturn();
+//                					loanReturn.setAmount(returns);
+//                					loanReturn.setLoan(loanRepo.findById(loan.getId()).get());
+//                					loanReturn.setMonth(month(LocalDate.parse(returnDto.getDate())));
+//                					loanReturn.setCreatedBy(userService.me().getId());
+//                					loanReturnRepo.save(loanReturn);
+//                					
+//                					int i = (int) Math.floor(loanReturn.getAmount()*(loanReturn.getLoan().getInterest()/100));
+//                					interest+=i;
+//                					int n = loanReturn.getAmount() - i;
+//                					repay+=n;
+//                					TransactionDetailDto txnDetail = new TransactionDetailDto();
+//                					txnDetail.setCredit(n);
+//                					txnDetail.setDebit(0);
+//                					txnDetail.setAccount(accountRepo.findAccountByCode(cn));
+//                					txnDetails.add(txnDetail);
+//                					Loan _loan = loanRepo.findById(loan.getId()).get();
+//                					_loan.setBalance(loan.getBalance()-returns);
+//                					if(_loan.getBalance()==0)
+//                						_loan.setStatus(LoanStatus.COMPLETED);
+//                					else
+//                						_loan.setStatus(LoanStatus.RETURNING);
+//                					loanRepo.save(_loan);
+//                					
+//                					success.add(new MemberPayDto(strings[1]+" "+strings[2],Integer.parseInt(strings[4])));
+//            					}else
+//            						overdeducted.add(new MemberPayDto(strings[1]+" "+strings[2],Integer.parseInt(strings[4])));
+//            				}
+//            			}
+//            			if(!found)
+//            				overdeducted.add(new MemberPayDto(strings[1]+" "+strings[2],Integer.parseInt(strings[4])));
+//            		}else {
+//            			nonmember.add(new MemberPayDto(strings[1]+" "+strings[2],Integer.parseInt(strings[4])));
+//            		}
+//            			
+//            	}
+//            	
+//            }else
+//            	throw new InvalidDataException("No data found");
+//        }
+//		if(interest>0) {
+//			TransactionDetailDto txnDetail = new TransactionDetailDto();
+//			txnDetail.setCredit(interest);
+//			txnDetail.setDebit(0);
+//			txnDetail.setAccount(accountRepo.findAccountByName("Interest"));
+//			txnDetails.add(txnDetail);
+//			txnDetail = new TransactionDetailDto();
+//			txnDetail.setCredit(0);
+//			txnDetail.setDebit(interest+repay);
+//			txnDetail.setAccount(accountRepo.findAccountById(accountRepo.findById(returnDto.getAccount()).get().getId()));
+//			txnDetails.add(txnDetail);
+//			txn.setDetails(txnDetails);
+//			transactionService.saveTransaction(txn);			
+//		}
+//		
+//		List<Loan> notPaid = loanRepo.getNonReturnedLoansOnMonth(month(LocalDate.parse(returnDto.getDate())),LoanStatus.PAID.ordinal());
+//		notPaid.addAll(loanRepo.getNonReturnedLoansOnMonth(month(LocalDate.parse(returnDto.getDate())),LoanStatus.RETURNING.ordinal()));
+//		for(Loan loan:notPaid)
+//			undeducted.add(new MemberPayDto(loan.getMember().getServiceNumber()+" "+loan.getMember().getRank()+" "+loan.getMember().getFirstName()+" "+loan.getMember().getMiddleName()+" "+loan.getMember().getLastName(),loan.getReturns()));
+//		return new Response<CollectedReturnsResponseDto>(ResponseCode.SUCCESS,"Success", new CollectedReturnsResponseDto(success,overdeducted,undeducted,nonmember));
 	}
 	
 	@Override

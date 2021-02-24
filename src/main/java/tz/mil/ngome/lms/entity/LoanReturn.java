@@ -21,13 +21,26 @@ import tz.mil.ngome.lms.utils.BaseEntity;
 public class LoanReturn extends BaseEntity {
 	
 	@ManyToOne
-	@JoinColumn(name = "loan",nullable = false,referencedColumnName = "id")
+	@JoinColumn(name = "loan",nullable = true,referencedColumnName = "id")
 	private Loan loan;
 	
-	@Column(nullable = false)
+	@ManyToOne
+	@JoinColumn(name = "member",nullable = true,referencedColumnName = "id")
+	private Member member;
+	
+	@Column(columnDefinition = "int default 0", nullable = false)
 	private int amount;
+	
+	@Column(columnDefinition = "int default 0", nullable = false)
+	private int diff;
 	
 	@Column(nullable = false, length = 7)
 	private String month;
 
+	@Column
+	private ReturnStatus status = ReturnStatus.CORRECT_DEDUCTION;
+	
+	public enum ReturnStatus{
+		UNDER_DEDUCTION, CORRECT_DEDUCTION, OVER_DEDUCTION
+	}
 }

@@ -66,7 +66,7 @@ public class Loan extends BaseEntity {
 	private String remark;
 	
 	public enum LoanStatus{
-		REQUESTED, APPROVED, AUTHORIZED, PAID, RETURNING, COMPLETED, CANCELED, DENIED
+		REQUESTED, CANCELED, DENIED, APPROVED, AUTHORIZED, PAID, RETURNING, COMPLETED
 	}
 
 }

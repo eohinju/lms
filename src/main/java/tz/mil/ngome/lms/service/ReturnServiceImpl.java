@@ -45,8 +45,21 @@ public class ReturnServiceImpl implements ReturnService {
 	}
 
 	@Override
-	public void saveInValidReturn(Member member, int amount, LocalDate date) {
+	public void saveOverReturn(Member member, int amount, LocalDate date) {
 		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void saveUnderReturn(Member member, int amount, LocalDate date) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void saveInValidReturn(int compNumber, int amount, LocalDate date) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

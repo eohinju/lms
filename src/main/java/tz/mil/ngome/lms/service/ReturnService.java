@@ -11,6 +11,8 @@ import tz.mil.ngome.lms.entity.Member;
 public interface ReturnService {
 
 	public void saveValidReturn(Loan loan, int amount, LocalDate date);
-	public void saveInValidReturn(Member member, int amount, LocalDate date);
-
+	public void saveOverReturn(Member member, int amount, LocalDate date);
+	public void saveUnderReturn(Member member, int amount, LocalDate date);
+	public void saveInValidReturn(int compNumber, int amount, LocalDate date);
+	
 }
