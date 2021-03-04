@@ -36,10 +36,10 @@ public class TransactionDetail extends BaseEntity {
 
 	@Basic(optional = false)
 	@Column(name = "debit", nullable = false)
-	private int debit = 0;
+	private double debit = 0;
 
 	@Basic(optional = false)
 	@Column(name = "credit", nullable = false)
-	private int credit = 0;
+	private double credit = 0;
 	
 }

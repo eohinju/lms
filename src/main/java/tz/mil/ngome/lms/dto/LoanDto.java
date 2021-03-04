@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import tz.mil.ngome.lms.entity.LoanReturn;
 import tz.mil.ngome.lms.repository.LoanRepository;
 import tz.mil.ngome.lms.repository.LoanReturnRepository;
 import tz.mil.ngome.lms.repository.LoanTypeRepository;
@@ -41,8 +42,8 @@ public class LoanDto {
 	private int amount;
 	private int amountToPay;
 	private LocalDate effectDate;
-	private int returns;
-	private int balance = 0;
+	private double returns;
+	private double balance = 0;
 	private String unit;
 	private String subUnit;
 	private String loanName;
@@ -61,8 +62,8 @@ public class LoanDto {
 		this.amount = amount;
 	}
 	
-	public LoanDto(String id, String memberId, String loanTypeId, int amount, int amountToPay, int balance, LocalDate effectDate,
-			int returns, String unit, String subUnit, String loanName, 
+	public LoanDto(String id, String memberId, String loanTypeId, int amount, int amountToPay, double balance, LocalDate effectDate,
+			double returns, String unit, String subUnit, String loanName,
 			double interest, int periods, Period period, LoanStatus status, String remark) {
 		this.id = id;
 		this.amount = amount;
@@ -78,8 +79,14 @@ public class LoanDto {
 		this.status = status;
 		this.member = memberRepo.findMemberById(memberId);
 		this.loanType = loanTypeRepo.findLoanTypeById(loanTypeId);
-		this.repayments = loanReturnRepo.findReturnsByLoan(id);
+		this.repayments = loanReturnRepo.findReturnsByLoanAndStatus(id, LoanReturn.ReturnStatus.CORRECTLY_DEDUCTED);
 		this.topUps = loanRepo.findTopUps(id);
 		this.remark = remark;
+		this.effectDate = effectDate;
 	}
+	
+	public String toString() {
+		return new StringBuilder().append("LoanDto {\n").append("\tid: "+id+"\n").append("}").toString();
+	}
+	
 }

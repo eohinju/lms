@@ -1,5 +1,6 @@
 package tz.mil.ngome.lms.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,6 +24,11 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
 			+ "txn.id, txn.date, txn.receipt, txn.description)"
 			+ "FROM Transaction AS txn WHERE txn.id=:id")
 	TransactionDto findTransactionById(String id);
+
+	@Query("SELECT new tz.mil.ngome.lms.dto.TransactionDto("
+			+ "txn.id, txn.date, txn.receipt, txn.description)"
+			+ "FROM Transaction AS txn WHERE txn.date>=:start and txn.date<=:end")
+    List<TransactionDto> getAllBetweenDates(LocalDate start, LocalDate end);
 
 //	@Query("select new webapi.campaign.dto.StatsDTO(count(u.objective_type_id),u.objective_type_id,u.modified_at) "
 //	        + "from user_campaign_objective u where u.campaign_id = ?1 group by u.objective_type_id,u.modified_at")

@@ -17,16 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import tz.mil.ngome.lms.dto.CollectReturnDto;
-import tz.mil.ngome.lms.dto.CollectReturnsDto;
-import tz.mil.ngome.lms.dto.CollectedReturnsResponseDto;
-import tz.mil.ngome.lms.dto.DisburseLoanDto;
-import tz.mil.ngome.lms.dto.DisburseLoansDto;
-import tz.mil.ngome.lms.dto.LoanDenyDto;
-import tz.mil.ngome.lms.dto.LoanDto;
-import tz.mil.ngome.lms.dto.LoansDto;
-import tz.mil.ngome.lms.dto.MappedStringListDto;
-import tz.mil.ngome.lms.dto.TopUpDto;
+import tz.mil.ngome.lms.dto.*;
+import tz.mil.ngome.lms.entity.Loan;
 import tz.mil.ngome.lms.exception.InvalidDataException;
 import tz.mil.ngome.lms.service.LoanService;
 import tz.mil.ngome.lms.utils.Configuration;
@@ -122,7 +114,7 @@ public class LoanController {
 	}
 	
 	@PostMapping(value = "collect-returns")
-	private Response<CollectedReturnsResponseDto> collectReturns(@ModelAttribute CollectReturnsDto collectReturnsDto) {
+	private Response<List<LoanReturnDto>> collectReturns(@ModelAttribute CollectReturnsDto collectReturnsDto) {
 		return this.loanService.collectLoansReturns(collectReturnsDto);
 	}
 	
@@ -162,8 +154,13 @@ public class LoanController {
 	}
 	
 	@GetMapping(value = "report/loans")
-	private ResponseEntity<?> reportLoans() {
-		return this.loanService.getLoansReport();
+	private ResponseEntity<?> reportLoans( @RequestParam(name = "status", required = false) Loan.LoanStatus status,@RequestParam(name = "month", required = false) String month) {
+		if(status==null)
+			status= Loan.LoanStatus.RETURNING;
+		if(month==null)
+			return this.loanService.getLoansReport(status);
+		else
+			return this.loanService.getLoansReport(status,month);
 	}
 
 }

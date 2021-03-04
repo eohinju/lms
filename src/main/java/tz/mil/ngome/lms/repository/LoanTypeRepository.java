@@ -22,4 +22,5 @@ public interface LoanTypeRepository  extends JpaRepository<LoanType, String> {
 			+ "FROM LoanType AS loanType WHERE loanType.id=:loanTypeId")
 	LoanTypeDto findLoanTypeById(String loanTypeId);
 
+	List<LoanType> findByName(String maendeleo);
 }

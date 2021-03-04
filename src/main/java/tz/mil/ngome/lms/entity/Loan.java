@@ -45,9 +45,9 @@ public class Loan extends BaseEntity {
 	private LocalDate effectDate;
 	
 	@Column(nullable = false)
-	private int returns;
+	private double returns;
 	
-	private int balance = 0;
+	private double balance = 0;
 	
 	private String unit;
 	

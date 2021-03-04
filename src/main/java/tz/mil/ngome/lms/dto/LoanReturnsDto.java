@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import tz.mil.ngome.lms.entity.LoanReturn;
 
 @Setter
 @Getter
@@ -12,6 +13,7 @@ import lombok.Setter;
 public class LoanReturnsDto {
 
 	String month;
-	int amount;
+	double amount;
+	LoanReturn.ReturnStatus status;
 	
 }

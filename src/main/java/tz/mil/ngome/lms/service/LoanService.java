@@ -15,9 +15,11 @@ import tz.mil.ngome.lms.dto.DisburseLoanDto;
 import tz.mil.ngome.lms.dto.DisburseLoansDto;
 import tz.mil.ngome.lms.dto.LoanDenyDto;
 import tz.mil.ngome.lms.dto.LoanDto;
+import tz.mil.ngome.lms.dto.LoanReturnDto;
 import tz.mil.ngome.lms.dto.LoansDto;
 import tz.mil.ngome.lms.dto.MappedStringListDto;
 import tz.mil.ngome.lms.dto.TopUpDto;
+import tz.mil.ngome.lms.entity.Loan;
 import tz.mil.ngome.lms.utils.Response;
 
 @Service
@@ -42,10 +44,11 @@ public interface LoanService {
 	Response<List<LoanDto>> getAuthorizedLoans();
 	Response<List<LoanDto>> getIncompleteDisbursedLoans();	
 	Response<List<LoanDto>> getDisbursedLoans();	
-	Response<CollectedReturnsResponseDto> collectLoansReturns(CollectReturnsDto returnDto);
+	Response<List<LoanReturnDto>> collectLoansReturns(CollectReturnsDto returnDto);
 	Response<LoanDto> collectLoanReturn(CollectReturnDto returnDto);
 	Response<List<String>> registerLoans(LoansDto loansDto); 
 	
-	ResponseEntity<?> getLoansReport();
+	ResponseEntity<?> getLoansReport(Loan.LoanStatus status);
+	ResponseEntity<?> getLoansReport(Loan.LoanStatus status, String month);
 	String month(LocalDate date);
 }

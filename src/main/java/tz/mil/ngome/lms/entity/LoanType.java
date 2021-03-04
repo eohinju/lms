@@ -18,7 +18,7 @@ import tz.mil.ngome.lms.utils.BaseEntity;
 @Table(name = "loan_types")
 public class LoanType extends BaseEntity {
 	
-	@Column(nullable = false, length = 16)
+	@Column(nullable = false, length = 16, unique = true)
 	private String name;
 	
 	@Column(nullable = false)

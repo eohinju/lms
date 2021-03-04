@@ -17,14 +17,15 @@ import lombok.Setter;
 public class DeductionsDto {
 
 	private int compNumber;
+	private String rank;
 	private String name;
-	private List<Integer> amounts;
-
+	private List<Double> amounts;
+	private String unit;
 	
 	public String toString() {
 //        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 //        return gson.toJson(this);
-		return new StringBuilder().append("DeductionsDto{\n").append("\tcompNumber: "+compNumber+",\n").append("\tname: "+name+",\n").append("\tamounts: ")
+		return new StringBuilder().append("DeductionsDto{\n").append("\tcompNumber: "+compNumber+",\n").append("\trank: "+rank+",\n").append("\tname: "+name+",\n").append("\tamounts: ")
 				.append(amounts).append("\n}").toString();
     }
 }

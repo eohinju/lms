@@ -28,6 +28,9 @@ public class Member extends BaseEntity {
 	
 	@Column(nullable = false)
 	private String rank;
+
+	@Column
+	private Integer snr;
 	
 	@Column(nullable = false, length = 16)
 	private String firstName;

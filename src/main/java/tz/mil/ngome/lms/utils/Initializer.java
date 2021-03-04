@@ -8,10 +8,12 @@ import org.springframework.stereotype.Component;
 
 import tz.mil.ngome.lms.entity.Account;
 import tz.mil.ngome.lms.entity.AccountType;
+import tz.mil.ngome.lms.entity.LoanType;
 import tz.mil.ngome.lms.entity.User;
 import tz.mil.ngome.lms.entity.User.Role;
 import tz.mil.ngome.lms.repository.AccountRepository;
 import tz.mil.ngome.lms.repository.AccountTypeRepository;
+import tz.mil.ngome.lms.repository.LoanTypeRepository;
 import tz.mil.ngome.lms.repository.UserRepository;
 
 @Component
@@ -22,6 +24,9 @@ public class Initializer {
 	
 	@Autowired
 	AccountTypeRepository accountTypeRepo;
+
+	@Autowired
+	LoanTypeRepository loanTypeRepository;
 	
 	@Autowired
 	AccountRepository accountRepo;
@@ -34,6 +39,7 @@ public class Initializer {
 		initializeUser();
 		initializeAccountTypes();
 		initializeAccounts();
+		initializeLoanTypes();
 	}
 	
 	private void initializeUser() {
@@ -54,12 +60,38 @@ public class Initializer {
 			try { accountTypeRepo.save(aType); }catch(Exception e) {}
 		}
 	}
+
+	private void initializeLoanTypes() {
+		if(loanTypeRepository.count()>0)
+			return;
+		LoanType type = new LoanType();
+		type.setCreatedBy("Initializer");
+		type.setName("Maendeleo");
+		type.setMin(0);
+		type.setMax(8000000);
+		type.setInterest(10);
+		type.setPeriods(6);
+		type.setPeriod(LoanType.Period.MONTH);
+		loanTypeRepository.save(type);
+	}
 	
 	private void initializeAccounts() {
-		if(accountRepo.count()>0)
-			return;
+//		if(accountRepo.count()>0)
+//			return;
 		Account account = new Account();
 		account.setName("Interest");
+		account.setAccountType(accountTypeRepo.findByName("Revenue").get(0));
+		account.setCreatedBy("Initializer");
+		try{accountRepo.save(account);}catch(Exception e) {}
+
+		account = new Account();
+		account.setName("Bank");
+		account.setAccountType(accountTypeRepo.findByName("Asset").get(0));
+		account.setCreatedBy("Initializer");
+		try{accountRepo.save(account);}catch(Exception e) {}
+
+		account = new Account();
+		account.setName("Income");
 		account.setAccountType(accountTypeRepo.findByName("Revenue").get(0));
 		account.setCreatedBy("Initializer");
 		try{accountRepo.save(account);}catch(Exception e) {}

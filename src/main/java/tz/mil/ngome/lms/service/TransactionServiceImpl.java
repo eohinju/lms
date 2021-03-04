@@ -1,26 +1,32 @@
 package tz.mil.ngome.lms.service;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import tz.mil.ngome.lms.dto.ExpenseDto;
 import tz.mil.ngome.lms.dto.TransactionDetailDto;
 import tz.mil.ngome.lms.dto.TransactionDto;
-import tz.mil.ngome.lms.entity.Account;
-import tz.mil.ngome.lms.entity.Loan;
-import tz.mil.ngome.lms.entity.Transaction;
-import tz.mil.ngome.lms.entity.TransactionDetail;
+import tz.mil.ngome.lms.entity.*;
 import tz.mil.ngome.lms.repository.AccountRepository;
 import tz.mil.ngome.lms.repository.TransactionDetailRepository;
 import tz.mil.ngome.lms.repository.TransactionRepository;
+import tz.mil.ngome.lms.utils.Configuration;
+import tz.mil.ngome.lms.utils.Report;
 import tz.mil.ngome.lms.utils.Response;
 import tz.mil.ngome.lms.utils.ResponseCode;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
+
+	private final String logo = "classpath:reports/logo.png";
 
 	@Autowired
 	TransactionRepository transactionRepo;
@@ -48,37 +54,91 @@ public class TransactionServiceImpl implements TransactionService {
 		txn.setDate(date);
 		txn.setCredit(loan.getAmount());
 		txn.setDebit(loan.getAmount());
-		txn.setDescription("Being loan to "+accountRepo.findByCode(loan.getMember().getCompNumber()).getName());
+		txn.setDescription("Being loan to "+accountRepo.findByCode(loan.getMember().getCompNumber()).get(0).getName());
 		transactionRepo.save(txn);
 		TransactionDetail detail = new TransactionDetail(txn,payAccount,0,loan.getAmount());
 		detail.setCreatedBy(userService.me().getId());
 		detailRepo.save(detail);
-		detail = new TransactionDetail(txn,accountRepo.findByCode(loan.getMember().getCompNumber()),loan.getAmount(),0);
+		detail = new TransactionDetail(txn,accountRepo.findByCode(loan.getMember().getCompNumber()).get(0),loan.getAmount(),0);
 		detail.setCreatedBy(userService.me().getId());
 		detailRepo.save(detail);
 		return new Response<TransactionDto>(ResponseCode.SUCCESS,"Success",transactionRepo.findTransactionById(txn.getId()));
 	}
 	
 	@Override
-	public Response<TransactionDto> journalReturn(Loan loan, Account payAccount, int amount, LocalDate date) {		
+	public Response<TransactionDto> journalReturn(Loan loan, Account account, double amount, LocalDate date) {
 		Transaction txn = new Transaction();
 		txn.setCreatedBy(userService.me().getId());
 		txn.setDate(date);
 		txn.setCredit(amount);
 		txn.setDebit(amount);
-		txn.setDescription("Being loan return from "+accountRepo.findByCode(loan.getMember().getCompNumber()).getName());
+		txn.setDescription("Being loan return from "+accountRepo.findByCode(loan.getMember().getCompNumber()).get(0).getName());
 		transactionRepo.save(txn);
-		TransactionDetail detail = new TransactionDetail(txn,payAccount,amount,0);
+		TransactionDetail detail = new TransactionDetail(txn,account,amount,0);
 		detail.setCreatedBy(userService.me().getId());
 		detailRepo.save(detail);
 		int i = (int) Math.floor(amount*(loan.getInterest()/100));
-		detail = new TransactionDetail(txn,accountRepo.findByCode(loan.getMember().getCompNumber()),0,amount-i);
+		detail = new TransactionDetail(txn,accountRepo.findByCode(loan.getMember().getCompNumber()).get(0),0,amount-i);
 		detail.setCreatedBy(userService.me().getId());
 		detailRepo.save(detail);
 		detail = new TransactionDetail(txn,accountRepo.findById(accountRepo.findAccountByName("Interest").getId()).get(),0,i);
 		detail.setCreatedBy(userService.me().getId());
 		detailRepo.save(detail);
 		return new Response<TransactionDto>(ResponseCode.SUCCESS,"Success",transactionRepo.findTransactionById(txn.getId()));
+	}
+
+	@Override
+	public Response<TransactionDto> journalMember(Member member, Account account, double amount, LocalDate date) {
+		Transaction txn = new Transaction();
+		txn.setCreatedBy(userService.me().getId());
+		txn.setDate(date);
+		txn.setCredit(amount);
+		txn.setDebit(amount);
+		txn.setDescription("Being collection from "+accountRepo.findByCode(member.getCompNumber()).get(0).getName());
+		transactionRepo.save(txn);
+		TransactionDetail detail = new TransactionDetail(txn,account,amount,0);
+		detail.setCreatedBy(userService.me().getId());
+		detailRepo.save(detail);
+		detail = new TransactionDetail(txn,accountRepo.findByCode(member.getCompNumber()).get(0),0,amount);
+		detail.setCreatedBy(userService.me().getId());
+		detailRepo.save(detail);
+		return new Response<TransactionDto>(ResponseCode.SUCCESS,"Success",transactionRepo.findTransactionById(txn.getId()));
+	}
+
+	@Override
+	public Response<TransactionDto> journalIncome(String member, Account account, double amount, LocalDate date) {
+		Transaction txn = new Transaction();
+		txn.setCreatedBy(userService.me().getId());
+		txn.setDate(date);
+		txn.setCredit(amount);
+		txn.setDebit(amount);
+		txn.setDescription("Being collection from "+member);
+		transactionRepo.save(txn);
+		TransactionDetail detail = new TransactionDetail(txn,account,amount,0);
+		detail.setCreatedBy(userService.me().getId());
+		detailRepo.save(detail);
+		detail = new TransactionDetail(txn,accountRepo.findById(accountRepo.findAccountByName("Income").getId()).get(),0,amount);
+		detail.setCreatedBy(userService.me().getId());
+		detailRepo.save(detail);
+		return new Response<TransactionDto>(ResponseCode.SUCCESS,"Success",transactionRepo.findTransactionById(txn.getId()));
+	}
+
+	@Override
+	public ResponseEntity<?> getTransactionsReport() {
+		Configuration conf = new Configuration();
+		Map<String, Object> params = new HashMap<>();
+		params.put("logo", logo);
+		params.put("unit", conf.getUnit());
+		params.put("fund", conf.getUnit()+" Relief Fund");
+		params.put("title", "Miamala iliyofanyika Aug 2020");
+		List<TransactionDto> transactionDtos = transactionRepo.getAllBetweenDates(LocalDate.parse("2020-09-01"),LocalDate.parse("2020-09-03"));
+		return Report.generate("transactions", transactionDtos , params);
+	}
+
+	@Override
+	public Response<List<TransactionDto>> getTransactions(LocalDate start, LocalDate end) {
+		List<TransactionDto> transactionDtos = transactionRepo.getAllBetweenDates(start,end);
+		return new Response<List<TransactionDto>>(ResponseCode.SUCCESS,"Success",transactionDtos);
 	}
 
 	@Override
@@ -104,6 +164,12 @@ public class TransactionServiceImpl implements TransactionService {
 		else
 			transactionRepo.delete(txn);
 		return transactionRepo.findTransactionById(txn.getId());
+	}
+
+	@Override
+	public TransactionDto saveExpense(ExpenseDto expenseDto) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

@@ -108,11 +108,12 @@ public class MemberServiceImplementation implements MemberService {
 		
 		BeanUtils.copyProperties(memberDto, member, "id");
 		member.setCreatedBy(userService.me().getId());
-		member.setUnit(conf.getUnit());
+		if(member.getUnit().isEmpty())
+			member.setUnit(conf.getUnit());
 		member.setFirstName(member.getFirstName().trim().toUpperCase());
 		member.setMiddleName(member.getMiddleName().trim().toUpperCase());
 		member.setLastName(member.getLastName().trim().toUpperCase());
-		
+		member.setSnr(conf.getRanks().indexOf(member.getRank()));
 		try {
 			Member savedMember = memberRepo.save(member);
 			if (savedMember!=null) {
@@ -186,20 +187,20 @@ public class MemberServiceImplementation implements MemberService {
 		MappedStringListDto error = new MappedStringListDto("Error");
 		for (String[] strings : objectList) {
 	        if (!strings[0].equals("Not set")) {
-	        	if(strings.length<8)
-	        		error.values.add("Invalid number of collums for column "+strings[0]);
-	        	else {
-	        		try {
-	        			saveMember(new MemberDto(Integer.parseInt(strings[0]),strings[1].trim(),strings[2].trim(),strings[3],strings[4],strings[5],strings[6],strings[7]));
-	        			success.values.add(strings[1]+" "+strings[2]+" "+strings[3]+" "+strings[4]+" "+strings[5]);
-	        		}catch(InvalidDataException e) {
-	        			error.values.add(e.getMessage());
-	        		}catch(DuplicateDataException e) {
-	        			duplicates.values.add(e.getMessage());
-	        		}catch(Exception e) {
-	        			Logger.logInfo(e.getMessage());
-	        		}
-	        	}
+				if(!strings[0].toLowerCase().contains("employee")) {
+					if(strings.length==7){
+						try {
+							saveMember(new MemberDto(Integer.parseInt(strings[0]),strings[1].trim(),strings[2].trim(),strings[3],strings[4],strings[5],strings[6]));
+							success.values.add(strings[1]+" "+strings[2]+" "+strings[3]+" "+strings[4]+" "+strings[5]);
+						}catch(InvalidDataException e) {
+							error.values.add(e.getMessage());
+						}catch(DuplicateDataException e) {
+							duplicates.values.add(e.getMessage());
+						}catch(Exception e) {
+							Logger.logInfo(e.getMessage());
+						}
+					}
+				}
 	        }else
 	        	throw new InvalidDataException("No data found");
 	    }
@@ -207,6 +208,7 @@ public class MemberServiceImplementation implements MemberService {
 		result.add(success);
 		result.add(duplicates);
 		result.add(error);
+		seniority();
 		return new Response<List<MappedStringListDto>>(ResponseCode.SUCCESS,"Success",result);
 	}
 
@@ -310,6 +312,18 @@ public class MemberServiceImplementation implements MemberService {
 		memberRepo.save(member);
 		
 		return new Response<UserDto>(ResponseCode.SUCCESS,"Success",userRepo.findUserById(user.getId()));
+	}
+
+	@Override
+	public void seniority() {
+		Configuration conf = new Configuration();
+		List<Member> members = memberRepo.findAll();
+//		Logger.logInfo(conf.getRanks().toString());
+		for(Member member:members){
+//			Logger.logInfo(member.getRank());
+			member.setSnr(conf.getRanks().indexOf(member.getRank()));
+			memberRepo.save(member);
+		}
 	}
 
 }

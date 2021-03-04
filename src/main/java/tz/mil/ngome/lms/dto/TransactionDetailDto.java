@@ -20,10 +20,10 @@ public class TransactionDetailDto {
 	
 	private String id;
 	private AccountDto account;
-	private int debit;
-	private int credit;
+	private double debit;
+	private double credit;
 	
-	public TransactionDetailDto(String id, String accountId, int debit, int credit) {
+	public TransactionDetailDto(String id, String accountId, double debit, double credit) {
 		this.id = id;
 		this.debit = debit;
 		this.credit = credit;

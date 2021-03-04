@@ -28,8 +28,8 @@ public class LoanReturn extends BaseEntity {
 	@JoinColumn(name = "member",nullable = true,referencedColumnName = "id")
 	private Member member;
 	
-	@Column(columnDefinition = "int default 0", nullable = false)
-	private int amount;
+	@Column(columnDefinition = "double default 0", nullable = false)
+	private double amount;
 	
 	@Column(columnDefinition = "int default 0", nullable = false)
 	private int diff;
@@ -37,10 +37,17 @@ public class LoanReturn extends BaseEntity {
 	@Column(nullable = false, length = 7)
 	private String month;
 
+	@Column(nullable = true)
+	private String name;
+
+	@Column(columnDefinition = "int default 0")
+	private int snr;
+
 	@Column
-	private ReturnStatus status = ReturnStatus.CORRECT_DEDUCTION;
+	private ReturnStatus status = ReturnStatus.CORRECTLY_DEDUCTED;
 	
 	public enum ReturnStatus{
-		UNDER_DEDUCTION, CORRECT_DEDUCTION, OVER_DEDUCTION
+		CORRECTLY_DEDUCTED, NOT_DEDUCTED, WRONGLY_DEDUCTED, NON_MEMBER_DEDUCTION
 	}
+
 }

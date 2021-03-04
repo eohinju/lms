@@ -30,6 +30,7 @@ import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.engine.util.JRSaver;
 
 public class Report {
+	public final static String logo = "classpath:reports/logo.png";
 
 	public static ResponseEntity<byte[]> generate(String jrxmlFile, List<?> items,
 			Map<String, Object> params) {

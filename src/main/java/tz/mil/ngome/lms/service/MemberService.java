@@ -27,5 +27,7 @@ public interface MemberService {
 	public Response<List<MemberDto>> findMember(String data);
 	
 	public Response<UserDto> updateProfile(ProfileDto profileDto);
+
+	void seniority();
 	
 }

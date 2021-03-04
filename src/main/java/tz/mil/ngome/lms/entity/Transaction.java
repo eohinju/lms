@@ -39,11 +39,11 @@ public class Transaction extends BaseEntity {
 
 	@Basic(optional = false)
 	@Column(name = "debit")
-	private int debit = 0;
+	private double debit = 0;
 
 	@Basic(optional = false)
 	@Column(name = "credit")
-	private int credit = 0;
+	private double credit = 0;
 
 	@OneToMany(mappedBy = "transaction")
 	@JsonManagedReference

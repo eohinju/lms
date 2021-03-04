@@ -1,7 +1,7 @@
 body, html {
       margin:0;
       height:100%;
-      background: #e1f5fe;
+      background: #ffffff;
 }
 
 .center {
@@ -32,6 +32,6 @@ body, html {
 
 @media (prefers-color-scheme: dark) {
   body {
-    background: #333638;
+    background: #ffffff;
   }
 }
