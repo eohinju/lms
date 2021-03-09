@@ -34,7 +34,7 @@ public class Transaction extends BaseEntity {
 	private String receipt;
 
 	@Basic(optional = true)
-	@Column(name = "description", length = 128, nullable = true)
+	@Column(name = "description", nullable = true)
 	private String description;
 
 	@Basic(optional = false)

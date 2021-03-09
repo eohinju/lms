@@ -16,12 +16,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.mock.web.MockMultipartFile;
 
-import tz.mil.ngome.lms.dto.MappedStringListDto;
-import tz.mil.ngome.lms.dto.MemberDto;
-import tz.mil.ngome.lms.dto.MembersImportDto;
-import tz.mil.ngome.lms.dto.ProfileDto;
-import tz.mil.ngome.lms.dto.UserDto;
+import org.springframework.web.multipart.MultipartFile;
+import tz.mil.ngome.lms.dto.*;
 import tz.mil.ngome.lms.service.MemberService;
 import tz.mil.ngome.lms.utils.Configuration;
 import tz.mil.ngome.lms.utils.Response;
@@ -52,9 +50,14 @@ public class MemberController {
 		return this.memberService.updateProfile(profileDto);
 	}
 	
-	@PostMapping(value = "import-members")
-	private Response<List<MappedStringListDto>> importMembers(@ModelAttribute MembersImportDto membersDto) {
-		return this.memberService.importMembers(membersDto);
+//	@PostMapping(value = "import-members")
+//	private Response<List<MappedStringListDto>> importMembers(@ModelAttribute MembersImportDto membersDto) {
+//		return this.memberService.importMembers(membersDto);
+//	}
+
+	@PostMapping(value = "import-members",  consumes = MediaType.APPLICATION_JSON_VALUE)
+	private Response<List<MappedStringListDto>> importMembers(@RequestBody FileBytesDto fileBytesDto) {
+		return this.memberService.importMembers(new MembersImportDto(new MockMultipartFile("file",fileBytesDto.getFile())));
 	}
 	
 	@GetMapping(value = "get-sub-units")

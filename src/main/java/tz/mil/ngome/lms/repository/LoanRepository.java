@@ -19,7 +19,7 @@ import tz.mil.ngome.lms.entity.Member;
 public interface LoanRepository  extends JpaRepository<Loan, String> {
 
 	@Query(value = "SELECT new tz.mil.ngome.lms.dto.LoanDto("
-			+ "loan.id, loan.member.id, loan.loanType.id, loan.amount, loan.amountToPay, loan.balance, loan.effectDate,"
+			+ "loan.id, loan.member.id, loan.loanType.id, loan.amount, loan.amountToPay, loan.balance, case when loan.effectDate<>null then loan.effectDate when loan.updatedAt<>null then loan.updatedAt else loan.createdAt end,"
 			+ "loan.returns, loan.unit, loan.subUnit, loan.loanName, loan.interest,"
 			+ "loan.periods, loan.period, loan.status, loan.remark)"
 			+ "FROM Loan AS loan WHERE loan.deleted=false order by loan.member.snr desc, loan.createdAt desc",
