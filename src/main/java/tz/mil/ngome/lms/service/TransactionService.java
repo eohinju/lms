@@ -25,4 +25,5 @@ public interface TransactionService {
 	ResponseEntity<?> getTransactionsReport();
 	Response<List<TransactionDto>> getTransactions(LocalDate start, LocalDate end);
 
+	double interest(double total, double percent);
 }

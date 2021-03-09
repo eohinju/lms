@@ -80,18 +80,21 @@ public class Initializer {
 //			return;
 		Account account = new Account();
 		account.setName("Interest");
+		account.setId("2802e2767b8011eb90a635091736d7c9");
 		account.setAccountType(accountTypeRepo.findByName("Revenue").get(0));
 		account.setCreatedBy("Initializer");
 		try{accountRepo.save(account);}catch(Exception e) {}
 
 		account = new Account();
 		account.setName("Bank");
+		account.setId("1eb90a635091736d7c92802e2767b801");
 		account.setAccountType(accountTypeRepo.findByName("Asset").get(0));
 		account.setCreatedBy("Initializer");
 		try{accountRepo.save(account);}catch(Exception e) {}
 
 		account = new Account();
 		account.setName("Income");
+		account.setId("635091736d7c9281eb90a02e2767b801");
 		account.setAccountType(accountTypeRepo.findByName("Revenue").get(0));
 		account.setCreatedBy("Initializer");
 		try{accountRepo.save(account);}catch(Exception e) {}

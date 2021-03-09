@@ -130,6 +130,20 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
+	public Account getInterestAccount() {
+		if(accountRepo.findById("2802e2767b8011eb90a635091736d7c9").isPresent())
+			return accountRepo.findById("2802e2767b8011eb90a635091736d7c9").get();
+		return null;
+	}
+
+	@Override
+	public Account getBankAccount() {
+		if(accountRepo.findById("1eb90a635091736d7c92802e2767b801").isPresent())
+			return accountRepo.findById("1eb90a635091736d7c92802e2767b801").get();
+		return null;
+	}
+
+	@Override
 	public Response<String> createMemberAccount(MemberDto memberDto) {
 		if(memberDto==null || memberDto.getId()==null || memberDto.getId().isEmpty() || !memberRepo.findById(memberDto.getId()).isPresent())
 			throw new InvalidDataException("Valid member required");

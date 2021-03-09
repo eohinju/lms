@@ -48,18 +48,22 @@ public class TransactionServiceImpl implements TransactionService {
 	
 	@Override
 	public Response<TransactionDto> journalLoan(Loan loan, Account payAccount, LocalDate date) {
-		
 		Transaction txn = new Transaction();
 		txn.setCreatedBy(userService.me().getId());
 		txn.setDate(date);
-		txn.setCredit(loan.getAmount());
-		txn.setDebit(loan.getAmount());
-		txn.setDescription("Being loan to "+accountRepo.findByCode(loan.getMember().getCompNumber()).get(0).getName());
+		txn.setCredit(loan.getBalance());
+		txn.setDebit(loan.getBalance());
+		double i = interest(loan.getBalance(),loan.getInterest());
+		double a = loan.getBalance()-i;
+		txn.setDescription("Mkopo "+loan.getId()+" kwa "+accountRepo.findByCode(loan.getMember().getCompNumber()).get(0).getName()+" ikiwa TZS "+a+" ni mkopo na TZS "+i+" ni riba");
 		transactionRepo.save(txn);
-		TransactionDetail detail = new TransactionDetail(txn,payAccount,0,loan.getAmount());
+		TransactionDetail detail = new TransactionDetail(txn,payAccount,0,a);
 		detail.setCreatedBy(userService.me().getId());
 		detailRepo.save(detail);
-		detail = new TransactionDetail(txn,accountRepo.findByCode(loan.getMember().getCompNumber()).get(0),loan.getAmount(),0);
+		detail = new TransactionDetail(txn,accountService.getInterestAccount(),0,i);
+		detail.setCreatedBy(userService.me().getId());
+		detailRepo.save(detail);
+		detail = new TransactionDetail(txn,accountRepo.findByCode(loan.getMember().getCompNumber()).get(0),loan.getBalance(),0);
 		detail.setCreatedBy(userService.me().getId());
 		detailRepo.save(detail);
 		return new Response<TransactionDto>(ResponseCode.SUCCESS,"Success",transactionRepo.findTransactionById(txn.getId()));
@@ -72,16 +76,12 @@ public class TransactionServiceImpl implements TransactionService {
 		txn.setDate(date);
 		txn.setCredit(amount);
 		txn.setDebit(amount);
-		txn.setDescription("Being loan return from "+accountRepo.findByCode(loan.getMember().getCompNumber()).get(0).getName());
+		txn.setDescription("Rejesho la mkopo "+loan.getId()+" toka kwa "+accountRepo.findByCode(loan.getMember().getCompNumber()).get(0).getName());
 		transactionRepo.save(txn);
 		TransactionDetail detail = new TransactionDetail(txn,account,amount,0);
 		detail.setCreatedBy(userService.me().getId());
 		detailRepo.save(detail);
-		int i = (int) Math.floor(amount*(loan.getInterest()/100));
-		detail = new TransactionDetail(txn,accountRepo.findByCode(loan.getMember().getCompNumber()).get(0),0,amount-i);
-		detail.setCreatedBy(userService.me().getId());
-		detailRepo.save(detail);
-		detail = new TransactionDetail(txn,accountRepo.findById(accountRepo.findAccountByName("Interest").getId()).get(),0,i);
+		detail = new TransactionDetail(txn,accountRepo.findByCode(loan.getMember().getCompNumber()).get(0),0,amount);
 		detail.setCreatedBy(userService.me().getId());
 		detailRepo.save(detail);
 		return new Response<TransactionDto>(ResponseCode.SUCCESS,"Success",transactionRepo.findTransactionById(txn.getId()));
@@ -170,6 +170,11 @@ public class TransactionServiceImpl implements TransactionService {
 	public TransactionDto saveExpense(ExpenseDto expenseDto) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public double interest(double total, double percent){
+		return (percent*total)/(percent+total);
 	}
 
 

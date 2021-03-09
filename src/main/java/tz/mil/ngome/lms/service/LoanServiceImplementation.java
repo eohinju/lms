@@ -221,6 +221,8 @@ public class LoanServiceImplementation implements LoanService {
 			throw new UnauthorizedException("Loan is not authorized");
 		loan.setStatus(LoanStatus.PAID);
 		loan.setEffectDate(loanDto.getDate());
+		double interest = Math.floor((loan.getAmount()*loan.getInterest())/100);
+		loan.setBalance(loan.getAmount()+interest);
 		Loan savedLoan = loanRepo.save(loan);
 		transactionService.journalLoan(savedLoan, accountRepo.findById(loanDto.getAccount().getId()).get(), loanDto.getDate());
 		List<Loan> cleareds = loanRepo.getLoansByClearer(savedLoan.getId());
