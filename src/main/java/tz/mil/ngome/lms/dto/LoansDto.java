@@ -18,5 +18,6 @@ public class LoansDto {
 	private String date;
 	private String account;
 	private MultipartFile file;
+	private byte[] bytes;
 	
 }

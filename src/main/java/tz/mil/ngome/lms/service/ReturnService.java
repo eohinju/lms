@@ -18,5 +18,6 @@ public interface ReturnService {
 	void saveInValidReturn(String rank,String name, Account account, double amount, LocalDate date);
 
 	ResponseEntity<?> getReturnsReport(String month);
+	ResponseEntity<?> getUnpaidLoans();
 	
 }

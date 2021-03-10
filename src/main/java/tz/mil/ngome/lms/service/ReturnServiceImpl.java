@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import tz.mil.ngome.lms.dto.DeductionReqestDto;
 import tz.mil.ngome.lms.dto.LoanDisburseDto;
 import tz.mil.ngome.lms.dto.ReturnReportDataDto;
 import tz.mil.ngome.lms.entity.Account;
@@ -125,5 +126,19 @@ public class ReturnServiceImpl implements ReturnService {
 		List<ReturnReportDataDto> returns = loanReturnRepo.reportReturnsByMonth(month);
 		return Report.generate("returns", returns , params);
 	}
+
+	@Override
+	public ResponseEntity<?> getUnpaidLoans() {
+		Configuration conf = new Configuration();
+		Map<String, Object> params = new HashMap<>();
+		params.put("logo", Report.logo);
+		params.put("unit", conf.getUnit());
+		params.put("fund", conf.getUnit()+" Relief Fund");
+		params.put("title", "Makato mapya ya wakopaji");
+
+		List<DeductionReqestDto> deductions = loanReturnRepo.findUnpaidLoans(LoanStatus.PAID);
+		return Report.generate("deductions", deductions , params);
+	}
+
 
 }

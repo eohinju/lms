@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.12.0.final using JasperReports Library version 6.12.1-ac0eebdb29e4c0985457bab279a6db744d661530  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Corpse_storage_status" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="e859f67a-b146-4b62-a929-b02003e5b739">
+    <property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+    <parameter name="logo" class="java.lang.String"/>
+    <parameter name="unit" class="java.lang.String"/>
+    <parameter name="fund" class="java.lang.String"/>
+    <parameter name="title" class="java.lang.String"/>
+    <queryString>
+        <![CDATA[]]>
+    </queryString>
+    <field name="compNumber" class="java.lang.Integer"/>
+    <field name="serviceNumber" class="java.lang.String"/>
+    <field name="rank" class="java.lang.String"/>
+    <field name="name" class="java.lang.String"/>
+    <field name="status" class="tz.mil.ngome.lms.entity.Loan.LoanStatus"/>
+    <field name="balance" class="java.lang.Double"/>
+    <field name="deductions" class="java.lang.Double"/>
+    <field name="joined" class="java.lang.Boolean"/>
+    <variable name="total_balance" class="java.lang.Double" calculation="Sum" resetType="Group" resetGroup="loanStatus">
+        <variableExpression><![CDATA[$F{balance}]]></variableExpression>
+    </variable>
+    <variable name="total_deductions" class="java.lang.Double" calculation="Sum" resetType="Group" resetGroup="loanStatus">
+        <variableExpression><![CDATA[$F{deductions}]]></variableExpression>
+    </variable>
+    <variable name="total_count" class="java.lang.Integer" calculation="Count"  resetType="Group" resetGroup="loanStatus">
+        <variableExpression><![CDATA[$F{name}]]></variableExpression>
+    </variable>
+    <group name="loanStatus">
+        <groupExpression><![CDATA[$F{status}]]></groupExpression>
+        <groupHeader>
+            <band height="20" splitType="Stretch">
+                <staticText>
+                    <reportElement mode="Opaque" x="0" y="0" width="40" height="20" forecolor="#080808" backcolor="#E1E6F6" uuid="4351bcd7-d914-417e-a101-a8d7d7590fbd"/>
+                    <box>
+                        <pen lineWidth="0.25"/>
+                        <topPen lineWidth="0.25"/>
+                        <leftPen lineWidth="0.25"/>
+                        <bottomPen lineWidth="0.25"/>
+                        <rightPen lineWidth="0.25"/>
+                    </box>
+                    <textElement textAlignment="Center" verticalAlignment="Middle">
+                        <font size="10" isBold="true" isItalic="false"/>
+                    </textElement>
+                    <text><![CDATA[SN]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement mode="Opaque" x="40" y="0" width="60" height="20" forecolor="#080808" backcolor="#E1E6F6" uuid="ab3b03bf-e998-4a18-8adb-4ebbb7ac8ecc"/>
+                    <box>
+                        <pen lineWidth="0.25"/>
+                        <topPen lineWidth="0.25"/>
+                        <leftPen lineWidth="0.25"/>
+                        <bottomPen lineWidth="0.25"/>
+                        <rightPen lineWidth="0.25"/>
+                    </box>
+                    <textElement textAlignment="Center" verticalAlignment="Middle">
+                        <font size="10" isBold="true" isItalic="false"/>
+                    </textElement>
+                    <text><![CDATA[COMP NO]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement mode="Opaque" x="100" y="0" width="295" height="20" forecolor="#080808" backcolor="#E1E6F6" uuid="ab3b03bf-e998-4a18-8adb-4ebbb7ac8ecc"/>
+                    <box>
+                        <pen lineWidth="0.25"/>
+                        <topPen lineWidth="0.25"/>
+                        <leftPen lineWidth="0.25"/>
+                        <bottomPen lineWidth="0.25"/>
+                        <rightPen lineWidth="0.25"/>
+                    </box>
+                    <textElement textAlignment="Center" verticalAlignment="Middle">
+                        <font size="10" isBold="true" isItalic="false"/>
+                    </textElement>
+                    <text><![CDATA[JINA]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement mode="Opaque" x="395" y="0" width="80" height="20" forecolor="#080808" backcolor="#E1E6F6" uuid="f8c55839-7f5b-4ce5-82a0-f5d3ca2b06a7"/>
+                    <box>
+                        <pen lineWidth="0.25"/>
+                        <topPen lineWidth="0.25"/>
+                        <leftPen lineWidth="0.25"/>
+                        <bottomPen lineWidth="0.25"/>
+                        <rightPen lineWidth="0.25"/>
+                    </box>
+                    <textElement textAlignment="Center" verticalAlignment="Middle">
+                        <font size="10" isBold="true" isItalic="false"/>
+                    </textElement>
+                    <text><![CDATA[MAKATO]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement mode="Opaque" x="475" y="0" width="80" height="20" forecolor="#080808" backcolor="#E1E6F6" uuid="f8c55839-7f5b-4ce5-82a0-f5d3ca2b06a7"/>
+                    <box>
+                        <pen lineWidth="0.25"/>
+                        <topPen lineWidth="0.25"/>
+                        <leftPen lineWidth="0.25"/>
+                        <bottomPen lineWidth="0.25"/>
+                        <rightPen lineWidth="0.25"/>
+                    </box>
+                    <textElement textAlignment="Center" verticalAlignment="Middle">
+                        <font size="10" isBold="true" isItalic="false"/>
+                    </textElement>
+                    <text><![CDATA[DENI]]></text>
+                </staticText>
+            </band>
+        </groupHeader>
+        <groupFooter>
+            <band height="20" splitType="Stretch">
+                <staticText>
+                    <reportElement mode="Opaque" x="0" y="0" width="395" height="20" forecolor="#080808" backcolor="#E1E6F6" uuid="f8c55839-7f5b-4ce5-82a0-f5d3ca2b06a7"/>
+                    <box>
+                        <pen lineWidth="0.25"/>
+                        <topPen lineWidth="0.25"/>
+                        <leftPen lineWidth="0.25"/>
+                        <bottomPen lineWidth="0.25"/>
+                        <rightPen lineWidth="0.25"/>
+                    </box>
+                    <textElement textAlignment="Center" verticalAlignment="Middle">
+                        <font size="10" isBold="true" isItalic="false"/>
+                    </textElement>
+                    <text><![CDATA[]]></text>
+                </staticText>
+                <textField evaluationTime="Group" evaluationGroup="loanStatus">
+                    <reportElement mode="Opaque" x="395" y="0" width="80" height="20" forecolor="#080808" backcolor="#E1E6F6"   uuid="14d02d8a-b089-48df-9256-f31fcaf5d516"/>
+                    <box>
+                        <pen lineWidth="0.25"/>
+                        <topPen lineWidth="0.25"/>
+                        <leftPen lineWidth="0.25"/>
+                        <bottomPen lineWidth="0.25"/>
+                        <rightPen lineWidth="0.25"/>
+                    </box>
+                    <textElement textAlignment="Right" verticalAlignment="Middle">
+                        <font size="10" isBold="true"/>
+                        <paragraph rightIndent="5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[tz.mil.ngome.lms.utils.Formatter.toCash($V{total_deductions})]]></textFieldExpression>
+                </textField>
+                <textField evaluationTime="Group" evaluationGroup="loanStatus">
+                    <reportElement mode="Opaque" x="475" y="0" width="80" height="20" forecolor="#080808" backcolor="#E1E6F6" uuid="14d02d8a-b089-48df-9256-f31fcaf5d316"/>
+                    <box>
+                        <pen lineWidth="0.25"/>
+                        <topPen lineWidth="0.25"/>
+                        <leftPen lineWidth="0.25"/>
+                        <bottomPen lineWidth="0.25"/>
+                        <rightPen lineWidth="0.25"/>
+                    </box>
+                    <textElement textAlignment="Right" verticalAlignment="Middle">
+                        <font size="10" isBold="true"/>
+                        <paragraph rightIndent="5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[tz.mil.ngome.lms.utils.Formatter.toCash($V{total_balance})]]></textFieldExpression>
+                </textField>
+            </band>
+        </groupFooter>
+    </group>
+    <title>
+        <band height="160" splitType="Stretch">
+            <image>
+                <reportElement x="252" y="0" width="51" height="70" uuid="c2bf5ecf-e809-496d-bb84-4a45a75e0714"/>
+                <imageExpression><![CDATA[$P{logo}]]></imageExpression>
+            </image>
+            <staticText>
+                <reportElement x="0" y="70" width="555" height="20" uuid="6d37ab7b-b9e7-4434-9ad6-c6fc1d2ee048"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="16" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Jeshi la Wananchi Tanzania]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="0" y="90" width="555" height="20" uuid="19716017-7a51-4219-a271-9930883750aa"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="16" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{unit}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="0" y="110" width="555" height="20" uuid="19716017-7a51-4219-a271-9930883750aa"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="16" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{fund}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="0" y="130" width="555" height="20" uuid="99079ab0-18d7-4f1e-9ae3-4a331bb23ab4"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="16" isBold="false"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{title}]]></textFieldExpression>
+            </textField>
+        </band>
+    </title>
+    <detail>
+        <band height="16" splitType="Stretch">
+            <textField>
+                <reportElement x="0" y="0" width="40" height="16" uuid="24d02d8a-b089-48df-9256-f31fcaf5d116"/>
+                <box>
+                    <pen lineWidth="0.25"/>
+                    <topPen lineWidth="0.25"/>
+                    <leftPen lineWidth="0.25"/>
+                    <bottomPen lineWidth="0.25"/>
+                    <rightPen lineWidth="0.25"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="10"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$V{total_count}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="40" y="0" width="60" height="16" uuid="24d02d8a-b089-48df-9256-f31fcaf5d116"/>
+                <box>
+                    <pen lineWidth="0.25"/>
+                    <topPen lineWidth="0.25"/>
+                    <leftPen lineWidth="0.25"/>
+                    <bottomPen lineWidth="0.25"/>
+                    <rightPen lineWidth="0.25"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="10"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{compNumber}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="100" y="0" width="295" height="16" uuid="6bcd1aad-92b8-4935-b408-a853442b92f1">
+                    <property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+                </reportElement>
+                <box>
+                    <pen lineWidth="0.25"/>
+                    <topPen lineWidth="0.25"/>
+                    <leftPen lineWidth="0.25"/>
+                    <bottomPen lineWidth="0.25"/>
+                    <rightPen lineWidth="0.25"/>
+                </box>
+                <textElement textAlignment="Left" verticalAlignment="Middle">
+                    <font size="10" isBold="false" isItalic="false"/>
+                    <paragraph leftIndent="5"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{serviceNumber}+" "+$F{rank}+" "+$F{name}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="395" y="0" width="80" height="16" uuid="66146cc5-572f-4cbb-9c70-1de099449e7b"/>
+                <box>
+                    <pen lineWidth="0.25"/>
+                    <topPen lineWidth="0.25"/>
+                    <leftPen lineWidth="0.25"/>
+                    <bottomPen lineWidth="0.25"/>
+                    <rightPen lineWidth="0.25"/>
+                </box>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font size="10"/>
+                    <paragraph rightIndent="5"/>
+                </textElement>
+                <textFieldExpression><![CDATA[tz.mil.ngome.lms.utils.Formatter.toCash($F{deductions})]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="475" y="0" width="80" height="16" uuid="66146cc5-572f-4cbb-9c70-1de099449e7b"/>
+                <box>
+                    <pen lineWidth="0.25"/>
+                    <topPen lineWidth="0.25"/>
+                    <leftPen lineWidth="0.25"/>
+                    <bottomPen lineWidth="0.25"/>
+                    <rightPen lineWidth="0.25"/>
+                </box>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font size="10"/>
+                    <paragraph rightIndent="5"/>
+                </textElement>
+                <textFieldExpression><![CDATA[tz.mil.ngome.lms.utils.Formatter.toCash($F{balance})]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+    <summary>
+        <band height="16" splitType="Stretch"/>
+    </summary>
+</jasperReport>

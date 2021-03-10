@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -112,9 +113,15 @@ public class LoanController {
 	private Response<List<MappedStringListDto>> disburseLoans(@RequestBody DisburseLoansDto loansDto) {
 		return this.loanService.disburseLoans(loansDto);
 	}
-	
-	@PostMapping(value = "collect-returns")
-	private Response<List<LoanReturnDto>> collectReturns(@ModelAttribute CollectReturnsDto collectReturnsDto) {
+	@PostMapping(value = "collect-returns-form")
+	private Response<List<LoanReturnDto>> collectReturnsForm(@ModelAttribute CollectReturnsDto collectReturnsDto) {
+		return this.loanService.collectLoansReturns(collectReturnsDto);
+	}
+
+	@PostMapping(value = "collect-returns", consumes = MediaType.APPLICATION_JSON_VALUE)
+	private Response<List<LoanReturnDto>> collectReturns(@RequestBody CollectReturnsDto collectReturnsDto) {
+		if(collectReturnsDto.getBytes().length>0)
+			collectReturnsDto.setFile(new MockMultipartFile("file",collectReturnsDto.getBytes()));
 		return this.loanService.collectLoansReturns(collectReturnsDto);
 	}
 	
@@ -150,6 +157,13 @@ public class LoanController {
 
 	@PostMapping(value = "register-loans")
 	private Response<List<String>> registerLoans(@ModelAttribute LoansDto loansDto) {
+		return this.loanService.registerLoans(loansDto);
+	}
+
+	@PostMapping(value = "register-loans-form", consumes = MediaType.APPLICATION_JSON_VALUE)
+	private Response<List<String>> registerFormLoans(@RequestBody LoansDto loansDto) {
+		if(loansDto.getBytes().length>0)
+			loansDto.setFile(new MockMultipartFile("file",loansDto.getBytes()));
 		return this.loanService.registerLoans(loansDto);
 	}
 

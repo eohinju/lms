@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import tz.mil.ngome.lms.entity.Loan;
 
 @Getter
 @Setter
@@ -18,5 +19,6 @@ public class DeductionReqestDto {
     private double balance;
     private double deductions;
     private boolean joined;
+    private Loan.LoanStatus status;
 
 }

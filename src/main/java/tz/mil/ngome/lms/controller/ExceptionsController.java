@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -79,6 +80,14 @@ public class ExceptionsController {
 	public ResponseEntity<Response<String>> failure(FailureException ex){
 		Response<String> response = new Response<String>();
 		response.setCode(ResponseCode.NOT_AUTHORIZED);
+		response.setMessage(ex.getMessage());
+		return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+	}
+
+	@ExceptionHandler(value = MissingServletRequestParameterException.class)
+	public ResponseEntity<Response<String>> missingParameter(MissingServletRequestParameterException ex){
+		Response<String> response = new Response<String>();
+		response.setCode(ResponseCode.INCOMPLETE_DATA);
 		response.setMessage(ex.getMessage());
 		return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
 	}

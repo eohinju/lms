@@ -18,4 +18,9 @@ public class LoanReturnController {
         return this.returnService.getReturnsReport(month);
     }
 
+    @GetMapping(value = "report/deductions")
+    private ResponseEntity<?> reportDeductions() {
+        return this.returnService.getUnpaidLoans();
+    }
+
 }
