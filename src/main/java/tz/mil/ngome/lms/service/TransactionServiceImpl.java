@@ -12,16 +12,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import tz.mil.ngome.lms.dto.ExpenseDto;
+import tz.mil.ngome.lms.dto.StatementDto;
 import tz.mil.ngome.lms.dto.TransactionDetailDto;
 import tz.mil.ngome.lms.dto.TransactionDto;
 import tz.mil.ngome.lms.entity.*;
 import tz.mil.ngome.lms.repository.AccountRepository;
 import tz.mil.ngome.lms.repository.TransactionDetailRepository;
 import tz.mil.ngome.lms.repository.TransactionRepository;
-import tz.mil.ngome.lms.utils.Configuration;
-import tz.mil.ngome.lms.utils.Report;
-import tz.mil.ngome.lms.utils.Response;
-import tz.mil.ngome.lms.utils.ResponseCode;
+import tz.mil.ngome.lms.utils.*;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -55,7 +53,7 @@ public class TransactionServiceImpl implements TransactionService {
 		txn.setDebit(loan.getBalance());
 		double i = interest(loan.getBalance(),loan.getInterest());
 		double a = loan.getBalance()-i;
-		txn.setDescription("Mkopo "+loan.getId()+" kwa "+accountRepo.findByCode(loan.getMember().getCompNumber()).get(0).getName()+" ikiwa TZS "+a+" ni mkopo na TZS "+i+" ni riba");
+		txn.setDescription("Mkopo kwa "+accountRepo.findByCode(loan.getMember().getCompNumber()).get(0).getName()+" ikiwa TZS "+ Formatter.toCash(a)+" ni mkopo na TZS "+Formatter.toCash(i)+" ni riba");
 		transactionRepo.save(txn);
 		TransactionDetail detail = new TransactionDetail(txn,payAccount,0,a);
 		detail.setCreatedBy(userService.me().getId());
@@ -76,7 +74,7 @@ public class TransactionServiceImpl implements TransactionService {
 		txn.setDate(date);
 		txn.setCredit(amount);
 		txn.setDebit(amount);
-		txn.setDescription("Rejesho la mkopo "+loan.getId()+" toka kwa "+accountRepo.findByCode(loan.getMember().getCompNumber()).get(0).getName());
+		txn.setDescription("Rejesho la mkopo toka kwa "+accountRepo.findByCode(loan.getMember().getCompNumber()).get(0).getName());
 		transactionRepo.save(txn);
 		TransactionDetail detail = new TransactionDetail(txn,account,amount,0);
 		detail.setCreatedBy(userService.me().getId());
@@ -94,7 +92,7 @@ public class TransactionServiceImpl implements TransactionService {
 		txn.setDate(date);
 		txn.setCredit(amount);
 		txn.setDebit(amount);
-		txn.setDescription("Being collection from "+accountRepo.findByCode(member.getCompNumber()).get(0).getName());
+		txn.setDescription("Fedha toka kwa "+accountRepo.findByCode(member.getCompNumber()).get(0).getName());
 		transactionRepo.save(txn);
 		TransactionDetail detail = new TransactionDetail(txn,account,amount,0);
 		detail.setCreatedBy(userService.me().getId());
@@ -136,6 +134,18 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 
 	@Override
+	public ResponseEntity<?> getMemberTransactionsReport(int compNumber) {
+		Configuration conf = new Configuration();
+		Map<String, Object> params = new HashMap<>();
+		params.put("logo", logo);
+		params.put("unit", conf.getUnit());
+		params.put("fund", conf.getUnit()+" Relief Fund");
+		params.put("title", "Taarifa ya Mwanachama");
+		List<StatementDto> statementDtos = transactionRepo.getMemberStatement(compNumber);
+		return Report.generate("statement", statementDtos , params);
+	}
+
+	@Override
 	public Response<List<TransactionDto>> getTransactions(LocalDate start, LocalDate end) {
 		List<TransactionDto> transactionDtos = transactionRepo.getAllBetweenDates(start,end);
 		return new Response<List<TransactionDto>>(ResponseCode.SUCCESS,"Success",transactionDtos);
@@ -174,7 +184,7 @@ public class TransactionServiceImpl implements TransactionService {
 
 	@Override
 	public double interest(double total, double percent){
-		return (percent*total)/(percent+total);
+		return total - Math.round((100*total)/(100+percent));
 	}
 
 

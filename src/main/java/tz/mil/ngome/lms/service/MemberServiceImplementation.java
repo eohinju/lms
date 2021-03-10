@@ -118,6 +118,7 @@ public class MemberServiceImplementation implements MemberService {
 			Member savedMember = memberRepo.save(member);
 			if (savedMember!=null) {
 				Account account = new Account();
+				account.setMember(savedMember);
 				account.setAccountType(accountTypeRepo.findByName("Asset").get(0));
 				account.setCode(savedMember.getCompNumber());
 				account.setName(savedMember.getServiceNumber()+" "+savedMember.getRank()+" "+savedMember.getFirstName()+" "+savedMember.getMiddleName()+" "+savedMember.getLastName());
@@ -199,8 +200,10 @@ public class MemberServiceImplementation implements MemberService {
 						}catch(Exception e) {
 							Logger.logInfo(e.getMessage());
 						}
-					}
-				}
+					}else
+						error.values.add("Invalid number of collumns for "+strings[0]);
+				}else
+					error.values.add("Employee row");
 	        }else
 	        	throw new InvalidDataException("No data found");
 	    }

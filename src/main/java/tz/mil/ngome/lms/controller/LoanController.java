@@ -147,12 +147,17 @@ public class LoanController {
 	private Response<LoanDto> registerTopUpLoan(@RequestBody TopUpDto topUpDto) {
 		return this.loanService.registerTopUpLoan(topUpDto);
 	}
-	
+
 	@PostMapping(value = "register-loans")
 	private Response<List<String>> registerLoans(@ModelAttribute LoansDto loansDto) {
 		return this.loanService.registerLoans(loansDto);
 	}
-	
+
+	@PostMapping(value = "join-loans", consumes = MediaType.APPLICATION_JSON_VALUE)
+	private Response<LoanDto> joinLoans(@RequestBody LoanJoinRequestDto joinDto) {
+		return this.loanService.joinLoans(joinDto);
+	}
+
 	@GetMapping(value = "report/loans")
 	private ResponseEntity<?> reportLoans( @RequestParam(name = "status", required = false) Loan.LoanStatus status,@RequestParam(name = "month", required = false) String month) {
 		if(status==null)

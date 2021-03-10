@@ -50,10 +50,10 @@ public class MemberController {
 		return this.memberService.updateProfile(profileDto);
 	}
 	
-//	@PostMapping(value = "import-members")
-//	private Response<List<MappedStringListDto>> importMembers(@ModelAttribute MembersImportDto membersDto) {
-//		return this.memberService.importMembers(membersDto);
-//	}
+	@PostMapping(value = "import-members-form")
+	private Response<List<MappedStringListDto>> importMembers(@ModelAttribute MembersImportDto membersDto) {
+		return this.memberService.importMembers(membersDto);
+	}
 
 	@PostMapping(value = "import-members",  consumes = MediaType.APPLICATION_JSON_VALUE)
 	private Response<List<MappedStringListDto>> importMembers(@RequestBody FileBytesDto fileBytesDto) {

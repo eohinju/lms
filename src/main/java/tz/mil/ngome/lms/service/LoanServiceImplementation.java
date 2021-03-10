@@ -23,24 +23,7 @@ import com.fasterxml.uuid.Logger;
 import com.google.gson.Gson;
 
 import au.com.bytecode.opencsv.CSVReader;
-import tz.mil.ngome.lms.dto.CollectReturnDto;
-import tz.mil.ngome.lms.dto.CollectReturnsDto;
-import tz.mil.ngome.lms.dto.CollectedReturnsResponseDto;
-import tz.mil.ngome.lms.dto.DeductionsDto;
-import tz.mil.ngome.lms.dto.DeductionsRequiredDto;
-import tz.mil.ngome.lms.dto.DisburseLoanDto;
-import tz.mil.ngome.lms.dto.DisburseLoansDto;
-import tz.mil.ngome.lms.dto.LoanDenyDto;
-import tz.mil.ngome.lms.dto.LoanDisburseDto;
-import tz.mil.ngome.lms.dto.LoanDto;
-import tz.mil.ngome.lms.dto.LoanReturnDto;
-import tz.mil.ngome.lms.dto.LoansDto;
-import tz.mil.ngome.lms.dto.MappedStringListDto;
-import tz.mil.ngome.lms.dto.MemberDto;
-import tz.mil.ngome.lms.dto.MemberPayDto;
-import tz.mil.ngome.lms.dto.TopUpDto;
-import tz.mil.ngome.lms.dto.TransactionDetailDto;
-import tz.mil.ngome.lms.dto.TransactionDto;
+import tz.mil.ngome.lms.dto.*;
 import tz.mil.ngome.lms.entity.Account;
 import tz.mil.ngome.lms.entity.Loan;
 import tz.mil.ngome.lms.entity.Loan.LoanStatus;
@@ -661,6 +644,54 @@ public class LoanServiceImplementation implements LoanService {
         DisburseLoansDto disburse = new DisburseLoansDto(LocalDate.parse(loansDto.getDate()),accountRepo.findById(loansDto.getAccount()).get(),loans);
         this.disburseLoans(disburse);
         return new Response<List<String>>(ResponseCode.SUCCESS,"Success",null);
+	}
+
+	@Transactional
+	@Override
+	public Response<LoanDto> joinLoans(LoanJoinRequestDto joinDto) {
+		if(joinDto.getMonthly()==0 && joinDto.getMonths()==0)
+			throw new InvalidDataException("Both monthly return and return months not set");
+		if(joinDto.getLoans().size()<2)
+			throw new InvalidDataException("Invalid number of loan provided");
+		Member member = null;
+		Loan loan = null;
+		Loan newLoan = null;
+		double total = 0;
+		for(String loanId:joinDto.getLoans()){
+			Optional<Loan> oLoan = loanRepo.findById(loanId);
+			if(oLoan.isPresent())
+				loan = oLoan.get();
+			if(member==null)
+				member = loan.getMember();
+			if(!loan.getMember().getId().contentEquals(member.getId()))
+				throw new InvalidDataException("Loans with different members provided");
+			if(loan.getStatus()!=LoanStatus.PAID && loan.getStatus()!=LoanStatus.RETURNING)
+				throw new InvalidDataException("Inappropriate loan provided");
+			if(newLoan==null){
+				newLoan = new Loan();
+				newLoan.setJoined(true);
+				newLoan.setStatus(LoanStatus.PAID);
+				newLoan.setEffectDate(joinDto.getDate());
+				newLoan.setMember(loan.getMember());
+				newLoan.setCreatedBy(userService.me().getId());
+				loanRepo.save(newLoan);
+			}
+			loan.setStatus(LoanStatus.COMPLETED);
+			loan.setBalance(0);
+			loan.setUpdatedAt(LocalDateTime.now());
+			loan.setUpdatedBy(userService.me().getId());
+			loan.setClearer(newLoan);
+			loanRepo.save(loan);
+			total+=loan.getBalance();
+		}
+		newLoan.setBalance(total);
+		if(joinDto.getMonthly()>0){
+			newLoan.setReturns(joinDto.getMonthly());
+		}else if(joinDto.getMonths()>0){
+			newLoan.setReturns(total/ joinDto.getMonths());
+		}
+		loanRepo.save(newLoan);
+		return new Response<LoanDto>(ResponseCode.SUCCESS,"Success",loanRepo.findLoanById(newLoan.getId()));
 	}
 
 	@Override

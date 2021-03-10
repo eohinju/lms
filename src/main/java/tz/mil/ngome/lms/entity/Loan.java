@@ -64,6 +64,9 @@ public class Loan extends BaseEntity {
 	private LoanStatus status = LoanStatus.REQUESTED;
 	
 	private String remark;
+
+	@Column(columnDefinition = "boolean default false")
+	private boolean joined = false;
 	
 	public enum LoanStatus{
 		REQUESTED, CANCELED, DENIED, APPROVED, AUTHORIZED, PAID, RETURNING, COMPLETED

@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import tz.mil.ngome.lms.dto.StatementDto;
 import tz.mil.ngome.lms.dto.TransactionDto;
 import tz.mil.ngome.lms.entity.Transaction;
 
@@ -29,6 +30,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
 			+ "txn.id, txn.date, txn.receipt, txn.description)"
 			+ "FROM Transaction AS txn WHERE txn.date>=:start and txn.date<=:end")
     List<TransactionDto> getAllBetweenDates(LocalDate start, LocalDate end);
+
+	@Query("SELECT new tz.mil.ngome.lms.dto.StatementDto("
+			+ "mbr.compNumber, mbr.serviceNumber, mbr.rank, mbr.firstName, mbr.middleName, mbr.lastName,"
+			+ "txn.date, txn.description, txnd.debit, txnd.credit)"
+			+ "FROM TransactionDetail txnd JOIN txnd.transaction txn JOIN txnd.account acc JOIN acc.member mbr where mbr.compNumber=:compNumber")
+	List<StatementDto> getMemberStatement(int compNumber);
 
 //	@Query("select new webapi.campaign.dto.StatsDTO(count(u.objective_type_id),u.objective_type_id,u.modified_at) "
 //	        + "from user_campaign_objective u where u.campaign_id = ?1 group by u.objective_type_id,u.modified_at")

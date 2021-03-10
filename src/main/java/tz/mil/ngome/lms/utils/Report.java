@@ -67,7 +67,7 @@ public class Report {
 		headers.setContentDisposition(contentDisposition);
 		return ResponseEntity //
 				.ok() //
-				.header("Content-Type", contentType + "; charset=UTF-8") //
+				.header("Content-Type", contentType + "; charset=UTF-8; filename=jina") //
 				.headers(headers) //
 				.body(bytes);
 	}

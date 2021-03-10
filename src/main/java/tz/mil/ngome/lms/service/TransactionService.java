@@ -23,6 +23,7 @@ public interface TransactionService {
 	Response<TransactionDto> journalMember(Member member, Account account, double amount, LocalDate date);
 	Response<TransactionDto> journalIncome(String member, Account account, double amount, LocalDate date);
 	ResponseEntity<?> getTransactionsReport();
+	ResponseEntity<?> getMemberTransactionsReport(int compNumber);
 	Response<List<TransactionDto>> getTransactions(LocalDate start, LocalDate end);
 
 	double interest(double total, double percent);

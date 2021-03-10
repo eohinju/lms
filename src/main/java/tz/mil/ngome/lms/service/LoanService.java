@@ -8,17 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import tz.mil.ngome.lms.dto.CollectReturnDto;
-import tz.mil.ngome.lms.dto.CollectReturnsDto;
-import tz.mil.ngome.lms.dto.CollectedReturnsResponseDto;
-import tz.mil.ngome.lms.dto.DisburseLoanDto;
-import tz.mil.ngome.lms.dto.DisburseLoansDto;
-import tz.mil.ngome.lms.dto.LoanDenyDto;
-import tz.mil.ngome.lms.dto.LoanDto;
-import tz.mil.ngome.lms.dto.LoanReturnDto;
-import tz.mil.ngome.lms.dto.LoansDto;
-import tz.mil.ngome.lms.dto.MappedStringListDto;
-import tz.mil.ngome.lms.dto.TopUpDto;
+import tz.mil.ngome.lms.dto.*;
 import tz.mil.ngome.lms.entity.Loan;
 import tz.mil.ngome.lms.utils.Response;
 
@@ -46,7 +36,8 @@ public interface LoanService {
 	Response<List<LoanDto>> getDisbursedLoans();	
 	Response<List<LoanReturnDto>> collectLoansReturns(CollectReturnsDto returnDto);
 	Response<LoanDto> collectLoanReturn(CollectReturnDto returnDto);
-	Response<List<String>> registerLoans(LoansDto loansDto); 
+	Response<List<String>> registerLoans(LoansDto loansDto);
+	Response<LoanDto> joinLoans(LoanJoinRequestDto loanJoinRequestDto);
 	
 	ResponseEntity<?> getLoansReport(Loan.LoanStatus status);
 	ResponseEntity<?> getLoansReport(Loan.LoanStatus status, String month);

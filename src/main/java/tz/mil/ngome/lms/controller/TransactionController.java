@@ -2,10 +2,7 @@ package tz.mil.ngome.lms.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import tz.mil.ngome.lms.dto.TransactionDto;
 import tz.mil.ngome.lms.service.TransactionService;
 import tz.mil.ngome.lms.utils.Response;
@@ -24,6 +21,11 @@ public class TransactionController {
     @GetMapping(value = "report/transactions")
     private ResponseEntity<?> reportLoans() {
         return this.transactionService.getTransactionsReport();
+    }
+
+    @GetMapping(value = "report/member-statement/{compNumber}")
+    private ResponseEntity<?> reportMember(@PathVariable(name = "compNumber", required = true) Integer compNumber) {
+        return this.transactionService.getMemberTransactionsReport(compNumber);
     }
 
     @GetMapping(value = "get-transactions")

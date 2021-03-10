@@ -33,5 +33,9 @@ public class Account extends BaseEntity {
 	@ManyToOne
 	@JoinColumn(name = "account_type", referencedColumnName = "id", nullable = false)
 	private AccountType accountType;
+
+	@ManyToOne
+	@JoinColumn(nullable = true,referencedColumnName = "id")
+	private Member member;
 	
 }
