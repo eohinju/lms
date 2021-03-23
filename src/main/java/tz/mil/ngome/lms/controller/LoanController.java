@@ -113,12 +113,12 @@ public class LoanController {
 	private Response<List<MappedStringListDto>> disburseLoans(@RequestBody DisburseLoansDto loansDto) {
 		return this.loanService.disburseLoans(loansDto);
 	}
-	@PostMapping(value = "collect-returns-form")
+	@PostMapping(value = "collect-returns-form", consumes = MediaType.APPLICATION_JSON_VALUE)
 	private Response<List<LoanReturnDto>> collectReturnsForm(@ModelAttribute CollectReturnsDto collectReturnsDto) {
 		return this.loanService.collectLoansReturns(collectReturnsDto);
 	}
 
-	@PostMapping(value = "collect-returns", consumes = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = "collect-returns")
 	private Response<List<LoanReturnDto>> collectReturns(@RequestBody CollectReturnsDto collectReturnsDto) {
 		if(collectReturnsDto.getBytes().length>0)
 			collectReturnsDto.setFile(new MockMultipartFile("file",collectReturnsDto.getBytes()));
