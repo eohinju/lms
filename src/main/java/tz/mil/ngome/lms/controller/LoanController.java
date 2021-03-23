@@ -119,9 +119,8 @@ public class LoanController {
 	}
 
 	@PostMapping(value = "collect-returns", consumes = MediaType.APPLICATION_JSON_VALUE)
-	private Response<List<LoanReturnDto>> collectReturns(@RequestBody CollectReturnsDto collectReturnsDto) {
-		if(collectReturnsDto.getBytes().length>0)
-			collectReturnsDto.setFile(new MockMultipartFile("file",collectReturnsDto.getBytes()));
+	private Response<List<LoanReturnDto>> collectReturns(@RequestBody CollectReturnsJsonDto collectReturnsJsonDto) {
+		CollectReturnsDto collectReturnsDto = new CollectReturnsDto(collectReturnsJsonDto.getDate(),collectReturnsJsonDto.getAccount(),new MockMultipartFile("file",collectReturnsJsonDto.getFile()));
 		return this.loanService.collectLoansReturns(collectReturnsDto);
 	}
 	
