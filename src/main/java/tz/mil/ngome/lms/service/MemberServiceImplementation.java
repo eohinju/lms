@@ -202,8 +202,8 @@ public class MemberServiceImplementation implements MemberService {
 						}
 					}else
 						error.values.add("Invalid number of collumns for "+strings[0]);
-				}else
-					error.values.add("Employee row");
+				}//else
+//					error.values.add("Employee row");
 	        }else
 	        	throw new InvalidDataException("No data found");
 	    }

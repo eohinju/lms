@@ -28,7 +28,7 @@ public class LoanReturn extends BaseEntity {
 	@JoinColumn(name = "member",nullable = true,referencedColumnName = "id")
 	private Member member;
 	
-	@Column(columnDefinition = "double default 0", nullable = false)
+	@Column(columnDefinition = "double precision default 0", nullable = false)
 	private double amount;
 	
 	@Column(columnDefinition = "int default 0", nullable = false)

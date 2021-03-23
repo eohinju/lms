@@ -88645,7 +88645,7 @@ if(i!=null)j=U.vX(i,"ngome-lms")
 p=4
 i=t.X
 s=7
-return P.X(G.bhW(C.d.C("https://ngome-lms.herokuapp.com/api/",b),P.D(["Content-Type","application/json","Accept","application/json","Authorization","Bearer "+H.c(j)],i,i)),$async$fd)
+return P.X(G.bhW(C.d.C("/api/",b),P.D(["Content-Type","application/json","Accept","application/json","Authorization","Bearer "+H.c(j)],i,i)),$async$fd)
 case 7:m=d
 q=m
 s=1
@@ -88675,7 +88675,7 @@ if(i!=null)j=U.vX(i,"ngome-lms")
 p=4
 i=t.X
 s=7
-return P.X(G.bj2("https://ngome-lms.herokuapp.com/api/"+c,C.T.WL(b,null),P.D(["Content-Type","application/json","Accept","application/json","Authorization","Bearer "+H.c(j)],i,i)),$async$fT)
+return P.X(G.bj2("/api/"+c,C.T.WL(b,null),P.D(["Content-Type","application/json","Accept","application/json","Authorization","Bearer "+H.c(j)],i,i)),$async$fT)
 case 7:m=e
 i=m
 k=C.T.cX(0,B.ib(U.i6(i.e).c.a.h(0,"charset")).cM(0,i.x),null)
