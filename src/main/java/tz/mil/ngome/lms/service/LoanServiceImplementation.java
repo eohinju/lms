@@ -11,6 +11,8 @@ import java.util.*;
 
 import javax.transaction.Transactional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.uuid.Logger;
 import com.google.gson.Gson;
 
 import au.com.bytecode.opencsv.CSVReader;
@@ -50,6 +51,8 @@ import tz.mil.ngome.lms.utils.ResponseCode;
 
 @Service
 public class LoanServiceImplementation implements LoanService {
+	
+	private static final Logger logger = LoggerFactory.getLogger(LoanService.class);
 	
 	@Autowired
 	LoanTypeRepository loanTypeRepo;
@@ -86,6 +89,7 @@ public class LoanServiceImplementation implements LoanService {
 	
 	@Override
 	public Response<LoanDto> requestLoan(LoanDto loanDto) {
+		logger.info("Request loan");
 		Member me = userService.me().getMember();
 		MemberDto member = new MemberDto();
 		member.setId(me.getId());
@@ -97,6 +101,7 @@ public class LoanServiceImplementation implements LoanService {
 
 	@Override
 	public Response<LoanDto> registerLoan(LoanDto loanDto) {
+		logger.info("Register loan");
 		Response<LoanDto> response = new Response<LoanDto>();
 		
 		if(loanDto.getLoanType()==null)
@@ -150,6 +155,7 @@ public class LoanServiceImplementation implements LoanService {
 
 	@Override
 	public Response<LoanDto> approveLoan(LoanDto loanDto) {
+		logger.info("Approve loan");
 		Response<LoanDto> response = new Response<LoanDto>();
 		if(loanDto.getId()==null || loanDto.getId().isEmpty())
 			throw new InvalidDataException("Invalid Loan");
@@ -170,6 +176,7 @@ public class LoanServiceImplementation implements LoanService {
 
 	@Override
 	public Response<LoanDto> authorizeLoan(LoanDto loanDto) {
+		logger.info("Authorize loan");
 		Response<LoanDto> response = new Response<LoanDto>();
 		if(loanDto.getId()==null || loanDto.getId().isEmpty())
 			throw new InvalidDataException("Invalid Loan");
@@ -190,6 +197,7 @@ public class LoanServiceImplementation implements LoanService {
 
 	@Override
 	public Response<LoanDto> disburseLoan(DisburseLoanDto loanDto) {
+		logger.info("Disburse loan");
 		if(loanDto.getLoan()==null || loanDto.getLoan().getId()==null || loanDto.getLoan().getId().isEmpty() || !loanRepo.findById(loanDto.getLoan().getId()).isPresent())
 			throw new InvalidDataException("Valid loan required");
 		
@@ -220,6 +228,7 @@ public class LoanServiceImplementation implements LoanService {
 	
 	@Override
 	public Response<List<MappedStringListDto>> disburseLoans(DisburseLoansDto loansDto) {
+		logger.info("Disburse loans");
 		if(loansDto.getAccount()==null || loansDto.getAccount().getId()==null || loansDto.getAccount().getId().isEmpty())
 			throw new InvalidDataException("Account is required");
 		
@@ -264,6 +273,7 @@ public class LoanServiceImplementation implements LoanService {
 	
 	@Override
 	public Response<Page<LoanDto>> getLoans(Pageable pageable) {
+		logger.info("Get loans");
 		if(userService.me().getRole()==Role.ROLE_LEADER)
 			return new Response<Page<LoanDto>>(ResponseCode.SUCCESS,"Success",loanRepo.getSubUnitLoansByStatus(userService.me().getMember().getSubUnit(),LoanStatus.REQUESTED,pageable));
 		return new Response<Page<LoanDto>>(ResponseCode.SUCCESS,"Success",loanRepo.getLoans(pageable));
@@ -271,6 +281,7 @@ public class LoanServiceImplementation implements LoanService {
 	
 	@Override
 	public Response<Page<LoanDto>> getLoans(int comp, Pageable pageable) {
+		logger.info("Get loans");
 		return new Response<Page<LoanDto>>(ResponseCode.SUCCESS,"Success",loanRepo.getLoansByMember(comp,pageable));
 	}
 	
@@ -281,30 +292,36 @@ public class LoanServiceImplementation implements LoanService {
 
 	@Override
 	public Response<List<LoanDto>> getRequestedLoans(String subUnit) {
+		logger.info("Get requested loans");
 		return new Response<List<LoanDto>>(ResponseCode.SUCCESS,"Success",loanRepo.getLoansBySubUnitAndStatus(subUnit, LoanStatus.REQUESTED));
 	}
 
 	@Override
 	public Response<List<LoanDto>> getApprovedLoans() {
+		logger.info("Get approved loans");
 		return new Response<List<LoanDto>>(ResponseCode.SUCCESS,"Success",loanRepo.getLoansByStatus(LoanStatus.APPROVED));
 	}
 
 	@Override
 	public Response<List<LoanDto>> getAuthorizedLoans() {
+		logger.info("Get authorized loans");
 		return new Response<List<LoanDto>>(ResponseCode.SUCCESS,"Success",loanRepo.getLoansByStatus(LoanStatus.AUTHORIZED));
 	}
 
 	@Override
 	public Response<List<LoanDto>> getDisbursedLoans() {
+		logger.info("Get disbursed loan");
 		return new Response<List<LoanDto>>(ResponseCode.SUCCESS,"Success",loanRepo.getLoansByStatus(LoanStatus.PAID));
 	}
 	
 	@Override
 	public Response<List<LoanDto>> getIncompleteDisbursedLoans() {
+		logger.info("Get incomplete disbursed loan");
 		return new Response<List<LoanDto>>(ResponseCode.SUCCESS,"Success",loanRepo.getLoansByStatus(LoanStatus.PAID));
 	}
 	
 	private List<DeductionsDto> getDeductions(MultipartFile file){
+		logger.info("Get deductions");
 		List<DeductionsDto> list = new ArrayList<DeductionsDto>();
 		InputStream inputStream = null;
 		try {
@@ -352,6 +369,7 @@ public class LoanServiceImplementation implements LoanService {
 	@Transactional(rollbackOn = Exception.class)
 	@Override
 	public Response<List<LoanReturnDto>> collectLoansReturns(CollectReturnsDto returnDto) {
+		logger.info("Collect loan returns");
 		if(returnDto.getFile()==null || returnDto.getFile().isEmpty())
 			throw new InvalidDataException("File is required");		
 		if(returnDto.getAccount()==null || returnDto.getAccount().isEmpty() || !accountRepo.findById(returnDto.getAccount()).isPresent())
@@ -362,21 +380,21 @@ public class LoanServiceImplementation implements LoanService {
 		Account account = accountRepo.findById(returnDto.getAccount()).get();
 		List<DeductionsDto> deductions = getDeductions(returnDto.getFile());
 		List<Integer> cnDeducted = new ArrayList<Integer>();
-		Logger.logInfo("Starting");
+//		Logger.logInfo("Starting");
 		for(DeductionsDto deduction:deductions) {
 			if(memberRepo.findByCompNumber(deduction.getCompNumber()).isPresent()) {
 				cnDeducted.add(deduction.getCompNumber());
 				List<DeductionsRequiredDto> required = loanRepo.getDeductionsByComputerNumber(deduction.getCompNumber());
-				Logger.logInfo("Member found "+memberRepo.findByCompNumber(deduction.getCompNumber()).get().getName()+" with "+required.size()+" loans to pay");
-				Logger.logInfo("from LMS: "+required.toString());
-				Logger.logInfo("from CC: "+deduction.getAmounts().toString());
+				logger.info("Member found "+memberRepo.findByCompNumber(deduction.getCompNumber()).get().getName()+" with "+required.size()+" loans to pay");
+				logger.info("from LMS: "+required.toString());
+				logger.info("from CC: "+deduction.getAmounts().toString());
 				List<DeductionsRequiredDto> nonPaid = new ArrayList<>();
 				List<Double> overPaid = new ArrayList<>();
 				for(double amount:deduction.getAmounts()) {
 					boolean found = false;
 					for(DeductionsRequiredDto deni:required) {
 						if(amount>0 && deni.getAmount()>0 && (Math.abs(deni.getAmount()-amount)<5 || deni.getBalance()==amount) && !found && !deni.isChecked()) {
-							Logger.logInfo("Loan paid: "+amount);
+							logger.info("Loan paid: "+amount);
 							found=true;
 							deni.setChecked(true);
 							returnService.saveValidReturn(loanRepo.findById(deni.getLoan()).get(), account, amount, date);		// a correct return
@@ -434,6 +452,7 @@ public class LoanServiceImplementation implements LoanService {
 
 	@Override
 	public Response<LoanDto> collectLoanReturn(CollectReturnDto returnDto) {
+		logger.info("Collect loan return");
 		if(returnDto.getLoan()==null || returnDto.getLoan().getId()==null || returnDto.getLoan().getId().isEmpty() || !loanRepo.findById(returnDto.getLoan().getId()).isPresent())
 			throw new InvalidDataException("Invalid loan");
 		if(returnDto.getAccount()==null || returnDto.getAccount().getId()==null || returnDto.getAccount().getId().isEmpty() || !accountRepo.findById(returnDto.getAccount().getId()).isPresent())
@@ -453,6 +472,7 @@ public class LoanServiceImplementation implements LoanService {
 
 	@Override
 	public Response<String> cancelLoan(LoanDto loanDto) {
+		logger.info("Cancel loan");
 		if(loanDto==null || loanDto.getId()==null || loanDto.getId().isEmpty() || !loanRepo.findById(loanDto.getId()).isPresent())
 			throw new InvalidDataException("Valid loan required");
 		Loan loan = loanRepo.findById(loanDto.getId()).get();
@@ -481,6 +501,7 @@ public class LoanServiceImplementation implements LoanService {
 
 	@Override
 	public Response<LoanDto> denyLoan(LoanDenyDto loanDto) {
+		logger.info("Deny loan");
 		if(loanDto==null || loanDto.getId()==null || loanDto.getId().isEmpty() || !loanRepo.findById(loanDto.getId()).isPresent())
 			throw new InvalidDataException("Valid loan required");
 		
@@ -505,6 +526,7 @@ public class LoanServiceImplementation implements LoanService {
 
 	@Override
 	public Response<LoanDto> updateLoan(LoanDto loanDto) {
+		logger.info("Update loan");
 		if(loanDto==null || loanDto.getId()==null || loanDto.getId().isEmpty() || !loanRepo.findById(loanDto.getId()).isPresent())
 			throw new InvalidDataException("Valid loan required");
 		
@@ -533,6 +555,7 @@ public class LoanServiceImplementation implements LoanService {
 
 	@Override
 	public Response<LoanDto> requestTopUpLoan(TopUpDto topUpDto) {
+		logger.info("Request top up loan");
 		Member me = userService.me().getMember();
 		MemberDto member = new MemberDto();
 		member.setId(me.getId());
@@ -544,6 +567,7 @@ public class LoanServiceImplementation implements LoanService {
 
 	@Override
 	public Response<LoanDto> registerTopUpLoan(TopUpDto topUpDto) {
+		logger.info("Register top up loan");
 		if(topUpDto.getLoans()==null || topUpDto.getLoans().length==0)
 			throw new InvalidDataException("Loan(s) to be toped up must be provided");
 		
@@ -585,6 +609,7 @@ public class LoanServiceImplementation implements LoanService {
 	@Transactional(rollbackOn = Exception.class)
 	@Override
 	public Response<List<String>> registerLoans(LoansDto loansDto) {
+		logger.info("Register loans");
 		String nonmember = "";
 		
 		if(loansDto.getFile()==null || loansDto.getFile().isEmpty())
@@ -649,6 +674,7 @@ public class LoanServiceImplementation implements LoanService {
 	@Transactional
 	@Override
 	public Response<LoanDto> joinLoans(LoanJoinRequestDto joinDto) {
+		logger.info("Join loans");
 		if(joinDto.getMonthly()==0 && joinDto.getMonths()==0)
 			throw new InvalidDataException("Both monthly return and return months not set");
 		if(joinDto.getLoans().size()<2)
@@ -696,6 +722,7 @@ public class LoanServiceImplementation implements LoanService {
 
 	@Override
 	public ResponseEntity<?> getLoansReport(LoanStatus status) {
+		logger.info("Get loans report");
 		Configuration conf = new Configuration();
 		Map<String, Object> params = new HashMap<>();
 		params.put("logo", Report.logo);
@@ -715,12 +742,15 @@ public class LoanServiceImplementation implements LoanService {
 		}
 		params.put("title", "Mikopo "+act);
 		List<LoanDisburseDto> loans = loanRepo.reportLoansStatus(status);
-		Logger.logInfo("Loans processed "+String.valueOf(loans.size()));
+		logger.info("Loans processed "+String.valueOf(loans.size()));
+		if(loans.size()==0)
+			loans.add(new LoanDisburseDto("", 0));
 		return Report.generate("loans", loans , params);
 	}
 
 	@Override
 	public ResponseEntity<?> getLoansReport(LoanStatus status, String month) {
+		logger.info("Get loan report");
 		Configuration conf = new Configuration();
 		Map<String, Object> params = new HashMap<>();
 		params.put("logo", Report.logo);
@@ -745,7 +775,9 @@ public class LoanServiceImplementation implements LoanService {
 		params.put("title", "Mikopo "+act+" mwezi "+mwezi);
 
 		List<LoanDisburseDto> loans = loanRepo.reportLoansStatusOnBetweenDates(status,start,end);
-		Logger.logInfo("Loans processed "+String.valueOf(loans.size()));
+		logger.info("Loans processed "+String.valueOf(loans.size()));
+		if(loans.size()==0)
+			loans.add(new LoanDisburseDto("", 0));
 		return Report.generate("loans", loans , params);
 	}
 

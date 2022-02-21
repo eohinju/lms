@@ -6,7 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.uuid.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,8 @@ import tz.mil.ngome.lms.utils.Report;
 
 @Service
 public class ReturnServiceImpl implements ReturnService {
+	
+	private static final Logger logger = LoggerFactory.getLogger(ReturnService.class);
 
 	@Autowired
 	UserService userService;
@@ -45,6 +48,7 @@ public class ReturnServiceImpl implements ReturnService {
 	
 	@Override
 	public void saveValidReturn(Loan loan, Account account, double amount, LocalDate date) {
+		logger.info("Save valid return");
 		LoanReturn loanReturn = new LoanReturn();
 		loanReturn.setName(loan.getMember().getName());
 		loanReturn.setAmount(amount);
@@ -68,6 +72,7 @@ public class ReturnServiceImpl implements ReturnService {
 
 	@Override
 	public void saveOverReturn(Member member, Account account, double amount, LocalDate date) {
+		logger.info("Save over return");
 		LoanReturn loanReturn = new LoanReturn();
 		loanReturn.setName(member.getName());
 		loanReturn.setAmount(amount);
@@ -83,6 +88,7 @@ public class ReturnServiceImpl implements ReturnService {
 
 	@Override
 	public void saveUnderReturn(Loan loan, Account account, double amount, LocalDate date) {
+		logger.info("Save under return");
 		LoanReturn loanReturn = new LoanReturn();
 		loanReturn.setName(loan.getMember().getName());
 		loanReturn.setLoan(loan);
@@ -98,6 +104,7 @@ public class ReturnServiceImpl implements ReturnService {
 
 	@Override
 	public void saveInValidReturn(String rank, String name, Account account, double amount, LocalDate date) {
+		logger.info("Save invalid return");
 		Configuration conf = new Configuration();
 		LoanReturn loanReturn = new LoanReturn();
 		loanReturn.setSnr(conf.getRanks().indexOf(rank));
@@ -114,6 +121,7 @@ public class ReturnServiceImpl implements ReturnService {
 
 	@Override
 	public ResponseEntity<?> getReturnsReport(String month) {
+		logger.info("Get returns report");
 		Configuration conf = new Configuration();
 		Map<String, Object> params = new HashMap<>();
 		params.put("logo", Report.logo);
@@ -124,11 +132,14 @@ public class ReturnServiceImpl implements ReturnService {
 		params.put("title", "Marejesho ya mwezi "+mwezi);
 
 		List<ReturnReportDataDto> returns = loanReturnRepo.reportReturnsByMonth(month);
+		if(returns.size()==0)
+			returns.add(new ReturnReportDataDto(null, "", 0));
 		return Report.generate("returns", returns , params);
 	}
 
 	@Override
 	public ResponseEntity<?> getUnpaidLoans() {
+		logger.info("Get unpaid loans");
 		Configuration conf = new Configuration();
 		Map<String, Object> params = new HashMap<>();
 		params.put("logo", Report.logo);
@@ -137,6 +148,8 @@ public class ReturnServiceImpl implements ReturnService {
 		params.put("title", "Makato mapya ya wakopaji");
 
 		List<DeductionReqestDto> deductions = loanReturnRepo.findUnpaidLoans(LoanStatus.PAID);
+		if(deductions.size()==0)
+			deductions.add(new DeductionReqestDto(0,"","","",0D,0D,false,null));
 		return Report.generate("deductions", deductions , params);
 	}
 

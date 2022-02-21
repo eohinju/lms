@@ -8,4 +8,9 @@ public class Formatter {
         String result = new DecimalFormat("#,###.00").format(money);
         return result.contentEquals(".00")?"0.00":result;
     }
+    
+    public final static String toCash(Integer money){
+        String result = new DecimalFormat("#,###.00").format(money);
+        return result.contentEquals(".00")?"0.00":result;
+    }
 }

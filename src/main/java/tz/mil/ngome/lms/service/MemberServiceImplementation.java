@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -19,8 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.uuid.Logger;
 
 import au.com.bytecode.opencsv.CSVReader;
 import tz.mil.ngome.lms.dto.MappedStringListDto;
@@ -45,6 +45,8 @@ import tz.mil.ngome.lms.utils.ResponseCode;
 
 @Service
 public class MemberServiceImplementation implements MemberService {
+	
+	private static final Logger logger = LoggerFactory.getLogger(MemberService.class);
 
 	@Autowired
 	UserService userService;
@@ -69,6 +71,7 @@ public class MemberServiceImplementation implements MemberService {
 	@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_CLERK')")
 	@Override
 	public Response<MemberDto> registerMember(MemberDto memberDto) {
+		logger.info("Registering member");
 		Response<MemberDto> response = new Response<MemberDto>();
 		response.setCode(ResponseCode.SUCCESS);
 		response.setData(saveMember(memberDto));
@@ -76,6 +79,7 @@ public class MemberServiceImplementation implements MemberService {
 	}
 	
 	public MemberDto saveMember(MemberDto memberDto) {
+		logger.info("Saving member");
 		Member member = new Member();
 		
 		if(memberDto.getCompNumber()==0)
@@ -146,6 +150,7 @@ public class MemberServiceImplementation implements MemberService {
 
 	@Override
 	public Response<Page<MemberDto>> getMembers(Pageable pageable) {
+		logger.info("Getting members");
 		if(userService.me().getRole()==Role.ROLE_LEADER)
 			return new Response<Page<MemberDto>> (ResponseCode.SUCCESS,"Success",memberRepo.getSubUnitMembers(userService.me().getMember().getSubUnit(),pageable));
 		return new Response<Page<MemberDto>> (ResponseCode.SUCCESS,"Success",memberRepo.getMembers(pageable));
@@ -160,7 +165,7 @@ public class MemberServiceImplementation implements MemberService {
 
 	@Override
 	public Response<List<MappedStringListDto>> importMembers(MembersImportDto membersDto) {
-		
+		logger.info("Importing members");
 		if(membersDto==null || membersDto.getFile()==null || membersDto.getFile().isEmpty())
 			throw new InvalidDataException("No file provided");
 		
@@ -198,7 +203,7 @@ public class MemberServiceImplementation implements MemberService {
 						}catch(DuplicateDataException e) {
 							duplicates.values.add(e.getMessage());
 						}catch(Exception e) {
-							Logger.logInfo(e.getMessage());
+							logger.info(e.getMessage());
 						}
 					}else
 						error.values.add("Invalid number of collumns for "+strings[0]);
@@ -217,6 +222,7 @@ public class MemberServiceImplementation implements MemberService {
 
 	@Override
 	public Response<MemberDto> updateMember(MemberDto memberDto) {
+		logger.info("Updating members");
 		if(memberDto==null || memberDto.getId()==null || memberDto.getId().isEmpty() || !memberRepo.findById(memberDto.getId()).isPresent())
 			throw new InvalidDataException("Invalid member");
 		
@@ -268,6 +274,7 @@ public class MemberServiceImplementation implements MemberService {
 
 	@Override
 	public Response<List<MemberDto>> findMember(String data) {
+		logger.info("Finding member");
 		String[] parts = data.trim().split(" ");
 		Set<MemberDto> members = new HashSet<MemberDto>();
 		for(String part:parts) {
@@ -283,6 +290,7 @@ public class MemberServiceImplementation implements MemberService {
 
 	@Override
 	public Response<UserDto> updateProfile(ProfileDto profileDto) {
+		logger.info("Updating profile");
 		User user = userService.me();
 		
 		Member member = user.getMember();
@@ -319,6 +327,7 @@ public class MemberServiceImplementation implements MemberService {
 
 	@Override
 	public void seniority() {
+		logger.info("Setting seniority");
 		Configuration conf = new Configuration();
 		List<Member> members = memberRepo.findAll();
 //		Logger.logInfo(conf.getRanks().toString());
