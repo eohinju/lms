@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11 as lms-base-env
+FROM openjdk:8u121-jre-alpine as lms-base-env
 VOLUME /tmp
 
 FROM lms-base-env as lms-timezone-env
