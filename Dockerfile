@@ -8,7 +8,7 @@ ENV TZ=Africa/Dar_es_Salaam
 FROM lms-timezone-env as lms-reports-library-env
 RUN apk update && apk upgrade \
    && apk add --no-cache fontconfig libfreetype6 ttf-dejavu 
-RUN apk --update add libxext libxtst libxrender libfreetype6
+RUN apk --update add libxext libxtst libxrender
 
 FROM lms-reports-library-env as lms-target-files-env
 ARG JAR_FILE=target/*.jar
