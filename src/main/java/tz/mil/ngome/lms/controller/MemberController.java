@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.mock.web.MockMultipartFile;
 
-import org.springframework.web.multipart.MultipartFile;
 import tz.mil.ngome.lms.dto.*;
 import tz.mil.ngome.lms.service.MemberService;
 import tz.mil.ngome.lms.utils.Configuration;
